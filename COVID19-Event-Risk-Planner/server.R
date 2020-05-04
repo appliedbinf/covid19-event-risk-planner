@@ -16,10 +16,10 @@ library(matlab)
 
 pcrit = function(x){0.01/x}
 USpop=330*10^6;
-n=logspace(1,5,100);
+n=logspace(1,6,100);
 pcrit_val=pcrit(n);
 numcrit=pcrit_val*USpop;
-sizevec= c(10, 100, 1000, 10000, 100000)
+sizevec= c(10, 100, 1000, 10000, 100000, 10**7)
 risk_vals = c(0.01, 0.02,  0.1, 0.5, 0.9)
 pcrit_risk_list = list()
 for (i in 1:length(risk_vals)){
@@ -57,11 +57,11 @@ calc_risk = function(I,n){
 
 
 
-ylimits = c(10**4, 3*10**7)
+
 xblock = c(10, 100, 1000, 10**4, 10**5)
-yblock = c(10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
+yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
 names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game" )
-names(yblock) <- c("100,000", "400,000", "1 million", "2 million", "8 million")
+names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
 
 l.rise =  pcrit.df$yend - pcrit.df$ystart
 l.run =  pcrit.df$xend
@@ -76,24 +76,14 @@ shinyServer(function(input, output, session) {
     observeEvent(input$calc, {
         req(input$event_size)
         req(input$infect)
-        # validate(need(is.numeric(event_size), "Event size must be a number"),
-        #          need(event_size > 0, "Event size must be >0"),
-        #          need(event_size <= 100000, "Event size must be <= 100,000"),
-        #          need(is.numeric(infect), "Number of active cases must be a number"),
-        #          need(infect > 0, "Number of active cases must be >0"),
-        #          need(infect < 8*10**6, "Number of active cases must be <8,000,000")
-        #
         event_size = isolate(input$event_size)
-        # validate(need(is.numeric(event_size), "Event size must be a number"),
-        #          need(event_size > 0, "Event size must be >0"),
-        #          need(event_size <= 100000, "Event size must be <= 100,000"),
-        #          need(is.numeric(infect), "Number of active cases must be a number"),
-        #          need(infect > 0, "Number of active cases must be >0"),
-        #          need(infect < 8*10**6, "Number of active cases must be <8,000,000")
-        #
-        values$event_size = as.numeric(gsub("[ ,_]", "", event_size))
+        event_size = as.numeric(gsub("[ ,_]", "", event_size))
+        
+        values$event_size = event_size
         infect = isolate(input$infect)
-        values$infect = as.numeric(gsub("[ ,_]", "", infect))
+        infect = as.numeric(gsub("[ ,_]", "", infect))
+       
+        values$infect = infect
 
     })
     # 
@@ -103,23 +93,44 @@ shinyServer(function(input, output, session) {
     output$plot <- renderPlot({
         infect <- values$infect
         event_size <- values$event_size
+        validate(need(is.numeric(event_size), "Event size must be a number"),
+                 need(event_size > 0, "Event size must be >0"),
+                 need(event_size <= 100000, "Event size must be <= 100,000")
+        )
+        validate(need(is.numeric(infect), "Number of active cases must be a number"),
+                 need(infect > 10, "Number of active cases must be >10,000"),
+                 need(infect < 8*10**6, "Number of active cases must be <8,000,000")
+        )
         risk <- calc_risk(infect, event_size)
+        ylimits <- c(10**4, 3*10**7)
+        angle = -45
+        if (infect < 10**4){
+            ylimits <- c(10, 3*10**6)
+            angle <- -28
+        } 
+        
+        cat(infect, "-", ylimits,"\n")
         ggplot() + geom_point(data = risk.df, aes(x=svec, y=nvec)) + 
-        geom_text(data = pcrit_lab.df, aes(x=c(9, 20, 200, 2000, 7000), y = 80000, label=paste(risk * 100, "% chance")), angle=-45, size=6) + 
+        geom_text(data = pcrit_lab.df, aes(x=c(9, 20, 200, 2000, 7000), y = 80000, label=paste(risk * 100, "% chance")), angle=angle, size=6) + 
         geom_hline(yintercept = risk.df$nvec, linetype=2) + 
         geom_segment(data=pcrit.df, aes(x=xstart, y=ystart, xend=xend, yend=yend)) +
         geom_label(data = risk.df, aes(x=svec, y=nvec, label = paste(ifelse(risk > 99,">99", round(risk, 1)))), nudge_y = .1, size=5, fill="white", alpha=.75) + 
-        geom_vline(xintercept = values$event_size, linetype=2) + 
-        geom_hline(yintercept = values$infect, linetype=2) + 
+        geom_vline(xintercept = event_size, linetype=2) + 
+        geom_hline(yintercept = infect, linetype=2) + 
         geom_point(aes(x=event_size, y=infect), size=4, color="red") + 
-        geom_label_repel(aes(x=event_size, y=infect, label = paste(ifelse(risk > .99,">99", round(100*risk, 1)) , "% Chance someone is \ninfected with COVID19"))) + 
+        geom_label_repel(aes(x=event_size, y=infect, label = paste(ifelse(risk > .99,">99", round(100*risk, 1)) , "% Chance someone is \ninfected with COVID19"))) +
         # geom_polygon(aes(x=c(0, 0, 100), y=c(pcrit.df[1,]$ystart, 0, 0), group=c(1,1,1)), fill="grey", alpha = 0.5) +
-        ggthemes::theme_clean() + 
+        ggthemes::theme_clean() +
         # coord_cartesianxlim(1, 10**5) + ylim(ylimits)
-        scale_x_continuous(name="", breaks = xblock, labels = names(xblock), trans = "log10", expand = c(.1, .1)) + 
-        scale_y_continuous(name="", breaks = yblock, labels = names(yblock), trans = "log10", expand = c(.1, .1)) + 
-        # geom_vline(xintercept = 10**5, linetype=2) + 
-        coord_cartesian(ylim=ylimits, xlim = c(10,100001))
+        scale_x_continuous(name="Active circulating infections", breaks = xblock, labels = names(xblock), trans = "log10", expand = c(.1, .1), ) +
+        scale_y_continuous(name="Number of individuals", breaks = yblock, labels = names(yblock), trans = "log10", expand = c(.1, .1)) + annotation_logticks(scaled=T) +
+        # # geom_vline(xintercept = 10**5, linetype=2) + 
+        coord_cartesian(ylim=ylimits, xlim = c(10,100001)) + 
+            theme(
+                axis.title.x = element_text(size=20),
+                axis.text  = element_text(size=16),
+                axis.title.y = element_text(size=20),
+            )
   
     }) 
 
