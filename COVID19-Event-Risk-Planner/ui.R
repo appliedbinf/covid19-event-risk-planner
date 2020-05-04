@@ -12,7 +12,7 @@ library(shinyWidgets)
 options(scipen=999)
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-    tags$head(tags$script(src="format_numbers.js")),
+    # tags$head(tags$script(src="format_numbers.js")),
     # Application title
     titlePanel("COVID-19 Event Risk Assessment Planning tool"),
 
