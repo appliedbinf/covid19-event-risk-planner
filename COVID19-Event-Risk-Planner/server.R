@@ -96,7 +96,7 @@ shinyServer(function(input, output, session) {
         if (input$use_state_dd){
             values_dd$state = isolate(input$states_dd)
             values_dd$use_state = isolate(input$use_state_dd)
-            values$pop = as.numeric(state_pops[state_pops == isolate(input$states_dd),"pop"])
+            values_dd$pop = as.numeric(state_pops[state_pops == isolate(input$states_dd),"pop"])
             #cat(state_pops[state_pops == isolate(input$states_dd),"pop"])
         } else{
             values_dd$state = "US"
