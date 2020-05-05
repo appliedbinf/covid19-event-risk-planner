@@ -30,13 +30,16 @@ cur_date = gsub("-", "", Sys.Date())
 past_date = ymd(cur_date) - 14
 states_historic = read.csv("https://covidtracking.com/api/v1/states/daily.csv", stringsAsFactors = F)
 states_historic = subset(states_historic, ymd(date) == past_date) %>% arrange(state)
-state_pops = read.delim('./state_pops.tsv', header=T, sep="\t", stringsAsFactors = F)
 
+
+state_pops = read.delim('state_pops.tsv', header=T, sep="\t", stringsAsFactors = F)
 state_data = state_current %>%
   select(state, positive) %>%
   arrange(state)
 
 state_data$C_i = state_data$positive - states_historic$positive
+rm(list=c("state_current", "states_historic"))
+gc()
 
 
 
@@ -46,7 +49,7 @@ shinyServer(function(input, output, session) {
     updateSelectizeInput(session, "states_dd", choices=states, selected="GA")
     updateSelectizeInput(session, "us_states", choices=states, selected="GA")
 
-    values_pred <- reactiveValues(infect = 200000, event_size = 275, pop = 330*10^6, state= "US", use_state = FALSE)
+    values_pred <- reactiveValues(infect = 800000, event_size = 275, pop = 330*10^6, state= "US", use_state = FALSE)
     values_dd <- reactiveValues(infect = 200000, event_size = 275, pop = 10617423, state= "GA", use_state = TRUE)
     observeEvent(input$calc_us, {
         #cat("calc_us pushed", input$event_size_us, " ", input$infect_us, " ", input$us_states, " ", input$use_state, "\n")
@@ -207,7 +210,7 @@ shinyServer(function(input, output, session) {
                 axis.title.y = element_text(size=20),
             )
   
-    }, ignoreInit = TRUE) 
+    }) 
     
     
     output$plot_dd <- renderPlot({

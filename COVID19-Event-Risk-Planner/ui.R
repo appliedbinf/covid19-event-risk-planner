@@ -23,7 +23,7 @@ shinyUI(fluidPage(
                           value = 275),
                 textInput("infect_us",
                           "Number of circulating infections:",
-                          value = 200000),
+                          value = 800000),
                 checkboxInput("use_state", label = "Limit prediction to state level?"),
                 conditionalPanel(condition = "input.use_state",
                                  selectizeInput("us_states", "Select state", c())
