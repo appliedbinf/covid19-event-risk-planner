@@ -229,14 +229,16 @@ shinyServer(function(input, output, session) {
       #cat(USpop)
       pcrit_label_x = c(-9, -20, -200, -2000, -7000)
       C_i = as.numeric(state_data[state_data$state == state, "C_i"])
-      yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6)
-      names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million")
+      yblock = c(10, 100,  1000, C_i, 5*C_i, 10*C_i)
+      names(yblock) <- c("10", "100", "1,000",format(c(C_i, 5*C_i, 10*C_i), big.mark = ",") )
+      ylimits =c(10, max( yblock, 10*10^ceiling(log10(max(yblock)))) )
     } else{
       USpop <- 330*10^6
       pcrit_label_x = c(9, 20, 200, 2000, 7000)
       C_i = sum(as.numeric(state_data$C_i))
       yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
       names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
+      ylimits = c(10**4, 3*10**7)
     }
     nvec = c(C_i, 5*C_i, 10*C_i)
     event_size <- as.numeric(gsub("[ ,-]","", isolate(input$event_dd)))
@@ -293,7 +295,7 @@ shinyServer(function(input, output, session) {
                  need(event_size >= 5, "Event size must be >=0"),
                  need(event_size <= 100000, "Event size must be <= 100,000")
         )
-        ylimits <- c(10**4, 3*10**6)
+        # ylimits <- c(10**4, 3*10**6)
         
         #cat(infect, "-", ylimits,"\n")
         ggplot() + geom_point(data = risk.df, aes(x=svec, y=nvec)) + 
