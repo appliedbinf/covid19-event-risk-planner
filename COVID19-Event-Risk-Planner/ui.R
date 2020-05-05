@@ -11,7 +11,7 @@ library(shiny)
 library(shinyWidgets)
 options(scipen = 999)
 shinyUI(fluidPage(
-    # tags$head(tags$script(src="format_numbers.js")),
+    tags$head(includeHTML(("www/ga.html"))),
     # Application title
     titlePanel( "COVID-19 Event Risk Assessment Planning tool"),
     tabsetPanel(tabPanel(id="Prediction", "Explore US and State-level prediction",
@@ -43,7 +43,7 @@ shinyUI(fluidPage(
         sidebarLayout(
             sidebarPanel(
                 p("The horizontal dotted lines with risk predictions are based on real-time COVID19 surveilance data.  
-                  They represent, from bottom up, predictions given the current reported incidence, 5 times the current incidence, and 10 times the current incidence.  
+                  They represent, predictions given the current reported incidence (circle), 5 times the current incidence (triangle), and 10 times the current incidence (square).  
                   These predictions help understand the effects of potential under-testing and reporting of COVID19 incidence"),
                 checkboxInput("use_state_dd", label = "Limit prediction to state level?", value = TRUE),
                 conditionalPanel(condition = "input.use_state_dd",
@@ -52,18 +52,27 @@ shinyUI(fluidPage(
                 textInput("event_dd",
                           "Event size:",
                           value = 275),
-                textInput("infect_dd",
-                          "Number of circulating infection:",
-                          value = 200000),
-                actionButton("calc_dd", label = "What is the risk?")
+                htmlOutput("dd_text")
             ),
             
             mainPanel(
                 # verbatimTextOutput("values_dd"),br(),
                 plotOutput(
-                "plot_dd", width = "800px", height = "800px"
-            ))
+                "plot_dd", width = "800px", height = "800px")
+                )
         )
+    ),
+    tabPanel(id="about", "About",
+             fluid = TRUE,
+             mainPanel(
+                 includeMarkdown('About.md')    
+                 )
+    ),
+    tabPanel(id="press", "Press",
+            fluid = TRUE,
+            mainPanel(
+                includeMarkdown('Press.md')    
+            )
     )
     )
     

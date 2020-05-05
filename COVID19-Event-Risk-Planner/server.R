@@ -75,37 +75,37 @@ shinyServer(function(input, output, session) {
     })
     
     
-    observeEvent(input$calc_dd, {
-        #cat("calc_dd pressed\n")
-        req(input$event_dd)
-        req(input$infect_dd)
-        event_size = isolate(input$event_dd)
-        event_size = as.numeric(gsub("[ ,_]", "", event_size))
-        
-        values_dd$event_size = event_size
-        infect = isolate(input$infect_dd)
-        infect = as.numeric(gsub("[ ,_]", "", infect))
-        
-        values_dd$infect = infect
-        state = isolate(input$states_dd)
-        pop = as.numeric(state_pops[state_pops == state,"pop"])
-        values_dd$pop = pop
-        values_dd$state = state
-        values_dd$infect = infect
-        #cat("Calc_dd state: ", state, "\tCalc_dd pop: ",pop,  "\n")
-        if (input$use_state_dd){
-            values_dd$state = isolate(input$states_dd)
-            values_dd$use_state = isolate(input$use_state_dd)
-            values_dd$pop = as.numeric(state_pops[state_pops == isolate(input$states_dd),"pop"])
-            #cat(state_pops[state_pops == isolate(input$states_dd),"pop"])
-        } else{
-            values_dd$state = "US"
-            values_dd$use_state = isolate(input$use_state_dd)
-            values_dd$pop = 330*10^6
-            
-        }
-        #cat(values_dd$state,"\t", values_dd$even_size, "\t", values_dd$infect, "\n")
-    })
+    # observeEvent(input$calc_dd, {
+    #     #cat("calc_dd pressed\n")
+    #     req(input$event_dd)
+    #     req(input$infect_dd)
+    #     event_size = isolate(input$event_dd)
+    #     event_size = as.numeric(gsub("[ ,_]", "", event_size))
+    #     
+    #     values_dd$event_size = event_size
+    #     infect = isolate(input$infect_dd)
+    #     infect = as.numeric(gsub("[ ,_]", "", infect))
+    #     
+    #     values_dd$infect = infect
+    #     state = isolate(input$states_dd)
+    #     pop = as.numeric(state_pops[state_pops == state,"pop"])
+    #     values_dd$pop = pop
+    #     values_dd$state = state
+    #     values_dd$infect = infect
+    #     #cat("Calc_dd state: ", state, "\tCalc_dd pop: ",pop,  "\n")
+    #     if (input$use_state_dd){
+    #         values_dd$state = isolate(input$states_dd)
+    #         values_dd$use_state = isolate(input$use_state_dd)
+    #         values_dd$pop = as.numeric(state_pops[state_pops == isolate(input$states_dd),"pop"])
+    #         #cat(state_pops[state_pops == isolate(input$states_dd),"pop"])
+    #     } else{
+    #         values_dd$state = "US"
+    #         values_dd$use_state = isolate(input$use_state_dd)
+    #         values_dd$pop = 330*10^6
+    #         
+    #     }
+    #     #cat(values_dd$state,"\t", values_dd$even_size, "\t", values_dd$infect, "\n")
+    # })
     # 
     # #cat(infect, " - ", event_size)
     output$values <- renderText({
@@ -117,7 +117,6 @@ shinyServer(function(input, output, session) {
       outtext <- reactiveValuesToList(values_dd)
       paste(outtext,collapse="\t")
     })
-    
     output$plot_us <- renderPlot({
       xblock = c(10, 100, 1000, 10**4, 10**5)
       yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
@@ -181,6 +180,8 @@ shinyServer(function(input, output, session) {
         )
         risk <- calc_risk(infect, event_size, USpop)
         ylimits <- c(10**4, 3*10**7)
+        l.rise = min(pcrit_risk_list[[1]]$y) - max(pcrit_risk_list[[1]]$y)
+        l.run = max(pcrit_risk_list[[1]]$x)
         angle = -45
         if (infect < 10**4){
             ylimits <- c(10, 3*10**6)
@@ -188,9 +189,10 @@ shinyServer(function(input, output, session) {
         } 
         
         ggplot() + geom_point(data = risk.df, aes(x=svec, y=nvec)) + 
-        geom_text(data = pcrit_lab.df, aes(x=x, y = y, label=paste(risk * 100, "% Chance")), angle=angle, size=6) + 
+        # geom_text(data = pcrit_lab.df, aes(x=x, y = y, label=paste(risk * 100, "% Chance")), angle=angle, size=6) + 
         geom_hline(yintercept = risk.df$nvec, linetype=2) + 
-          geom_path(data = pcrit.df, aes(x=x, y=y, group=risk))+
+          geom_path(data = pcrit.df, aes(x=x, y=y, group=risk, color = as.factor(100*risk)), size=1)+
+          scale_color_manual(values=c("#fee5d9", "#fcae91", "#fb6a4a", "#de2d26", "#a50f15")) +
         # geom_segment(data=pcrit.df, aes(x=xstart, y=ystart, xend=xend, yend=yend)) +
         geom_label(data = risk.df, aes(x=svec, y=nvec, label = paste(ifelse(risk > 99,">99", round(risk, 1)), "% Chance")), nudge_y = .1, size=5, fill="blue", alpha=.5, color="white") + 
         geom_vline(xintercept = event_size, linetype=3) + 
@@ -208,33 +210,45 @@ shinyServer(function(input, output, session) {
                 axis.title.x = element_text(size=20),
                 axis.text  = element_text(size=16),
                 axis.title.y = element_text(size=20),
-            )
+            ) + guides(color = guide_legend(title="% Chance"),override.aes = list(size = 2) )
   
     }) 
+    dd_inputs <- reactive({
+      list(input$states_dd, input$event_dd, input$use_state_dd)
+    })
+    observeEvent(dd_inputs(), {
+    nvec = c(C_i, 5*C_i, 10*C_i)
+    event_size <- as.numeric(gsub("[ ,-]","", isolate(input$event_dd)))
+    xblock = c(10, 100, 1000, 10**4, 10**5)
+    names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game" )
+    #cat("218 ", values_dd$use_state, "\n")
+    use_state = isolate(input$use_state_dd)
+    state = input$states_dd
+    #cat("220\t", state, "\t",use_state, "\n")
+    if (use_state){
+      USpop <- as.numeric(state_pops[state_pops$state == state,"pop"])
+      #cat(USpop)
+      pcrit_label_x = c(-9, -20, -200, -2000, -7000)
+      C_i = as.numeric(state_data[state_data$state == state, "C_i"])
+      yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6)
+      names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million")
+    } else{
+      USpop <- 330*10^6
+      pcrit_label_x = c(9, 20, 200, 2000, 7000)
+      C_i = sum(as.numeric(state_data$C_i))
+      yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
+      names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
+    }
+    risk <- calc_risk(nvec, event_size, USpop)
     
     
+    
+    output$dd_text <- renderUI({HTML(paste0("Chance someone is COVID19 positive at the current reported incidence (", nvec[1],"): ", round(100*risk[1],1), "%<br/>",
+                             "Chance someone is COVID19 positive at 5x the current reported incidence (", nvec[2],"): ", round(100*risk[2],1), "%<br/>",
+                             "Risk at 10x the current reported incidence (", nvec[3],"): ",  round(100*risk[3],1), "%"))}
+    )
+                 
     output$plot_dd <- renderPlot({
-      
-      xblock = c(10, 100, 1000, 10**4, 10**5)
-      names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game" )
-      #cat("218 ", values_dd$use_state, "\n")
-      use_state = values_dd$use_state
-      state = values_dd$state
-      #cat("220\t", state, "\t",use_state, "\n")
-      if (use_state){
-        USpop <- as.numeric(state_pops[state_pops$state == state,"pop"])
-        #cat(USpop)
-        pcrit_label_x = c(-9, -20, -200, -2000, -7000)
-        C_i = as.numeric(state_data[state_data$state == state, "C_i"])
-        yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6)
-        names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million")
-      } else{
-        USpop <- 330*10^6
-        pcrit_label_x = c(9, 20, 200, 2000, 7000)
-        C_i = sum(as.numeric(state_data$C_i))
-        yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
-        names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
-      }
       
       #cat("state: ", state, "\tpop: ", USpop, "\n")
       n=logspace(0,6,100);
@@ -259,7 +273,6 @@ shinyServer(function(input, output, session) {
             pcrit_lab_list[[i]] = data.frame("risk" = risk_vals[i], "x" = nlabel, y = ytarget*1.4)
         }
         
-        nvec = c(C_i, 5*C_i, 10*C_i) 
         risk_vals_list = list()
         #cat("before risk_vals\n")
         for (i in 1:length(nvec)){
@@ -274,17 +287,10 @@ shinyServer(function(input, output, session) {
         pcrit_lab.df = do.call(rbind.data.frame, pcrit_lab_list)
         risk.df = do.call(rbind.data.frame, risk_vals_list)
         
-        infect <- values_dd$infect
-        event_size <- values_dd$event_size
         validate(need(is.numeric(event_size), "Event size must be a number"),
                  need(event_size >= 5, "Event size must be >=0"),
                  need(event_size <= 100000, "Event size must be <= 100,000")
         )
-        validate(need(is.numeric(infect), "Number of active cases must be a number"),
-                 need(infect >= 10, "Number of active cases must be >=10"),
-                 need(infect < 8*10**6, "Number of active cases must be <8,000,000")
-        )
-        risk <- calc_risk(infect, event_size, USpop)
         ylimits <- c(10**4, 3*10**6)
         angle = -45
         if (infect < 10**4){
@@ -294,15 +300,16 @@ shinyServer(function(input, output, session) {
         
         #cat(infect, "-", ylimits,"\n")
         ggplot() + geom_point(data = risk.df, aes(x=svec, y=nvec)) + 
-            geom_text(data = pcrit_lab.df, aes(x=x, y = y, label=paste(risk * 100, "% Chance")), angle=angle, size=6) + 
+            # geom_text(data = pcrit_lab.df, aes(x=x, y = y, label=paste(risk * 100, "% Chance")), angle=angle, size=6) + 
             geom_hline(yintercept = risk.df$nvec, linetype=2) + 
-          geom_path(data = pcrit.df, aes(x=x, y=y, group=risk))+
+          geom_path(data = pcrit.df, aes(x=x, y=y, group=risk, color=as.factor(risk*100)), size=1)+
+            scale_color_manual(values=c("#fee5d9", "#fcae91", "#fb6a4a", "#de2d26", "#a50f15")) +
             # geom_segment(data=pcrit.df, aes(x=xstart, y=ystart, xend=xend, yend=yend)) +
-            geom_label(data = risk.df, aes(x=svec, y=nvec, label = paste(ifelse(risk > 99,">99", round(risk, 1)), "% Chance")), nudge_y = .1, size=5, fill="blue", alpha=.5, color="white") + 
+            geom_label(data = risk.df, aes(x=svec, y=nvec, label = paste(ifelse(risk > 99,">99", round(risk, 1)), "% Chance")), nudge_y = .1, size=5, fill="blue", alpha=.5, color="white") +
             geom_vline(xintercept = event_size, linetype=3) + 
-            geom_hline(yintercept = infect, linetype=3) + 
-            geom_point(aes(x=event_size, y=infect), size=4, color="red") + 
-            geom_label_repel(aes(x=event_size, y=infect, label = paste(ifelse(risk > .99,">99", round(100*risk, 1)) , "% Chance someone is \ninfected with COVID19")), size=5) +
+            # geom_hline(yintercept = nvec, linetype=3) + 
+            geom_point(aes(x=event_size, y=nvec), size=4, shape=c(16, 17, 15), color="red") + 
+            # geom_label_repel(aes(x=event_size, y=nvec, lrabel = paste(ifelse(risk > .99,">99", round(100*risk, 1)) , "% Chance someone is \ninfected with COVID19")), size=5) +
             # geom_polygon(aes(x=c(0, 0, 100), y=c(pcrit.df[1,]$ystart, 0, 0), group=c(1,1,1)), fill="grey", alpha = 0.5) +
             ggthemes::theme_clean() +
             # coord_cartesianxlim(1, 10**5) + ylim(ylimits)
@@ -313,10 +320,11 @@ shinyServer(function(input, output, session) {
             theme(
                 axis.title.x = element_text(size=20),
                 axis.text  = element_text(size=16),
-                axis.title.y = element_text(size=20),
-            )
+                axis.title.y = element_text(size=20)
+            ) + guides(color = guide_legend(title="% Chance"),override.aes = list(size = 2) )
         
     }) 
+    })
 
 })
 
