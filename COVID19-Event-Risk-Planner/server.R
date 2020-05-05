@@ -217,8 +217,6 @@ shinyServer(function(input, output, session) {
       list(input$states_dd, input$event_dd, input$use_state_dd)
     })
     observeEvent(dd_inputs(), {
-    nvec = c(C_i, 5*C_i, 10*C_i)
-    event_size <- as.numeric(gsub("[ ,-]","", isolate(input$event_dd)))
     xblock = c(10, 100, 1000, 10**4, 10**5)
     names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game" )
     #cat("218 ", values_dd$use_state, "\n")
@@ -239,6 +237,8 @@ shinyServer(function(input, output, session) {
       yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
       names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
     }
+    nvec = c(C_i, 5*C_i, 10*C_i)
+    event_size <- as.numeric(gsub("[ ,-]","", isolate(input$event_dd)))
     risk <- calc_risk(nvec, event_size, USpop)
     
     
