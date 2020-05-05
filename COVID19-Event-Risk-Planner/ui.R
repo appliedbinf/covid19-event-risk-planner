@@ -66,7 +66,13 @@ shinyUI(fluidPage(
              fluid = TRUE,
              mainPanel(
                  includeMarkdown('About.md')    
-                 )
+             )
+    ),
+    tabPanel(id="data", "Data source",
+               fluid = TRUE,
+               mainPanel(
+                   includeMarkdown('Data.md')    
+               )
     ),
     tabPanel(id="press", "Press",
             fluid = TRUE,

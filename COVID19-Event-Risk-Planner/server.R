@@ -118,6 +118,7 @@ shinyServer(function(input, output, session) {
       paste(outtext,collapse="\t")
     })
     output$plot_us <- renderPlot({
+      
       xblock = c(10, 100, 1000, 10**4, 10**5)
       yblock = c(10, 100, 1000, 10000, 10**5, 4*10**5, 10**6, 2*10**6, 8*10**6)
       names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game" )
@@ -244,12 +245,13 @@ shinyServer(function(input, output, session) {
     
     
     output$dd_text <- renderUI({HTML(paste0("Chance someone is COVID19 positive at the current reported incidence (", nvec[1],"): ", round(100*risk[1],1), "%<br/>",
-                             "Chance someone is COVID19 positive at 5x the current reported incidence (", nvec[2],"): ", round(100*risk[2],1), "%<br/>",
-                             "Risk at 10x the current reported incidence (", nvec[3],"): ",  round(100*risk[3],1), "%"))}
+                             "Chance someone is COVID19 positive at 5x the reported incidence (", nvec[2],"): ", round(100*risk[2],1), "%<br/>",
+                             "Chance someone is COVID19 positive at 10x the reported incidence (", nvec[3],"): ",  round(100*risk[3],1), "%"))}
     )
                  
     output$plot_dd <- renderPlot({
-      
+      req(input$states_dd)
+      req(input$event_dd)
       #cat("state: ", state, "\tpop: ", USpop, "\n")
       n=logspace(0,6,100);
         pcrit_val=pcrit(n);
@@ -292,11 +294,6 @@ shinyServer(function(input, output, session) {
                  need(event_size <= 100000, "Event size must be <= 100,000")
         )
         ylimits <- c(10**4, 3*10**6)
-        angle = -45
-        if (infect < 10**4){
-            ylimits <- c(10, 3*10**4)
-            angle <- -28
-        } 
         
         #cat(infect, "-", ylimits,"\n")
         ggplot() + geom_point(data = risk.df, aes(x=svec, y=nvec)) + 
