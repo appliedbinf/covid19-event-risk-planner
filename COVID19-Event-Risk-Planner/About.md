@@ -5,13 +5,21 @@ This site provides interactive context to assess the risk that one or more indiv
 
 ### Contributors:  
 #### Conceptual Development
-- [Joshua Weitz](http://ecotheory.biology.gatech.edu/) (GaTech)
+- [Joshua Weitz](http://ecotheory.biology.gatech.edu/) (Georgia Institute of Technology, Biological Sciences, GT-BIOS)
 
 #### Website and Dashboard Development
-- [Aroon T. Chande](https://aroonchan.de) (GaTech SoBS and Applied Bioinformatics Laboratory)
-- [Lavanya Rishishar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GaTech SoBS and Applied Bioinformatics Laboratory)
-- [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en )
-- [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GaTech SoBS)
+- [Aroon T. Chande](https://aroonchan.de) (GT-BIOS and Applied Bioinformatics Laboratory)
+- [Lavanya Rishishar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GT-BIOS and Applied Bioinformatics Laboratory)
+- [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en)
+- [Mallory Harris](https://twitter.com/malar0ne)  (Stanford Biology)
+- [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
+
+#### Acknowledgements
+The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on concept development.
+
+### How to cite
+
+Chande, A.T., Gussler, W., Harris, M., Rishishwar, L., Jordan, I.K., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool',  URL http://covid19risk.biosci.gatech.edu/
 
 ### Code and model:  
 https://github.com/jsweitz/covid-19-event-risk-planner  
@@ -21,5 +29,5 @@ https://figshare.com/articles/COVID-19_Event_Risk_Assessment_Planner/11965533
 ### March 10, Tweet Thread:  
 https://twitter.com/joshuasweitz/status/1237556232304508928?s=20
 
-### Op-Ed (w/Richard Lenski, Lauren A. Meyres, and Jonathan Dushoff):  
+### Op-Ed (w/Richard Lenski, Lauren A. Meyers, and Jonathan Dushoff):  
 https://www.ajc.com/blog/get-schooled/scientists-the-math-show-how-large-events-like-march-madness-could-spread-coronavirus/g1pVdzQgJS5aoPnadBqyXO/

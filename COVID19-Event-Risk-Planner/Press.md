@@ -1,5 +1,3 @@
-## Press mentions of this prediction method
-
 ### Wired:  
 https://www.wired.com/story/whats-social-distancing-flattening-curve-covid-19-questions/
 

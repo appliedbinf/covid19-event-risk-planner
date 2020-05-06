@@ -8,44 +8,22 @@
 ## See: https://github.com/jsweitz/covid-19-ga-summer-2020
 ## ---------------------------
 library(shiny)
+library(shinythemes)
+
 options(scipen = 999)
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = shinytheme("sandstone"),
     tags$head(includeHTML(("www/ga.html"))),
     # Application title
     titlePanel( titlePanel( div(column(width = 9, h2("COVID-19 Event Risk Assessment Planning tool")), 
         column(width = 3, tags$img(src = "scaled_plot.jpg")))), windowTitle = "COVID-19 Event Risk Assessment Planning tool"),
-    tabsetPanel(tabPanel(id="Prediction", "Explore US and State-level prediction",
+    tabsetPanel(tabPanel(id="Data-driven", "Real-time US and State-level estimates ",
         fluid = TRUE,
         sidebarLayout(
             sidebarPanel(
-                textInput("event_size_us",
-                          "Event size:",
-                          value = 275),
-                textInput("infect_us",
-                          "Number of circulating infections:",
-                          value = 800000),
-                checkboxInput("use_state", label = "Limit prediction to state level?"),
-                conditionalPanel(condition = "input.use_state",
-                                 selectizeInput("us_states", "Select state", c())
-                                 ),
-                actionButton("calc_us", label = "What is the risk?"),
-                downloadButton('dl_pred', "Download plot")
-            ),
-            
-            mainPanel(
-                # verbatimTextOutput("values"),br(),
-                plotOutput(
-                "plot_us", width = "900px", height = "900px")
-                )
-        )
-    ),
-    tabPanel(id="Data-driven", "Real-time US and State estimates",
-        fluid = TRUE,
-        sidebarLayout(
-            sidebarPanel(
-                p("The horizontal dotted lines with risk estimates are based on real-time COVID19 surveilance data.  
-                  They represent, estimates given the current reported incidence (circle), 5 times the current incidence (triangle), and 10 times the current incidence (square).  
-                  These estimates help understand the effects of potential under-testing and reporting of COVID19 incidence"),
+                HTML("<p>The horizontal dotted lines with risk estimates are based on real-time COVID19 surveillance data.  
+                  They represent estimates given the current reported incidence [C<sub>I</sub>] (<span title='circle' style='color: red'>&#11044;</span>), 5 times the current incidence (<span title='triangle' style='color: red'>&#9650;</span>), and 10 times the current incidence (<span title='square' style='color: red'>&#9632;</span>).  
+                  These estimates help understand the effects of potential under-testing and reporting of COVID19 incidence.</p>"),
+                htmlOutput("dd_current_data"),
                 checkboxInput("use_state_dd", label = "Limit prediction to state level?", value = TRUE),
                 conditionalPanel(condition = "input.use_state_dd",
                                  selectizeInput("states_dd", "Select state", c())
@@ -58,9 +36,36 @@ shinyUI(fluidPage(
             ),
             
             mainPanel(
-                # verbatimTextOutput("values_dd"),br(),
                 plotOutput(
                 "plot_dd", width = "900px", height = "900px")
+                )
+        )
+    ),tabPanel(id="Prediction", "Explore US and State-level estimates",
+        fluid = TRUE,
+        sidebarLayout(
+            sidebarPanel(
+                textInput("event_size_us",
+                          "Event size:",
+                          value = 275,
+                          placeholder = 450),
+                textInput("infect_us",
+                          "Number of circulating infections:",
+                          value = 800000,
+                          placeholder = "250,000"),
+                checkboxInput("use_state", label = "Limit prediction to state level?"),
+                conditionalPanel(condition = "input.use_state",
+                                 selectizeInput("us_states", "Select state", c())
+                                 ),
+                conditionalPanel(condition = "input.use_state",
+                  p("The dashed horizontal lines with estimates represent 1%, 5%, and 25% of the population being infected")
+                  ),
+                actionButton("calc_us", label = "What is the risk?"),
+                downloadButton('dl_pred', "Download plot")
+            ),
+            
+            mainPanel(
+                plotOutput(
+                "plot_us", width = "900px", height = "900px")
                 )
         )
     ),
@@ -74,10 +79,10 @@ shinyUI(fluidPage(
               tags$img(src = "figevent_checker_georgia_042720.jpg  ")    
             )   
             ),
-    tabPanel(id="about", "About",
+    tabPanel(id="tuts", "Tutorial",
              fluid = TRUE,
              mainPanel(
-                 includeMarkdown('About.md')    
+                 includeMarkdown('Tutorial.md')    
              )
     ),
     tabPanel(id="data", "Data source",
@@ -92,17 +97,20 @@ shinyUI(fluidPage(
                 includeMarkdown('Press.md')    
             )
     ),
+    tabPanel(id="about", "About",
+             fluid = TRUE,
+             mainPanel(
+                 includeMarkdown('About.md')    
+             )
+    )
+    ),
     tags$div(class="footer",
       align = "center",
       style = "margin-top: 20px;",
       column(width = 5), 
-      column(width = 2, tags$img(src = "gt-logo-gold.png")), 
-      column(width = 2, tags$img(src = "ABiL-Logo.png")), 
+      column(width = 2, tags$a(href="https://www.gatech.edu/", tags$img(src = "gt-logo-gold.png"))), 
+      column(width = 2, tags$a(href="https://www.abil.ihrc.com/",tags$img(src = "ABiL-Logo.png"))), 
       column(width = 3)
-      )
-    # ),
-    # div(class = "footer",
-    #     column(width = 3, tags$img(src = "gt-logo-gold.png")), column(width = 3, tags$img(src = "ABiL-Logo.png"))
-    )  
+      )  
   )
 )
