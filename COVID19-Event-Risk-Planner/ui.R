@@ -36,6 +36,7 @@ shinyUI(fluidPage(theme = shinytheme("sandstone"),
             ),
             
             mainPanel(
+                # verbatimTextOutput("values_dd"),br(),
                 plotOutput(
                 "plot_dd", width = "900px", height = "900px")
                 )
@@ -64,11 +65,30 @@ shinyUI(fluidPage(theme = shinytheme("sandstone"),
             ),
             
             mainPanel(
+                # verbatimTextOutput("values"),br(),
                 plotOutput(
                 "plot_us", width = "900px", height = "900px")
                 )
         )
     ),
+    tabPanel(id="risk_estimates", "Continuous risk estimates",
+            fluid = TRUE,
+            sidebarLayout(
+            sidebarPanel(
+              HTML("<p>The curved lines (risk estimates) are based on real-time COVID19 surveillance data.  
+                  They represent estimates given the current reported incidence (dashed line) [C<sub>I</sub>]: 5x the current incidence (blue), 10x (yellow), and 20x (red).  
+                  These estimates help understand the effects of potential under-testing and reporting of COVID19 incidence.</p>
+                  <p>Select from a mosiac of all 50 states, ordered alphabetically or by their population-adjusted incidence, or zoom in to individual states.</p>"),
+              selectizeInput("regions", "Select region", c()),
+              selectizeInput("date", "Select a date to view", c()),
+              p("Estimates are updated every day at midnight, 7:00, 12:00, and 20:00 (timezone=America/New_York)"),
+              downloadButton('dl_risk', "Download plot")
+            ),
+            mainPanel(
+              plotOutput("risk_plots", width="900px", height="900px")
+              
+            )   
+            )),
     tabPanel(id="previous", "Previously Released Charts",
             fluid = TRUE,
             mainPanel(
@@ -103,13 +123,16 @@ shinyUI(fluidPage(theme = shinytheme("sandstone"),
                  includeMarkdown('About.md')    
              )
     )
+    # ),
+    # div(class = "footer",
+    #     column(width = 3, tags$img(src = "gt-logo-gold.png")), column(width = 3, tags$img(src = "ABiL-Logo.png"))
     ),
     tags$div(class="footer",
       align = "center",
       style = "margin-top: 20px;",
       column(width = 5), 
       column(width = 2, tags$a(href="https://www.gatech.edu/", tags$img(src = "gt-logo-gold.png"))), 
-      column(width = 2, tags$a(href="https://www.abil.ihrc.com/",tags$img(src = "ABiL-Logo.png"))), 
+      column(width = 2, tags$a(href="https://www.abil.ihrc.com/?covid19-risk",tags$img(src = "ABiL-Logo.png"))), 
       column(width = 3)
       )  
   )

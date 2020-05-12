@@ -1,3 +1,6 @@
+### FOX5 Atlanta:
+https://www.fox5atlanta.com/news/here-are-three-new-ways-to-tell-whether-were-beating-covid-19
+
 ### Wired:  
 https://www.wired.com/story/whats-social-distancing-flattening-curve-covid-19-questions/
 
