@@ -21,6 +21,8 @@ The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on
 
 Chande, A.T., Gussler, W., Harris, M., Rishishwar, L., Jordan, I.K., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool',  URL http://covid19risk.biosci.gatech.edu/
 
+Weitz, J.S., Harris, M., Chande, A.T., Gussler, J.W., Rishishwar, L. and Jordan, I.K. (2020) Online COVID-19 Dashboard Calculates How Risky Reopenings and Gatherings Can Be. Sci Am. https://blogs.scientificamerican.com/observations/online-covid-19-dashboard-calculates-how-risky-reopenings-and-gatherings-can-be/
+
 ### Code and model:  
 https://github.com/jsweitz/covid-19-event-risk-planner  
 https://github.com/appliedbinf/covid19-event-risk-planner   
