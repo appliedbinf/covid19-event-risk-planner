@@ -9,9 +9,10 @@ This site provides interactive context to assess the risk that one or more indiv
 
 #### Website and Dashboard Development
 - [Aroon T. Chande](https://aroonchan.de) (GT-BIOS and Applied Bioinformatics Laboratory)
-- [Lavanya Rishishar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GT-BIOS and Applied Bioinformatics Laboratory)
+- [Lavanya Rishishwar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GT-BIOS and Applied Bioinformatics Laboratory)
 - [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en)
 - [Mallory Harris](https://twitter.com/malar0ne)  (Stanford Biology)
+- [Seohla Lee](http://friendlycities.gatech.edu/team/)  (Friendly Cities Lab at eorgia Institute of Technology)
 - [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
 
 #### Acknowledgements
@@ -19,9 +20,10 @@ The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on
 
 ### How to cite
 
-Chande, A.T., Gussler, W., Harris, M., Rishishwar, L., Jordan, I.K., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool',  URL http://covid19risk.biosci.gatech.edu/
+Chande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool', URL http://covid19risk.biosci.gatech.edu/
 
 Weitz, J.S., Harris, M., Chande, A.T., Gussler, J.W., Rishishwar, L. and Jordan, I.K. (2020) Online COVID-19 Dashboard Calculates How Risky Reopenings and Gatherings Can Be. Sci Am. https://blogs.scientificamerican.com/observations/online-covid-19-dashboard-calculates-how-risky-reopenings-and-gatherings-can-be/
+
 
 ### Code and model:  
 https://github.com/jsweitz/covid-19-event-risk-planner  

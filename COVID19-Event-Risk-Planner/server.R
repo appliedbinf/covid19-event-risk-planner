@@ -17,6 +17,10 @@ library(matlab)
 library(lubridate)
 library(dplyr)
 library(ggthemes)
+library(leaflet)
+library(mapview, lib.loc = "/projects/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
+
+Sys.setenv(PATH = with_path('/projects/covid19/bin', Sys.getenv("PATH")))
 
 pcrit <- function(x) {
   0.01 / x
@@ -52,11 +56,16 @@ get_data <- function() {
 }
 
 
+maps <- readRDS("daily_risk_map/riskmaps.rds")
+county_geo = read.csv('map_data/ctcenter.csv', stringsAsFactors=F)
 
 shinyServer(function(input, output, session) {
   get_data()
+  county <- readRDS("county.RDS")
   updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
   updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
+  updateSelectizeInput(session, "county_text", choices=county, selected = NA)
+
   regions <- c(
     "USA, Alphabetical" = "states-alpha.png",
     "USA, By Rank" = "states-rank.png",
@@ -76,8 +85,40 @@ shinyServer(function(input, output, session) {
   )
   updateSelectizeInput(session, "regions", choices = regions, selected = "states-alpha.png")
   daily_plots_dir <- list.dirs("www/daily_risk_plots/", full.names = F)
-  names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "Eastern")
+  names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
   updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
+
+  observeEvent(input$event_size_map, {
+    map_sel <<- maps[[input$event_size_map]]
+    output$map_us <- renderLeaflet({
+      map_sel
+    })
+  })
+
+  countyCenter <- function(selection = NA){
+    return(county_geo %>% filter(GEOID == selection) %>% unlist %>% unname)
+  }
+
+
+  observeEvent(input$county_text, {
+    print(countyCenter()[4])
+    print(input$county_text)
+    map_sel <<- map_sel %>%
+      setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
+    leafletProxy("map_us", session) %>%
+      setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
+  }, ignoreInit=TRUE, ignoreNULL = TRUE)
+
+  output$dl_map <- downloadHandler(
+        filename = paste0("County-level COVID risk estimates map - ", today(), ".png"),
+        content = function(file) {
+            # with_path('/projects/covid19/bin', Sys.getenv("PATH"))
+            showModal(modalDialog("This can take 20 seconds", title="Rendering map image...", footer=NULL))
+            mapshot(map_sel, file = file)
+            removeModal()
+        }
+      )
+
 
   output$risk_plots <- renderImage(
     {
@@ -161,7 +202,7 @@ shinyServer(function(input, output, session) {
     names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
     if (8 * 10**6 < values_pred$event_size) {
       yblock <- yblock + c(values_pred$event_size)
-      names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million", format(values_pred$event_size, , big.mark = ","))
+      names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million", format(values_pred$event_size, big.mark = ","))
     }
     use_state <- values_pred$use_state
     state <- values_pred$state
@@ -219,12 +260,12 @@ shinyServer(function(input, output, session) {
 
     infect <- values_pred$infect
     event_size <- values_pred$event_size
-    validate(
+    shiny::validate(
       need(is.numeric(event_size), "Event size must be a number"),
       need(event_size >= 5, "Event size must be >=5"),
       need(event_size <= 100000, "Event size must be <= 100,000")
     )
-    validate(
+    shiny::validate(
       need(is.numeric(infect), "Number of active cases must be a number"),
       need(infect >= 10, "Number of active cases must be >=10"),
       need(infect < 0.5 * USpop, paste("Number of active cases must less than 10% of population <", round(USpop * .5)))
@@ -369,7 +410,7 @@ shinyServer(function(input, output, session) {
           TRUE ~ as.character(risk)
         ))
 
-      validate(
+      shiny::validate(
         need(is.numeric(event_size), "Event size must be a number"),
         need(event_size >= 5, "Event size must be >=5"),
         need(event_size <= 100000, "Event size must be <= 100,000")
