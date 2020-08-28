@@ -2,6 +2,10 @@
 
 As many parts of the United States begin to lift shelter-in-place, it’s crucial for us to be able to estimate the risks involved with resuming non-essential activities, particularly those involving large crowds. The COVID-19 Risk Assessment Planning tool can be used to explore the risk that at least one person at an event of a certain size is currently infected with COVID-19, given a certain number of circulating infections in the specified region.
 
+Our risk calculations tell you only how likely it is that at least one person at any event of a given size is infectious. This is not the same as the risk of any person being exposed or infected with COVID-19 at the event 
+
+We define circulating cases (people who are currently infectious) as cases reported in the past ten days. Note that real-time risk assessments prior to August 14th used a fourteen day window. The choice of a reduced duration is consistent with [CDC advice](https://www.cdc.gov/coronavirus/2019-ncov/hcp/duration-isolation.html#:~:text=Available%20data%20indicate%20that%20persons,20%20days%20after%20symptom%20onset) on the duration of typical infectous periods (though we recognize that individuals may shed longer).  We correct for under-reporting by multiplying by an ascertainment bias.  Based on seroprevalence data, we suspect that in many parts of the US this is around 10:1 (i.e., ten total cases for every one reported), but this rate may vary by location, and we also include a 5:1 ratio on the main page. Cases may be under-reported due to testing shortages, asymptomatic “silent spreaders,” and reporting lags. 
+
 
 Our tool generates figures that look like this. 
 

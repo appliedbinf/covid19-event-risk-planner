@@ -1,6 +1,6 @@
 #!/bin/bash
 fname=$(date +%Y%m%d_%H%M%S)
-base="/projects/covid19/COVID19-Event-Risk-Planner"
-
+base="/srv/shiny-server/"
+mkdir -p ${base}/daily_risk_map/${fname}
 cd ${base}/
-Rscript ${base}/makeDailyMaps.R $fname
+Rscript ${base}/makeDailyMaps.R $fname $1

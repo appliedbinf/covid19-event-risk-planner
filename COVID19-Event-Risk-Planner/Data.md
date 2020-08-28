@@ -2,6 +2,7 @@
 
 Real-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/
 
+Real-time county level COVID19 data comes from the NYTimes COVID19 data project: https://github.com/nytimes/covid-19-data
 
 ### Population data
 

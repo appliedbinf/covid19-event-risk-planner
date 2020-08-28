@@ -18,7 +18,8 @@ library(lubridate)
 library(dplyr)
 library(ggthemes)
 library(leaflet)
-library(mapview, lib.loc = "/projects/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
+library(mapview)
+#library(mapview, lib.loc = "/projects/covid19/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
 
 Sys.setenv(PATH = with_path('/projects/covid19/bin', Sys.getenv("PATH")))
 
@@ -27,7 +28,7 @@ pcrit <- function(x) {
 }
 
 calc_risk <- function(I, n, USpop) {
-  p_I <- I / USpop
+  p_I <- (I / USpop) * (10.0/14.0)
   r <- 1 - (1 - p_I)**n
   round(100 * r, 1)
 }
@@ -56,15 +57,25 @@ get_data <- function() {
 }
 
 
-maps <- readRDS("daily_risk_map/riskmaps.rds")
-county_geo = read.csv('map_data/ctcenter.csv', stringsAsFactors=F)
+# maps <- readRDS("daily_risk_map/riskmaps.rds")
+# county_geo = read.csv('map_data/ctcenter.csv', stringsAsFactors=F)
 
 shinyServer(function(input, output, session) {
+
+  observeEvent(input$timeOut, { 
+      showModal(modalDialog(
+        title = "Timeout",
+        paste("Session timeout due to", input$timeOut, "inactivity -", Sys.time()),
+        footer = NULL
+      ))
+      session$close()
+    })
+
   get_data()
-  county <- readRDS("county.RDS")
+  # county <- readRDS("county.RDS")
   updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
   updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
-  updateSelectizeInput(session, "county_text", choices=county, selected = NA)
+  # updateSelectizeInput(session, "county_text", choices=county, selected = NA)
 
   regions <- c(
     "USA, Alphabetical" = "states-alpha.png",
@@ -88,35 +99,67 @@ shinyServer(function(input, output, session) {
   names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
   updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
 
+  # observeEvent(input$event_size_map, {
+  #   output$map_static <- renderImage(
+  #   {
+  #     risk_folder <- 'daily_risk_map'
+  #       list(
+  #       src = paste0(risk_folder, "/", input$event_size_map, ".png"),
+  #       width = 992, height = 744
+  #     )
+  #   },
+  #   deleteFile = FALSE
+  # )
+  # })
+
   observeEvent(input$event_size_map, {
-    map_sel <<- maps[[input$event_size_map]]
-    output$map_us <- renderLeaflet({
-      map_sel
-    })
+    output$map_static <- renderUI(
+    {
+      tags$iframe(src=paste0(input$asc_bias, "_", input$event_size_map, ".html"),
+        width = 992, height = 500, frameBorder="0")
+    }
+  )
+  })
+
+  observeEvent(input$asc_bias, {
+    output$map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(input$asc_bias, "_", input$event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
   })
 
   countyCenter <- function(selection = NA){
     return(county_geo %>% filter(GEOID == selection) %>% unlist %>% unname)
   }
 
+  
+  # observeEvent(input$county_text, {
+  #   print(countyCenter()[4])
+  #   print(input$county_text)
+  #   map_sel <<- map_sel %>%
+  #     setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
+  #   leafletProxy("map_us", session) %>%
+  #     setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
+  # }, ignoreInit=TRUE, ignoreNULL = TRUE)
 
-  observeEvent(input$county_text, {
-    print(countyCenter()[4])
-    print(input$county_text)
-    map_sel <<- map_sel %>%
-      setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
-    leafletProxy("map_us", session) %>%
-      setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
-  }, ignoreInit=TRUE, ignoreNULL = TRUE)
+  
+
 
   output$dl_map <- downloadHandler(
         filename = paste0("County-level COVID risk estimates map - ", today(), ".png"),
         content = function(file) {
             # with_path('/projects/covid19/bin', Sys.getenv("PATH"))
             showModal(modalDialog("This can take 20 seconds", title="Rendering map image...", footer=NULL))
+            map_sel <<- map_sel %>%
+      setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
+    leafletProxy("map_us", session) %>%
+      setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
             mapshot(map_sel, file = file)
             removeModal()
-        }
+        },
+        contentType="application/octet-stream"
       )
 
 
@@ -305,7 +348,7 @@ shinyServer(function(input, output, session) {
       ) +
       guides(color = guide_legend(title = "% Chance"), override.aes = list(size = 2), label.position = "bottom") +
       labs(
-        caption = paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Rishishwar, L., Jordan, I.K., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool',  URL http://covid19risk.biosci.gatech.edu/\nRisk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
+        caption = paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nRisk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
         title = paste0("COVID-19 Event Risk Assessment Planner - ", state, " - Exploratory"),
         subtitle = "Estimated chance that one or more individuals are COVID-19 positive at an event\ngiven event size (x-axis) and current case prevalence (y-axis)"
       )
@@ -450,7 +493,7 @@ shinyServer(function(input, output, session) {
         ) +
         guides(color = guide_legend(title = "% Chance"), override.aes = list(size = 2)) +
         labs(
-          caption = paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Rishishwar, L., Jordan, I.K., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool',  URL http://covid19risk.biosci.gatech.edu/\nData updated on and risk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
+          caption = paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
           title = paste0("COVID-19 Event Risk Assessment Planner - ", states_dd, " - ", today()),
           subtitle = "Estimated chance that one or more individuals are COVID-19 positive at an event\ngiven event size (x-axis) and current case prevalence (y-axis)"
         )
