@@ -129,10 +129,67 @@ shinyServer(function(input, output, session) {
       }
     )
   })
+  
+  # UK map 
+  observeEvent(input$uk_event_size_map, {
+    output$uk_map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(wd, '/www/uk_', input$uk_asc_bias, "_", input$uk_event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
+  })
+  
+  observeEvent(input$uk_asc_bias, {
+    output$uk_map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(wd, '/www/uk_', input$uk_asc_bias, "_", input$uk_event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
+  })
+  
+  # Italy map 
+  observeEvent(input$italy_event_size_map, {
+    output$italy_map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(wd, '/www/italy_', input$italy_asc_bias, "_", input$italy_event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
+  })
+  
+  observeEvent(input$italy_asc_bias, {
+    output$italy_map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(wd, '/www/italy_', input$italy_asc_bias, "_", input$italy_event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
+  })  
+  
+  # Switzerland map 
+  observeEvent(input$swiss_event_size_map, {
+    output$swiss_map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(wd, '/www/swiss_', input$swiss_asc_bias, "_", input$swiss_event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
+  })
+  
+  observeEvent(input$swiss_asc_bias, {
+    output$swiss_map_static <- renderUI(
+      {
+        tags$iframe(src=paste0(wd, '/www/swiss_', input$swiss_asc_bias, "_", input$swiss_event_size_map, ".html"),
+                    width = 992, height = 500, frameBorder="0")
+      }
+    )
+  })  
 
-  countyCenter <- function(selection = NA){
-    return(county_geo %>% filter(GEOID == selection) %>% unlist %>% unname)
-  }
+  # countyCenter <- function(selection = NA){
+  #   return(county_geo %>% filter(GEOID == selection) %>% unlist %>% unname)
+  # }
 
   
   # observeEvent(input$county_text, {
