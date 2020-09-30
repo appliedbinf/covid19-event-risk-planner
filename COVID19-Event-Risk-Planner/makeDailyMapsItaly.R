@@ -71,7 +71,7 @@ maplabsItaly <- function(riskData) {
         ))
     labels <- paste0(
         "<strong>", paste0(riskData$name, ", ", riskData$region), "</strong><br/>",
-        "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", " &#37;"),"</b><br/>",
+        "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
         "Latest Update: ", substr(riskData$date, 1, 10)
     ) %>% lapply(htmltools::HTML)
     return(labels)
