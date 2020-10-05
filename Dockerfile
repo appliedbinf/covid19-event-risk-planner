@@ -90,6 +90,7 @@ RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.14.9
 
 RUN sudo echo "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
 1 12 * * * /srv/shiny-server/makeDailyMaps.sh 0 \n\
+1 10 * * * /srv/shiny-server/makeEUMaps.sh \n\
 1 12,20 * * * /srv/shiny-server/makeDailyPlots.sh \n\
 1 * * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_current.sh \n\
 1 */4 * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_daily.sh \n\

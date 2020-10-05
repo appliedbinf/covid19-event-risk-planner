@@ -31,7 +31,7 @@ getDataItaly <- function() {
     group_by(code) %>%
     dplyr::summarise(date = first(date), cases = first(cases), region = first(region), province = first(province), n = n())
 
-  geom <<- st_read("https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_provinces.geojson")
+  geom <<- st_read("map_data/italy_simpler.geojson")
   pop <- read.csv("map_data/italy_pop.csv", stringsAsFactors = FALSE)
 
   data_join <<- data_cur %>%
@@ -70,57 +70,45 @@ calc_risk <- function(I, g, pop) {
 
 
 ######## Create and save daily map widgets ########
-event_size <<- c(10, 25, 50, 100, 500, 1000, 5000, 10000)
-asc_bias_list <<- c(5, 10)
+size <- 50
+asc_bias <- 10
 
 getDataItaly()
 
-for (asc_bias in asc_bias_list) {
-  data_Nr <- data_join %>%
-    mutate(Nr = (cases - cases_past) * asc_bias)
-  print(dim(data_Nr)[1])
-  if (dim(data_Nr)[1] > 10) {
-    dir.create("daily_risk_map_italy", recursive = T, showWarnings = F)
+data_Nr <- data_join %>%
+  mutate(Nr = (cases - cases_past) * asc_bias)
 
-    maps <- list()
-    for (size in event_size) {
+riskdt <- data_Nr %>%
+  mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
-      # riskdt_map <-  data_Nr %>%
-      #     mutate(risk = if_else(Nr > 0, round(calc_risk(Nr, size, pop)), 0)) %>%
-      #     right_join(county, by = c("fips" = "GEOID"))
-      riskdt <- data_Nr %>%
-        mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+riskdt_map <- geom %>% left_join(riskdt, by = c("prov_istat_code_num" = "code"))
 
-      riskdt_map <- geom %>% left_join(riskdt, by = c("prov_istat_code_num" = "code"))
-
-      map <- leaflet() %>%
-        addProviderTiles(providers$CartoDB.Positron) %>%
-        # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
-        fitBounds(5, 37, 20, 48) %>%
-        addPolygons(
-          data = riskdt_map,
-          color = "#444444", weight = 0.2, smoothFactor = 0.1,
-          opacity = 1.0, fillOpacity = 0.7,
-          fillColor = ~ pal(risk),
-          highlight = highlightOptions(weight = 1),
-          label = maplabsItaly(riskdt_map)
-        ) %>%
-        addLegend(
-          data = riskdt_map,
-          position = "topright", pal = pal, values = ~risk,
-          title = "Risk Level (%)",
-          opacity = 0.7,
-          labFormat = function(type, cuts, p) {
-            paste0(legendlabs)
-          }
-        ) %>%
-        addEasyButton(easyButton(
-          icon = "fa-crosshairs fa-lg", title = "Locate Me",
-          onClick = JS("function(btn, map){ map.locate({setView: true, maxZoom: 7});}")
-        ))
-      maps[[size]] <- map
-      maps[[size]]$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
-      mapshot(map, url = file.path(getwd(), "www", paste0("italy_", asc_bias, "_", size, ".html")))
+map <- leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
+  fitBounds(5, 37, 20, 48) %>%
+  addPolygons(
+    data = riskdt_map,
+    color = "#444444", weight = 0.2, smoothFactor = 0.1,
+    opacity = 1.0, fillOpacity = 0.7,
+    fillColor = ~ pal(risk),
+    highlight = highlightOptions(weight = 1),
+    label = maplabsItaly(riskdt_map)
+  ) %>%
+  addLegend(
+    data = riskdt_map,
+    position = "topright", pal = pal, values = ~risk,
+    title = "Risk Level (%)",
+    opacity = 0.7,
+    labFormat = function(type, cuts, p) {
+      paste0(legendlabs)
     }
-  }
-}
+  ) %>%
+  addEasyButton(easyButton(
+    icon = "fa-crosshairs fa-lg", title = "Locate Me",
+    onClick = JS("function(btn, map){ map.locate({setView: true, maxZoom: 7});}")
+  ))
+# map$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
+mapshot(map, file = file.path(getwd(), "daily_risk_map_italy",current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
+post_tweet(status = paste0("Italy province-level risk estimate update for ",  now("Europe/Rome"), " ", tz("Europe/Rome"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 10:1 ascertainment bias]"),
+ media = file.path("daily_risk_map_italy", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))

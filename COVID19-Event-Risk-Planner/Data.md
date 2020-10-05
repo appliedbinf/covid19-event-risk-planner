@@ -1,4 +1,5 @@
 ### United States of America
+#### Released: July 7, 2020
 
 **COVID19 data**
 
@@ -12,14 +13,17 @@ US 2019 population estimate data comes from the US Census: https://www.census.go
 
 
 ### United Kingdom
+#### Released: October 5, 2020
 
 The Coronavirus (COVID-19) in the UK API from Public Health England and NHSX: https://coronavirus.data.gov.uk
 
 
 ### Italy
+#### Released: October 5, 2020
 
 Italian Department of Civil Protection COVID-19 Data: https://github.com/pcm-dpc/COVID-19/
 
 ### Switzerland
+#### Released: October 5, 2020
 
 Specialist Unit for Open Government Data Canton of Zurich COVID-19 data: https://github.com/openZH/covid_19

@@ -121,17 +121,12 @@ shinyUI(fluidPage(
       id = "global",
       title = "Global Risk Estimates",
       fluid = TRUE,
-      # tabsetPanel(
-      #   tabPanel(
-      #       id = "UKMap",
-      #       title = "United Kingdom",
-      #       fluid = TRUE,
       sidebarLayout(
         sidebarPanel(
           width = 2,
           HTML(
             paste0(
-              "<p>This map shows the risk level of attending an event, given the event size and location.",
+              "<p>This map shows the risk level of attending an event, given the event size and location for Italy, Switzerland, and the UK.",
               "<br/><br/>",
               "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a NUT-3 level area (County, Local Authority, Council, District), given the size of the event.",
               "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
@@ -158,108 +153,11 @@ shinyUI(fluidPage(
         mainPanel(
           fluidRow(column(
             10,
-            htmlOutput("uk_map_static", width = "331px", height = "744px")
-          )),
-          fluidRow(column(
-            10,
-            htmlOutput("italy_map_static", width = "331px", height = "744px")
-          )),
-          fluidRow(
-            column(
-              10,
-              htmlOutput("swiss_map_static", width = "331px", height = "744px")
-            )
-
-            # ),
-          )
+            htmlOutput("eu_map_static", width = "331px", height = "744px")
+          ))
         )
       )
     ),
-    #   tabPanel(
-    #       id = "ItalyMap",
-    #       title = "Italy",
-    #       fluid = TRUE,
-    #       sidebarLayout(
-    #           sidebarPanel(
-    #               width=2,
-    #               HTML(
-    #                   paste0(
-    #                       "<p>This map shows the risk level of attending an event, given the event size and location.",
-    #                       "<br/><br/>",
-    #                       "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a province, given the size of the event.",
-    #                       "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
-    #                       "<br/><br/>",
-    #                       "Choose an event size and ascertainment bias below.</p>"
-    #                   )
-    #               ),
-    #               shinyWidgets::sliderTextInput(
-    #                   "italy_event_size_map",
-    #                   "Event Size: ",
-    #                   choices = c(10, 25, 50, 100, 500, 1000, 5000, 10000),
-    #                   selected = 100,
-    #                   grid = T
-    #               ),
-    #               shinyWidgets::awesomeRadio(
-    #                   inputId = "italy_asc_bias",
-    #                   label = "Select Ascertainment Bias",
-    #                   choices = c("5", "10"),
-    #                   selected = "10",
-    #                   status = "warning",
-    #                   inline=T
-    #               )
-    #           ),
-    #           mainPanel(
-    #               fluidRow(column(
-    #                   10,
-    #                   htmlOutput("italy_map_static", width = "992px", height = "744px")
-    #                   # ),
-    #               ))
-    #           )
-    #       )
-    #   ),
-    #   tabPanel(
-    #     id = "SwissMap",
-    #     title = "Switzerland",
-    #     fluid = TRUE,
-    #     sidebarLayout(
-    #         sidebarPanel(
-    #             width=2,
-    #             HTML(
-    #                 paste0(
-    #                     "<p>This map shows the risk level of attending an event, given the event size and location.",
-    #                     "<br/><br/>",
-    #                     "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a canton, given the size of the event.",
-    #                     "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
-    #                     "<br/><br/>",
-    #                     "Choose an event size and ascertainment bias below.</p>"
-    #                 )
-    #             ),
-    #             shinyWidgets::sliderTextInput(
-    #                 "swiss_event_size_map",
-    #                 "Event Size: ",
-    #                 choices = c(10, 25, 50, 100, 500, 1000, 5000, 10000),
-    #                 selected = 100,
-    #                 grid = T
-    #             ),
-    #             shinyWidgets::awesomeRadio(
-    #                 inputId = "swiss_asc_bias",
-    #                 label = "Select Ascertainment Bias",
-    #                 choices = c("5", "10"),
-    #                 selected = "10",
-    #                 status = "warning",
-    #                 inline=T
-    #             )
-    #         ),
-    #         mainPanel(
-    #             fluidRow(column(
-    #                 10,
-    #                 htmlOutput("swiss_map_static", width = "992px", height = "744px")
-    #                 # ),
-    #             ))
-    #         )
-    #     )
-    # ))
-    # ),
     tabPanel(
       id = "risk_estimates",
       "USA Continuous risk estimates",

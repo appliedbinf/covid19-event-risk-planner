@@ -8,6 +8,8 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Joshua Weitz](http://ecotheory.biology.gatech.edu/) (Georgia Institute of Technology, Biological Sciences, GT-BIOS)
 
 #### Website and Dashboard Development
+
+**Georgia Institute of Technology**
 - [Aroon T. Chande](https://aroonchan.de) (GT-BIOS and Applied Bioinformatics Laboratory)
 - [Lavanya Rishishwar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GT-BIOS and Applied Bioinformatics Laboratory)
 - [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en)
@@ -15,6 +17,12 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Seohla Lee](https://seolhalee.github.io/)  (Friendly Cities Lab at GT)
 - [Clio M. Andris](http://friendlycities.gatech.edu/)  (Friendly Cities Lab at GT)  
 - [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
+- [Stephen Beckett](http://sjbeckett.github.io/) (GT-BIOS)
+- [Quan Nguyen](https://ecotheory.biosci.gatech.edu/) (GT-BIOS)
+
+**Global**
+
+ISI Foundation: http://datainterfaces.org/projects/covid19eventi/
 
 #### Acknowledgements
 The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on concept development.

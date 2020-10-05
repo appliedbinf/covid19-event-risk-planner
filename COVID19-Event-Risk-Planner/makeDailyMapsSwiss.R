@@ -71,49 +71,41 @@ calc_risk <- function(I, g, pop) {
 
 
 ######## Create and save daily map widgets ########
-event_size <<- c(10, 25, 50, 100, 500, 1000, 5000, 10000)
-asc_bias_list <<- c(5, 10)
+size <- 100
+asc_bias = 10
 
 getDataSwiss()
 
-for (asc_bias in asc_bias_list) {
-  data_Nr <- data_join %>%
-    mutate(Nr = (cases - cases_past) * asc_bias)
-  print(dim(data_Nr)[1])
-  if (dim(data_Nr)[1] > 10) {
-    dir.create("daily_risk_map_swiss", recursive = T, showWarnings = F)
 
-    maps <- list()
-    for (size in event_size) {
-      riskdt <- data_Nr %>%
-        mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+data_Nr <- data_join %>%
+  mutate(Nr = (cases - cases_past) * asc_bias)
+riskdt <- data_Nr %>%
+  mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
-      riskdt_map <- geom %>% left_join(riskdt, by = c("id" = "code"))
+riskdt_map <- geom %>% left_join(riskdt, by = c("id" = "code"))
 
-      map <- leaflet() %>%
-        addProviderTiles(providers$CartoDB.Positron) %>%
-        # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
-        fitBounds(7.5, 47.5, 9, 46) %>%
-        addPolygons(
-          data = riskdt_map,
-          color = "#444444", weight = 0.2, smoothFactor = 0.1,
-          opacity = 1.0, fillOpacity = 0.7,
-          fillColor = ~ pal(risk),
-          highlight = highlightOptions(weight = 1),
-          label = maplabsSwiss(riskdt_map)
-        ) %>%
-        addLegend(
-          data = riskdt_map,
-          position = "topright", pal = pal, values = ~risk,
-          title = "Risk Level (%)",
-          opacity = 0.7,
-          labFormat = function(type, cuts, p) {
-            paste0(legendlabs)
-          }
-        )
-      maps[[size]] <- map
-      maps[[size]]$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
-      mapshot(map, url = file.path(getwd(), "www", paste0("swiss_", asc_bias, "_", size, ".html")))
+map <- leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
+  fitBounds(7.5, 47.5, 9, 46) %>%
+  addPolygons(
+    data = riskdt_map,
+    color = "#444444", weight = 0.2, smoothFactor = 0.1,
+    opacity = 1.0, fillOpacity = 0.7,
+    fillColor = ~ pal(risk),
+    highlight = highlightOptions(weight = 1),
+    label = maplabsSwiss(riskdt_map)
+  ) %>%
+  addLegend(
+    data = riskdt_map,
+    position = "topright", pal = pal, values = ~risk,
+    title = "Risk Level (%)",
+    opacity = 0.7,
+    labFormat = function(type, cuts, p) {
+      paste0(legendlabs)
     }
-  }
-}
+  )
+
+mapshot(map, file = file.path(getwd(), "daily_risk_map_swiss", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
+post_tweet(status = paste0("Swiss canton-level risk estimate update for ",  now("Europe/Zurich"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 10:1 ascertainment bias]"),
+ media = file.path("daily_risk_map_swiss", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))

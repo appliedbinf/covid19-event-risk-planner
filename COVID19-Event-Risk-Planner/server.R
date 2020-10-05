@@ -116,43 +116,19 @@ shinyServer(function(input, output, session) {
 
   # UK map
   observeEvent(input$global_event_size_map, {
-    output$uk_map_static <- renderUI({
+    output$eu_map_static <- renderUI({
       tags$iframe(
-        src = paste0("uk_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "1"
-      )
-    })
-    output$italy_map_static <- renderUI({
-      tags$iframe(
-        src = paste0("italy_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "1"
-      )
-    })
-    output$swiss_map_static <- renderUI({
-      tags$iframe(
-        src = paste0("swiss_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "1"
+        src = paste0("eu_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
+        width = 992, height = 500, frameBorder = "0"
       )
     })
   })
 
   observeEvent(input$global_asc_bias, {
-    output$uk_map_static <- renderUI({
+    output$eu_map_static <- renderUI({
       tags$iframe(
-        src = paste0("uk_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "1"
-      )
-    })
-    output$ital_map_static <- renderUI({
-      tags$iframe(
-        src = paste0("ital_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "1"
-      )
-    })
-    output$swiss_map_static <- renderUI({
-      tags$iframe(
-        src = paste0("swiss_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "1"
+        src = paste0("eu_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
+        width = 992, height = 500, frameBorder = "0"
       )
     })
   })

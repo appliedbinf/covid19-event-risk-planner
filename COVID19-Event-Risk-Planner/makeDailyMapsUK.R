@@ -94,59 +94,41 @@ calc_risk <- function(I, g, pop) {
 
 
 ######## Create and save daily map widgets ########
-event_size <<- c(10, 25, 50, 100, 500, 1000, 5000, 10000)
-asc_bias_list <<- c(5, 10)
+size <- 50
+asc_bias <- 10
 
 getDataUK()
 
-for (asc_bias in asc_bias_list) {
-  data_Nr <- data_join %>%
-    mutate(Nr = (cases - cases_past) * asc_bias)
-  print(dim(data_Nr)[1])
-  if (dim(data_Nr)[1] > 10) {
-    dir.create("daily_risk_map_uk", recursive = T, showWarnings = F)
+data_Nr <- data_join %>%
+  mutate(Nr = (cases - cases_past) * asc_bias)
+riskdt <- data_Nr %>%
+  mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
-    maps <- list()
-    for (size in event_size) {
+riskdt_map <- geom %>% left_join(riskdt, by = c("code"))
 
-      # riskdt_map <-  data_Nr %>%
-      #     mutate(risk = if_else(Nr > 0, round(calc_risk(Nr, size, pop)), 0)) %>%
-      #     right_join(county, by = c("fips" = "GEOID"))
-      riskdt <- data_Nr %>%
-        mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+# riskdt_hatch <- HatchedPolygons::hatched.SpatialPolygons(riskdt_map, density = c(6,4), angle = c(45, 135))
 
-      riskdt_map <- geom %>% left_join(riskdt, by = c("code"))
-
-      # riskdt_hatch <- HatchedPolygons::hatched.SpatialPolygons(riskdt_map, density = c(6,4), angle = c(45, 135))
-
-      map <- leaflet() %>%
-        addProviderTiles(providers$CartoDB.Positron) %>%
-        # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
-        fitBounds(-8, 60, 0, 52) %>%
-        addPolygons(
-          data = riskdt_map,
-          color = "#444444", weight = 0.2, smoothFactor = 0.1,
-          opacity = 1.0, fillOpacity = 0.7,
-          fillColor = ~ pal(risk),
-          highlight = highlightOptions(weight = 1.5, bringToFront = T),
-          label = maplabsUK(riskdt_map)
-        ) %>%
-        addLegend(
-          data = riskdt_map,
-          position = "topright", pal = pal, values = ~risk,
-          title = "Risk Level (%)",
-          opacity = 0.7,
-          labFormat = function(type, cuts, p) {
-            paste0(legendlabs)
-          }
-        ) %>%
-        addEasyButton(easyButton(
-          icon = "fa-crosshairs fa-lg", title = "Locate Me",
-          onClick = JS("function(btn, map){ map.locate({setView: true, maxZoom: 7});}")
-        ))
-      maps[[size]] <- map
-      maps[[size]]$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
-      mapshot(map, url = file.path(getwd(), "www", paste0("uk_", asc_bias, "_", size, ".html")))
+map <- leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
+  fitBounds(-8.2, 60, 0, 49.5) %>%
+  addPolygons(
+    data = riskdt_map,
+    color = "#444444", weight = 0.2, smoothFactor = 0.1,
+    opacity = 1.0, fillOpacity = 0.7,
+    fillColor = ~ pal(risk),
+    highlight = highlightOptions(weight = 1.5, bringToFront = T),
+    label = maplabsUK(riskdt_map)
+  ) %>%
+  addLegend(
+    data = riskdt_map,
+    position = "topright", pal = pal, values = ~risk,
+    title = "Risk Level (%)",
+    opacity = 0.7,
+    labFormat = function(type, cuts, p) {
+      paste0(legendlabs)
     }
-  }
-}
+  )
+mapshot(map, file = file.path(getwd(), "daily_risk_map_uk", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
+post_tweet(status = paste0("UK county-level risk estimate update for ",  now("Europe/London"), " ", tz("Europe/London"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 10:1 ascertainment bias]"),
+ media = file.path("daily_risk_map_uk", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
