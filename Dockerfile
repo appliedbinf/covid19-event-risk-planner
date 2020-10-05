@@ -1,4 +1,4 @@
-FROM openanalytics/r-base as aroon/c19r-base
+FROM openanalytics/r-base
 
 MAINTAINER Aroon Chande "achande@ihrc.com, mail@aroonchande.com"
 
@@ -64,6 +64,10 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev
 
 RUN R -e "install.packages('shiny')"
+
+RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.14.948-amd64.deb && \
+    yes | sudo gdebi shiny-server-1.5.14.948-amd64.deb
+
 RUN R -e "install.packages('withr')"
 RUN R -e "install.packages('ggplot2')"
 RUN R -e "install.packages('ggrepel')"
@@ -78,23 +82,24 @@ RUN R -e "install.packages('devtools')"
 RUN R -e 'devtools::install_github("andrewsali/shinycssloaders")'
 RUN R -e 'install.packages("ggthemes")'
 RUN R -e 'devtools::install_github("dreamRs/shinyWidgets")'
+RUN R -e 'install.packages("ggpubr")'
+RUN R -e 'install.packages("leaflet.extras")'
+RUN R -e 'install.packages("RCurl")'
+RUN R -e 'install.packages("rtweet")'
+RUN R -e 'install.packages("tidyverse")'
 COPY bin/phantomjs /usr/bin/
 # copy the app to the image
 COPY Rprofile.site /usr/lib/R/etc/
+COPY .rtweet_token.rds /root/.rtweet_token.rds
+COPY Renviron /root/.Renviron
 
-
-FROM aroon/c19r-base:latest as c19r-swarm-dev
-
-RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.14.948-amd64.deb && \
-    yes | sudo gdebi shiny-server-1.5.14.948-amd64.deb
-
-RUN sudo echo "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
+RUN sudo echo -e "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
 1 12 * * * /srv/shiny-server/makeDailyMaps.sh 0 \n\
 1 10 * * * /srv/shiny-server/makeEUMaps.sh \n\
 1 12,20 * * * /srv/shiny-server/makeDailyPlots.sh \n\
 1 * * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_current.sh \n\
 1 */4 * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_daily.sh \n\
-" > /etc/crontabs/root
+" > /var/spool/cron/crontabs/root
 
 COPY COVID19-Event-Risk-Planner /srv/shiny-server
 
