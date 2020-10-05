@@ -4,3 +4,4 @@ base="/srv/shiny-server/"
 mkdir -p ${base}/daily_risk_map/${fname}
 cd ${base}/
 Rscript ${base}/makeDailyMaps.R $fname $1
+Rscript ${base}/makeDailyMapsEU.R $fname

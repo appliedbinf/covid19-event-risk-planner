@@ -8,6 +8,8 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Joshua Weitz](http://ecotheory.biology.gatech.edu/) (Georgia Institute of Technology, Biological Sciences, GT-BIOS)
 
 #### Website and Dashboard Development
+
+**Georgia Institute of Technology**
 - [Aroon T. Chande](https://aroonchan.de) (GT-BIOS and Applied Bioinformatics Laboratory)
 - [Lavanya Rishishwar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GT-BIOS and Applied Bioinformatics Laboratory)
 - [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en)
@@ -15,11 +17,19 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Seohla Lee](https://seolhalee.github.io/)  (Friendly Cities Lab at GT)
 - [Clio M. Andris](http://friendlycities.gatech.edu/)  (Friendly Cities Lab at GT)  
 - [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
+- [Stephen Beckett](http://sjbeckett.github.io/) (GT-BIOS)
+- [Quan Nguyen](https://ecotheory.biosci.gatech.edu/) (GT-BIOS)
+
+**Global**
+
+ISI Foundation: http://datainterfaces.org/projects/covid19eventi/
 
 #### Acknowledgements
 The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on concept development.
 
 ### How to cite
+
+Chande, A.T., Lee, S., Harris, M., Hilley, T., Clio, A., Weitz J.S. (2020) 'Real-time, interactive website for US-county level Covid-19 event risk assessment', https://www.medrxiv.org/content/10.1101/2020.08.24.20181271v1
 
 Chande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Hilley, T., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool', URL http://covid19risk.biosci.gatech.edu/
 
