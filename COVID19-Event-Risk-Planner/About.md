@@ -29,6 +29,8 @@ The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on
 
 ### How to cite
 
+Chande, A.T., Lee, S., Harris, M., Hilley, T., Clio, A., Weitz J.S. (2020) 'Real-time, interactive website for US-county level Covid-19 event risk assessment', https://www.medrxiv.org/content/10.1101/2020.08.24.20181271v1
+
 Chande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Hilley, T., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool', URL http://covid19risk.biosci.gatech.edu/
 
 Weitz, J.S., Harris, M., Chande, A.T., Gussler, J.W., Rishishwar, L. and Jordan, I.K. (2020) Online COVID-19 Dashboard Calculates How Risky Reopenings and Gatherings Can Be. Sci Am. https://blogs.scientificamerican.com/observations/online-covid-19-dashboard-calculates-how-risky-reopenings-and-gatherings-can-be/
