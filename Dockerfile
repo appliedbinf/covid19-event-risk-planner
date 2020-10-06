@@ -93,6 +93,9 @@ COPY Rprofile.site /usr/lib/R/etc/
 COPY .rtweet_token.rds /root/.rtweet_token.rds
 COPY Renviron /root/.Renviron
 
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN sudo echo -e "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
 1 12 * * * /srv/shiny-server/makeDailyMaps.sh 0 \n\
 1 10 * * * /srv/shiny-server/makeEUMaps.sh \n\
