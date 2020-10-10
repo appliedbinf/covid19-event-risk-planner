@@ -12,12 +12,18 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Lavanya Rishishwar](https://scholar.google.com/citations?user=tygOpuIAAAAJ&hl=en) (GT-BIOS and Applied Bioinformatics Laboratory)
 - [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en)
 - [Mallory Harris](https://twitter.com/malar0ne)  (Stanford Biology)
+- [Stephen Beckett](http://sjbeckett.github.io/) (GT-BIOS)
+- [Quan Nguyen](https://ecotheory.biosci.gatech.edu/)  (GT-BIOS)
 - [Seohla Lee](https://seolhalee.github.io/)  (Friendly Cities Lab at GT)
 - [Clio M. Andris](http://friendlycities.gatech.edu/)  (Friendly Cities Lab at GT)  
 - [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
 
 #### Acknowledgements
 The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on concept development.
+
+#### International Collaborations
+
+http://datainterfaces.org/projects/covid19eventi/
 
 ### How to cite
 

@@ -67,11 +67,9 @@ shinyServer(function(input, output, session) {
     session$close()
   })
 
-  
-  # county <- readRDS("county.RDS")
+  get_data()
   updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
   updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
-  # updateSelectizeInput(session, "county_text", choices=county, selected = NA)
 
   regions <- c(
     "USA, Alphabetical" = "states-alpha.png",
@@ -149,7 +147,7 @@ shinyServer(function(input, output, session) {
     contentType = "application/octet-stream"
   )
 
-get_data()
+
   output$risk_plots <- renderImage(
     {
       risk_folder <- paste0("www/daily_risk_plots/", input$date)
