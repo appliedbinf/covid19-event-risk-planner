@@ -95,6 +95,7 @@ COPY Renviron /root/.Renviron
 
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN rm -f /shiny-server-1.5.14.948-amd64.deb
 
 RUN sudo echo -e "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
 1 12 * * * /srv/shiny-server/makeDailyMaps.sh 0 \n\

@@ -23,7 +23,7 @@ The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on
 
 #### International Collaborations
 
-http://datainterfaces.org/projects/covid19eventi/
+**Italy**: http://datainterfaces.org/projects/covid19eventi/
 
 ### How to cite
 

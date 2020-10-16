@@ -23,6 +23,8 @@ The Coronavirus (COVID-19) in the UK API from Public Health England and NHSX: ht
 
 Italian Department of Civil Protection COVID-19 Data: https://github.com/pcm-dpc/COVID-19/
 
+Italian maps: http://datainterfaces.org/projects/covid19eventi/
+
 ### Switzerland
 #### Released: October 5, 2020
 

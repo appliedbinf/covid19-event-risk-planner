@@ -72,8 +72,9 @@ shinyUI(fluidPage(
     # column(width = 3, tags$img(src = "scaled_plot.jpg"))
   ), windowTitle = "COVID-19 Event Risk Assessment Planning Tool"),
   tabsetPanel(
+    id="maps",
     tabPanel(
-      id = "Map",
+      value = "usa",
       title = "USA Risk estimates by county",
       fluid = TRUE,
       sidebarLayout(
@@ -118,7 +119,7 @@ shinyUI(fluidPage(
       )
     ),
     tabPanel(
-      id = "global",
+      value = "global",
       title = "Global Risk Estimates",
       fluid = TRUE,
       sidebarLayout(
@@ -159,7 +160,7 @@ shinyUI(fluidPage(
       )
     ),
     tabPanel(
-      id = "Data-driven",
+      value = "usa-real-time",
       "Real-time US and State-level estimates ",
       # 
       fluid = TRUE,
@@ -194,7 +195,7 @@ shinyUI(fluidPage(
       )
     ),
     tabPanel(
-      id = "risk_estimates",
+      value = "usa-continuous",
       "USA Continuous risk estimates",
       fluid = TRUE,
       sidebarLayout(
@@ -226,7 +227,7 @@ shinyUI(fluidPage(
       mainPanel(includeMarkdown("Tutorial.md"))
     ),
     tabPanel(
-      id = "about",
+      value = "about",
       "About",
       fluid = TRUE,
       tabsetPanel(

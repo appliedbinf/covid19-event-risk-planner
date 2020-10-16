@@ -58,6 +58,15 @@ get_data <- function() {
 
 
 shinyServer(function(input, output, session) {
+
+  observe({
+    query = getQueryString()
+    if ("global" %in% names(query)){
+    print("found")
+      updateTabsetPanel(session, "maps", "global")
+    }
+  }) 
+
   observeEvent(input$timeOut, {
     showModal(modalDialog(
       title = "Timeout",
