@@ -146,7 +146,7 @@ shinyUI(fluidPage(
             inputId = "global_asc_bias",
             label = "Select Ascertainment Bias",
             choices = c("5", "10"),
-            selected = "10",
+            selected = "5",
             status = "warning",
             inline = T
           )

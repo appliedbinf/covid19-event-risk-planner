@@ -200,12 +200,12 @@ getDataFrance <- function() {
     cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
     past_date <- ymd(cur_date) - 14
     data_cur <<- data %>% group_by(code) %>% 
-        summarise(code = first(code), cases = first(cases), date = first(date)) %>% 
+        summarise(code = first(code), cases = sum(cases), date = first(date)) %>% 
         as.data.frame()
     data_past <- data %>% 
         filter(date <= past_date) %>% 
         group_by(code) %>% 
-        summarise(code = first(code), cases = first(cases), date = first(date)) %>% 
+        summarise(code = first(code), cases = sum(cases), date = first(date)) %>% 
         as.data.frame()
     france_data_join <<- data_cur %>%
         inner_join(data_past, by = "code", suffix=c('', '_past')) %>%
