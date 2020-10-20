@@ -18,25 +18,35 @@ getDataFrance <- function() {
         filter(cl_age90 == 0) %>% 
         select(code = dep, date = jour, cases = P) %>%
         mutate(date = as.Date(date)) %>% 
-        arrange(desc(date)) %>% filter(!is.na(cases)) 
+        filter(!is.na(cases)) 
     geom <<- st_read('https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson')
     pop <- read.csv("map_data/france_pop.csv", stringsAsFactors = FALSE) %>% select(code = Code, name = Department, pop = Population)
     
-    cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
-    past_date <- ymd(cur_date) - 14
-    data_cur <- data %>% group_by(code) %>% 
-        summarise(code = first(code), cases = sum(cases), date = first(date)) %>% 
-        as.data.frame()
-    data_past <- data %>% 
-        filter(date <= past_date) %>% 
-        group_by(code) %>% 
-        summarise(code = first(code), cases = sum(cases), date = first(date)) %>% 
-        as.data.frame()
-    data_join <<- data_cur %>%
-        inner_join(data_past, by = "code", suffix=c('', '_past')) %>%
+    depList <- unique(data$code) # get the list of all department codes
+    
+    # sort out and calculate the number of cases during two recent weeks
+    # depList[code] = corresponding code of a department
+    sortFunc <- function(code){
+        deptCode <- depList[code] 
+        department <- data %>% filter(code == deptCode) %>% distinct(date, .keep_all = TRUE) 
+        latestDate <- department$date[length(department$date)]
+        pastDate <- latestDate - 14
+        difference <- sum(department[1:which(department$date == latestDate),'cases']) - sum(department[1:which(department$date == pastDate),'cases'])
+        vec <- data.frame(code = depList[code], date = latestDate, n = difference)
+        return(vec)
+    }
+    
+    # get the data table that includes department codes, last updated date, difference between 14 days
+    frenchTable <- data.frame()
+    for (i in 1:length(depList)){
+        vec <- sortFunc(i)
+        frenchTable <- rbind(frenchTable,vec)
+    }
+    
+    data_join <<- frenchTable %>%
         inner_join(pop, by = c("code")) %>%
-        mutate(n = date-date_past) %>% 
         select(-c('name'))
+    
     pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
     legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99" , "No or missing data")
 }
@@ -76,7 +86,7 @@ getDataFrance()
 
    
 data_Nr <- data_join %>%
-    mutate(Nr = (cases - cases_past) * asc_bias) 
+    mutate(Nr = n * asc_bias) 
        
 riskdt <- data_Nr %>% 
     mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
