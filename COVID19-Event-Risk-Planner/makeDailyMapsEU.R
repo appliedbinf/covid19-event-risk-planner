@@ -4,26 +4,7 @@
 # Maps by Seolha Lee (seolha.lee@gatehc.edu)
 # Aroon Chande <mail@aroonchande.com> <achande@ihrc.com>
 #####################################################################
-library(dplyr)
-library(ggplot2)
-library(ggpubr)
-library(ggrepel)
-library(ggthemes)
-library(jsonlite)
-library(leaflet)
-library(leaflet.extras)
-library(lubridate)
-library(mapview)
-library(matlab)
-library(RCurl)
-library(rtweet)
-library(sf)
-library(withr)
-library(htmlwidgets)
-library(httr)
-library(stringr)
-library(tidyverse)
-Sys.setenv(PATH = with_path("/projects/covid19/bin", Sys.getenv("PATH")))
+source("libraries.R")
 
 
 
@@ -206,24 +187,120 @@ calc_risk <- function(I, g, pop) {
   return(round(r * 100, 1))
 }
 
+getDataFrance <- function() {
+    
+    data <- read.csv('https://www.data.gouv.fr/fr/datasets/r/406c6a23-e283-4300-9484-54e78c8ae675',sep = ';', stringsAsFactors = FALSE) %>%
+        filter(cl_age90 == 0) %>% 
+        select(code = dep, date = jour, cases = P) %>%
+        mutate(date = as.Date(date)) %>% 
+        arrange(desc(date)) %>% filter(!is.na(cases)) 
+    france_geom <<- st_read('https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson')
+    pop <- read.csv("map_data/france_pop.csv", stringsAsFactors = FALSE) %>% select(code = Code, name = Department, pop = Population)
+    
+    cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
+    past_date <- ymd(cur_date) - 14
+    data_cur <<- data %>% group_by(code) %>% 
+        summarise(code = first(code), cases = first(cases), date = first(date)) %>% 
+        as.data.frame()
+    data_past <- data %>% 
+        filter(date <= past_date) %>% 
+        group_by(code) %>% 
+        summarise(code = first(code), cases = first(cases), date = first(date)) %>% 
+        as.data.frame()
+    france_data_join <<- data_cur %>%
+        inner_join(data_past, by = "code", suffix=c('', '_past')) %>%
+        inner_join(pop, by = c("code")) %>%
+        mutate(n = date-date_past) %>% 
+        select(-c('name'))
+    france_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
+    france_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99" , "No or missing data")
+}
+
+# Create mouse-over labels
+maplabsFrance <- function(riskData) {
+    riskData <- riskData %>%
+        mutate(risk = case_when(
+            risk == 100 ~ '> 99',
+            risk == 0 ~ '< 1',
+            is.na(risk) ~ 'No data',
+            TRUE ~ as.character(risk)
+        ))
+    labels <- paste0(
+        "<strong>", paste0('Department of ', riskData$nom), "</strong><br/>",
+        "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
+        "Latest Update: ", substr(riskData$date, 1, 10)
+    ) %>% lapply(htmltools::HTML)
+    return(labels)
+}
+
+getDataAustria <- function() {
+    
+    data <- read.csv('https://covid19-dashboard.ages.at/data/CovidFaelle_Timeline_GKZ.csv',sep = ';',encoding = 'UTF-8', stringsAsFactors = FALSE) %>% 
+        select(date = Time, name = Bezirk, code = GKZ, population = AnzEinwohner, cases = AnzahlFaelleSum)
+    # format the date 
+    for (i in 1:length(data$date)){
+        data$date[i] <- unlist(strsplit(data$date[i],' '))[1]
+    }
+    data <- data %>% mutate(date = as.Date(format(strptime(as.character(date),"%d.%m.%Y"), "%Y-%m-%d")), 
+               code = as.character(code)) %>% 
+        arrange(desc(date)) %>% filter(!is.na(cases)) 
+    austria_geom <<- st_read('https://raw.githubusercontent.com/ginseng666/GeoJSON-TopoJSON-Austria/master/2017/simplified-99.9/bezirke_999_geo.json')
+    
+    cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
+    past_date <- ymd(cur_date) - 14
+    data_cur <<- data %>% group_by(code) %>% 
+        summarise(code = first(code), cases = first(cases), date = first(date), pop = first(population)) %>% 
+        as.data.frame()
+    data_past <- data %>% 
+        filter(date <= past_date) %>% 
+        group_by(code) %>% 
+        summarise(code = first(code), cases = first(cases), date = first(date)) %>% 
+        as.data.frame()
+    austria_data_join <<- data_cur %>%
+        inner_join(data_past, by = "code", suffix=c('', '_past')) %>%
+        mutate(n = date-date_past) 
+    austria_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
+    austria_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99" , "No or missing data")
+}
+
+# Create mouse-over labels
+maplabsAustria <- function(riskData) {
+    riskData <- riskData %>%
+        mutate(risk = case_when(
+            risk == 100 ~ '> 99',
+            risk == 0 ~ '< 1',
+            is.na(risk) ~ 'No data',
+            TRUE ~ as.character(risk)
+        ))
+    labels <- paste0(
+        "<strong>", riskData$name, "</strong><br/>",
+        "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
+        "Latest Update: ", substr(riskData$date, 1, 10)
+    ) %>% lapply(htmltools::HTML)
+    return(labels)
+}
+
 
 ######## Create and save daily map widgets ########
 
 event_size <<- c(10, 25, 50, 100, 500, 1000, 5000, 10000)
 asc_bias_list <<- c(5, 10)
-
 getDataUK()
-
 getDataSwiss()
-
 getDataItaly()
+getDataAustria()
+getDataFrance()
+
+scale_factor = 10/14
 
 for (asc_bias in asc_bias_list) {
 
 
-  uk_data_Nr <- uk_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias)
-  italy_data_Nr <- italy_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias)
-  swiss_data_Nr <- swiss_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias)
+  uk_data_Nr <- uk_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
+  italy_data_Nr <- italy_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
+  swiss_data_Nr <- swiss_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
+  france_data_Nr <- france_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
+  austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
 
   for (size in event_size){
     uk_riskdt <- uk_data_Nr %>%
@@ -242,6 +319,17 @@ for (asc_bias in asc_bias_list) {
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
     swiss_riskdt_map <- swiss_geom %>% left_join(swiss_riskdt, by = c("id" = "code"))
+
+    france_riskdt <- france_data_Nr %>%
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+
+    france_riskdt_map <- france_geom %>% left_join(france_riskdt, by = c("code"))
+
+    austria_riskdt <- austria_data_Nr %>%
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+
+    austria_riskdt_map <- austria_geom %>% left_join(austria_riskdt, by = c("iso" = "code"))
+
 
 
     map <- leaflet() %>%
@@ -280,6 +368,22 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ italy_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsItaly(italy_riskdt_map)
+      ) %>%
+      addPolygons(
+        data = france_riskdt_map,
+        color = "#444444", weight = 0.2, smoothFactor = 0.1,
+        opacity = 1.0, fillOpacity = 0.7,
+        fillColor = ~ france_pal(risk),
+        highlight = highlightOptions(weight = 1),
+        label = maplabsFrance(france_riskdt_map)
+      ) %>%
+      addPolygons(
+        data = austria_riskdt_map,
+        color = "#444444", weight = 0.2, smoothFactor = 0.1,
+        opacity = 1.0, fillOpacity = 0.7,
+        fillColor = ~ austria_pal(risk),
+        highlight = highlightOptions(weight = 1),
+        label = maplabsAustria(austria_riskdt_map)
       ) %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",

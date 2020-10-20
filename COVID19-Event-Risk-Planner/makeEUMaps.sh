@@ -2,8 +2,10 @@
 set -eou
 fname=$(date +%Y%m%d_%H%M%S)
 base="/srv/shiny-server/"
-mkdir -p ${base}/{daily_risk_map_italy,daily_risk_map_swiss,daily_risk_map_uk}/${fname}
+mkdir -p ${base}/daily_risk_map_{italy,_swiss,uk,france,austria}/${fname}
 cd ${base}/
 Rscript ${base}/makeDailyMapsSwiss.R $fname
 Rscript ${base}/makeDailyMapsUK.R $fname
 Rscript ${base}/makeDailyMapsItaly.R $fname
+Rscript ${base}/makeDailyMapsFrance.R $fname
+Rscript ${base}/makeDailyMapsAustria.R $fname
