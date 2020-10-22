@@ -94,13 +94,14 @@ shinyUI(fluidPage(
             htmlOutput("map_static", width = "992px", height = "744px")
             # ),
           )),
-          fluidRow(
-            align="center",
-            shinyWidgets::actionBttn("to_global", label="Take me to global risk estimates", style="jelly", color="success", size="sm")
-            ),
           HTML(
             "<p>(Note: This map uses a Web Mercator projection that inflates the area of states in northern latitudes. County boundaries are generalized for faster drawing.)</p>"
-          )
+          ),
+          fluidRow(
+            align="center",
+            column(10,
+            shinyWidgets::actionBttn("to_global", label="Take me to global risk estimates", style="jelly", color="success", size="sm")
+            ))
         )
       )
     ),
@@ -143,10 +144,14 @@ shinyUI(fluidPage(
             10,
             htmlOutput("eu_map_static", width = "331px", height = "744px")
           )),
+           HTML(
+            "<p>(Note: This map uses a Web Mercator projection that inflates the area of states in northern latitudes. County boundaries are generalized for faster drawing.)</p>"
+          ),
           fluidRow(
             align="center",
+            column(10,
             shinyWidgets::actionBttn("to_usa", label="Take me to US risk estimates", style="jelly", color="success", size="sm")
-            )
+            ))
         )
       )
     ),
