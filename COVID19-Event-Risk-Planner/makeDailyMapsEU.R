@@ -348,7 +348,7 @@ for (asc_bias in asc_bias_list) {
       # fitBounds(7.5, 47.5, 9, 46) %>%
       addPolygons(
         data = europe, 
-        fill = FALSE, color = "#943b29", weight = 5, smoothFactor = 0.5,
+        fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
         opacity = 1.0
       ) %>%
       addPolygons(

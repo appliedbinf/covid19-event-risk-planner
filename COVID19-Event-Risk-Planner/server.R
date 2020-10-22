@@ -66,6 +66,9 @@ disconnected <- sever_default(title = "Session timeout reached",
 
 shinyServer(function(input, output, session) {
   rupture(ms = 600000, html=disconnected)
+  observeEvent(input$ruptured, {
+    session$close()
+    })
     
   observe({
     query = getQueryString()
