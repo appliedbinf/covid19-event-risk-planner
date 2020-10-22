@@ -21,6 +21,14 @@ dataQueryUK <- function(date) {
   if (response$status_code >= 400) {
     err_msg <- httr::http_status(response)
     stop(err_msg)
+  } else if (response$status_code >= 204){
+    cur_date <<- date - 1 
+    dataURL <- paste0("https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=utla;date=", cur_date, '&structure={"date":"date","code":"areaCode","cases":"cumCasesBySpecimenDate"}')
+  response <- httr::GET(
+    url = dataURL,
+    timeout(10)
+  )
+
   }
   # Convert response from binary to JSON:
   json_text <- content(response, "text")
@@ -30,11 +38,11 @@ dataQueryUK <- function(date) {
 }
 
 getDataUK <- function() {
-  cur_date <- ymd(gsub("-", "", Sys.Date())) - 1
-  past_date <- ymd(cur_date) - 14
+  cur_date <<- ymd(gsub("-", "", Sys.Date())) - 1
 
-  data_past <- dataQueryUK(past_date)
   data_cur <- dataQueryUK(cur_date)
+  past_date <- ymd(cur_date) - 14
+  data_past <- dataQueryUK(past_date)
   for (i in c(1:13)) {
     data_cur <- data_cur %>% rbind(dataQueryUK(cur_date - i))
   }

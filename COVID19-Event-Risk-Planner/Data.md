@@ -29,3 +29,14 @@ Italian maps: http://datainterfaces.org/projects/covid19eventi/
 #### Released: October 5, 2020
 
 Specialist Unit for Open Government Data Canton of Zurich COVID-19 data: https://github.com/openZH/covid_19
+
+### Austria 
+#### Released: October 19, 2020
+
+Federal Ministry for Social Affairs, Health, Care and Consumer Protection (BMSGPK) data on COVID-19 for Austria: https://www.data.gv.at/covid-19/
+
+### France
+#### Released: October 19, 2020
+
+Santé publique France COVID-19 data for France :  https://www.data.gouv.fr/fr/datasets/donnees-relatives-aux-resultats-des-tests-virologiques-covid-19/  
+Note this resource also contains data for overseas departments of France, and for Saint Barthélemy, Saint Martin, and Saint Pierre and Miquelon.

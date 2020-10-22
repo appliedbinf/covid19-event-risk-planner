@@ -109,7 +109,7 @@ for (asc_bias in asc_bias_list) {
         addPolygons(
           data = riskdt_map,
           color = "#444444", weight = 0.2, smoothFactor = 0.1,
-          opacity = 1.0, fillOpacity = 0.5,
+          opacity = 1.0, fillOpacity = 0.7,
           fillColor = ~ pal(risk),
           highlight = highlightOptions(weight = 1),
           label = maplabs(riskdt_map)
@@ -123,7 +123,7 @@ for (asc_bias in asc_bias_list) {
           data = riskdt_map,
           position = "topright", pal = pal, values = ~risk,
           title = "Risk Level (%)",
-          opacity = 1,
+          opacity = .7,
           labFormat = function(type, cuts, p) {
             paste0(legendlabs)
           }

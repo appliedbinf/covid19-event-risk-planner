@@ -11,32 +11,13 @@ library(shiny)
 library(shinythemes)
 library(shinyWidgets)
 library(leaflet)
+library(sever)
 options(scipen = 999)
 
-timeoutSeconds <- 600
-
-inactivity <- sprintf("function idleTimer() {
-var t = setTimeout(logout, %s);
-window.onmousemove = resetTimer; // catches mouse movements
-window.onmousedown = resetTimer; // catches mouse movements
-window.onclick = resetTimer;     // catches mouse clicks
-window.onscroll = resetTimer;    // catches scrolling
-window.onkeypress = resetTimer;  //catches keyboard actions
-
-function logout() {
-Shiny.setInputValue('timeOut', '%ss')
-}
-
-function resetTimer() {
-clearTimeout(t);
-t = setTimeout(logout, %s);  // time is in milliseconds (1000 is 1 second)
-}
-}
-idleTimer();", timeoutSeconds * 1000, timeoutSeconds, timeoutSeconds * 1000)
 
 shinyUI(fluidPage(
   theme = shinytheme("sandstone"),
-  tags$script(inactivity),
+  use_sever(),
   tags$head(
     includeHTML(("www/ga.html")),
     includeHTML(("www/mt.html")),
@@ -90,6 +71,7 @@ shinyUI(fluidPage(
               "Choose an event size and ascertainment bias below.</p>"
             )
           ),
+          actionLink("to_data", "See our data sources"),
           shinyWidgets::sliderTextInput(
             "event_size_map",
             "Event Size: ",
@@ -112,6 +94,10 @@ shinyUI(fluidPage(
             htmlOutput("map_static", width = "992px", height = "744px")
             # ),
           )),
+          fluidRow(
+            align="center",
+            shinyWidgets::actionBttn("to_global", label="Take me to global risk estimates", style="jelly", color="success", size="sm")
+            ),
           HTML(
             "<p>(Note: This map uses a Web Mercator projection that inflates the area of states in northern latitudes. County boundaries are generalized for faster drawing.)</p>"
           )
@@ -127,7 +113,7 @@ shinyUI(fluidPage(
           width = 2,
           HTML(
             paste0(
-              "<p>This map shows the risk level of attending an event, given the event size and location for Italy, Switzerland, and the UK.",
+              "<p>This map shows the risk level of attending events of different sizes at within-country resolution.",
               "<br/><br/>",
               "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a NUT-3 level area (County, Local Authority, Council, District), given the size of the event.",
               "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
@@ -135,6 +121,7 @@ shinyUI(fluidPage(
               "Choose an event size and ascertainment bias below.</p>"
             )
           ),
+          actionLink("to_data_global", "See our data sources"),
           shinyWidgets::sliderTextInput(
             "global_event_size_map",
             "Event Size: ",
@@ -155,7 +142,11 @@ shinyUI(fluidPage(
           fluidRow(column(
             10,
             htmlOutput("eu_map_static", width = "331px", height = "744px")
-          ))
+          )),
+          fluidRow(
+            align="center",
+            shinyWidgets::actionBttn("to_usa", label="Take me to US risk estimates", style="jelly", color="success", size="sm")
+            )
         )
       )
     ),
@@ -231,26 +222,27 @@ shinyUI(fluidPage(
       "About",
       fluid = TRUE,
       tabsetPanel(
+        id="abouttabs",
         tabPanel(
-          id = "Aboutcontent",
+          value = "Aboutcontent",
           "About",
           fluid = TRUE,
           mainPanel(includeMarkdown("About.md"))
         ),
         tabPanel(
-          id = "press",
+          value = "press",
           "Press",
           fluid = TRUE,
           mainPanel(includeMarkdown("Press.md"))
         ),
         tabPanel(
-          id = "data",
+          value = "data",
           "Data source",
           fluid = TRUE,
           mainPanel(includeMarkdown("Data.md"))
         ),
         tabPanel(
-          id = "previous",
+          value = "previous",
           "Previously Released Charts",
           fluid = TRUE,
           mainPanel(

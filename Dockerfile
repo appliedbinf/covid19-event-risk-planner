@@ -87,6 +87,7 @@ RUN R -e 'install.packages("leaflet.extras")'
 RUN R -e 'install.packages("RCurl")'
 RUN R -e 'install.packages("rtweet")'
 RUN R -e 'install.packages("tidyverse")'
+RUN R -e 'install.packages("sever")'
 COPY bin/phantomjs /usr/bin/
 # copy the app to the image
 COPY Rprofile.site /usr/lib/R/etc/

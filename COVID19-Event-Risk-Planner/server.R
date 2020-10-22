@@ -19,6 +19,7 @@ library(dplyr)
 library(ggthemes)
 library(leaflet)
 library(mapview)
+library(sever)
 # library(mapview, lib.loc = "/projects/covid19/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
 
 Sys.setenv(PATH = with_path("/projects/covid19/bin", Sys.getenv("PATH")))
@@ -57,24 +58,38 @@ get_data <- function() {
 }
 
 
-shinyServer(function(input, output, session) {
+disconnected <- sever_default(title = "Session timeout reached", 
+    subtitle = "Your session ended due to inactivity", 
+    button = "Reconnect",
+    button_class = "warning"
+    )
 
+shinyServer(function(input, output, session) {
+  rupture(ms = 600000, html=disconnected)
+    
   observe({
     query = getQueryString()
     if ("global" %in% names(query)){
     print("found")
       updateTabsetPanel(session, "maps", "global")
     }
-  }) 
-
-  observeEvent(input$timeOut, {
-    showModal(modalDialog(
-      title = "Timeout",
-      paste("Session timeout due to", input$timeOut, "inactivity -", Sys.time()),
-      footer = NULL
-    ))
-    session$close()
   })
+  observeEvent(input$to_usa, {
+    updateTabsetPanel(session, "maps", "usa")
+  }) 
+  observeEvent(input$to_global, {
+    updateTabsetPanel(session, "maps", "global")
+  }) 
+  observeEvent(input$to_data, {
+    updateTabsetPanel(session, "maps", "about")
+    updateTabsetPanel(session, "abouttabs", "data")
+
+  })
+  observeEvent(input$to_data_global, {
+    updateTabsetPanel(session, "maps", "about")
+    updateTabsetPanel(session, "abouttabs", "data")
+
+  }) 
 
   get_data()
   updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
