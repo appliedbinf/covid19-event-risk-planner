@@ -60,7 +60,7 @@ shinyUI(fluidPage(
       fluid = TRUE,
       sidebarLayout(
         sidebarPanel(
-          width = 2,
+          width = 3,
           HTML(
             paste0(
               "<p>This map shows the risk level of attending an event, given the event size and location.",
@@ -82,8 +82,8 @@ shinyUI(fluidPage(
           shinyWidgets::awesomeRadio(
             inputId = "asc_bias",
             label = "Select Ascertainment Bias",
-            choices = c("10", "5"),
-            selected = "10",
+            choices = c("5", "10"),
+            selected = "5",
             status = "warning",
             inline = T
           )
@@ -91,7 +91,7 @@ shinyUI(fluidPage(
         mainPanel(
           fluidRow(column(
             10,
-            htmlOutput("map_static", width = "800px", height = "900px")
+            htmlOutput("map_static")
             # ),
           )),
           HTML(
@@ -100,7 +100,7 @@ shinyUI(fluidPage(
           fluidRow(
             align="center",
             column(10,
-            shinyWidgets::actionBttn("to_global", label="Take me to global risk estimates", style="jelly", color="success", size="sm")
+            shinyWidgets::actionBttn("to_global", label="Explore global risk estimates", style="jelly", color="success", size="sm")
             ))
         )
       )
@@ -111,7 +111,7 @@ shinyUI(fluidPage(
       fluid = TRUE,
       sidebarLayout(
         sidebarPanel(
-          width = 2,
+          width = 3,
           HTML(
             paste0(
               "<p>This map shows the risk level of attending events of different sizes at within-country resolution.",
@@ -150,7 +150,7 @@ shinyUI(fluidPage(
           fluidRow(
             align="center",
             column(10,
-            shinyWidgets::actionBttn("to_usa", label="Take me to US risk estimates", style="jelly", color="success", size="sm")
+            shinyWidgets::actionBttn("to_usa", label="Explore US risk estimates", style="jelly", color="success", size="sm")
             ))
         )
       )
@@ -266,11 +266,12 @@ shinyUI(fluidPage(
   tags$div(
     class = "footer",
     align = "center",
+    style = "padding-top: 10px",
     fluidRow(
-      column(2), column(
+      column(3), column(
         7,
         HTML('<div class="well"><p>The COVID-19 Event Risk Assessment Planning Tool is a collaborative project led by <a href="https://ecotheory.biosci.gatech.edu/" rel="noopener" target="_blank">Prof. Joshua Weitz</a> and <a href="http://friendlycities.gatech.edu/" rel="noopener" target="_blank">Prof. Clio Andris</a> at the Georgia Institute of Technology, along with researchers at the <a href="https://www.abil.ihrc.com/" rel="noopener" target="_blank">Applied Bioinformatics Laboratory</a> and <a href="https://knight-hennessy.stanford.edu/program/scholars/2019/mallory-harris" rel="noopener" target="_blank">Stanford University</a>, and powered by <a href="https://rstudio.com/" rel="noopener" target="_blank">RStudio</a>.</p></div>')
-      ), column(2)
+      ), column(1)
     )
   ),
   tags$script(HTML(
