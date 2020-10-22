@@ -285,11 +285,13 @@ maplabsAustria <- function(riskData) {
 
 event_size <<- c(10, 25, 50, 100, 500, 1000, 5000, 10000)
 asc_bias_list <<- c(5, 10)
+europe <<- st_read('map_data/european-selected-countries.geojson') 
 getDataUK()
 getDataSwiss()
 getDataItaly()
 getDataAustria()
 getDataFrance()
+
 
 scale_factor = 10/14
 
@@ -336,6 +338,11 @@ for (asc_bias in asc_bias_list) {
       addProviderTiles(providers$CartoDB.Positron) %>%
       # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
       # fitBounds(7.5, 47.5, 9, 46) %>%
+      addPolygons(
+        data = europe, 
+        fill = FALSE, color = "#943b29", weight = 1, smoothFactor = 0.5,
+        opacity = 1.0
+      ) %>%
       addPolygons(
         data = swiss_riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,
