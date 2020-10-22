@@ -122,7 +122,7 @@ shinyServer(function(input, output, session) {
     output$map_static <- renderUI({
       tags$iframe(
         src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "0"
+        style="position: relative; height: 60vh; width: 95vw; max-width: 892px; align: center", frameBorder = "0"
       )
     })
   })
@@ -131,7 +131,7 @@ shinyServer(function(input, output, session) {
     output$map_static <- renderUI({
       tags$iframe(
         src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "0"
+        style="position: relative; height: 60vh; width: 95vw; max-width: 892px; align: center", frameBorder = "0"
       )
     })
   })
@@ -141,7 +141,7 @@ shinyServer(function(input, output, session) {
     output$eu_map_static <- renderUI({
       tags$iframe(
         src = paste0("eu_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "0"
+        style="position: relative; height: 60vh; width: 95vw; max-width: 892px; align: center", frameBorder = "0"
       )
     })
   })
@@ -150,7 +150,7 @@ shinyServer(function(input, output, session) {
     output$eu_map_static <- renderUI({
       tags$iframe(
         src = paste0("eu_", input$global_asc_bias, "_", input$global_event_size_map, ".html"),
-        width = 992, height = 500, frameBorder = "0"
+        style="position: relative; height: 60vh; width: 95vw; max-width: 892px; align: center", frameBorder = "0"
       )
     })
   })

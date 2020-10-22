@@ -91,7 +91,7 @@ shinyUI(fluidPage(
         mainPanel(
           fluidRow(column(
             10,
-            htmlOutput("map_static", width = "992px", height = "744px")
+            htmlOutput("map_static", width = "800px", height = "900px")
             # ),
           )),
           HTML(
