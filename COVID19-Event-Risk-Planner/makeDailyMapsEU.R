@@ -17,11 +17,19 @@ dataQueryUK <- function(date) {
   dataURL <- paste0("https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=utla;date=", date, '&structure={"date":"date","code":"areaCode","cases":"cumCasesBySpecimenDate"}')
   response <- httr::GET(
     url = dataURL,
-    timeout(10)
+    timeout(60)
   )
   if (response$status_code >= 400) {
     err_msg <- httr::http_status(response)
     stop(err_msg)
+  } else if (response$status_code >= 204) {
+    cur_date <<- date - 1
+    date = cur_date
+    dataURL <- paste0("https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=utla;date=", date, '&structure={"date":"date","code":"areaCode","cases":"cumCasesBySpecimenDate"}')
+  response <- httr::GET(
+    url = dataURL,
+    timeout(10)
+  )
   }
   # Convert response from binary to JSON:
   json_text <- content(response, "text")
@@ -31,11 +39,11 @@ dataQueryUK <- function(date) {
 }
 
 getDataUK <- function() {
-  cur_date <- ymd(gsub("-", "", Sys.Date())) - 1
-  past_date <- ymd(cur_date) - 14
+  cur_date <<- ymd(gsub("-", "", Sys.Date())) - 1
 
-  data_past <- dataQueryUK(past_date)
   data_cur <- dataQueryUK(cur_date)
+  past_date <- ymd(cur_date) - 14
+  data_past <- dataQueryUK(past_date)
   for (i in c(1:13)) {
     data_cur <- data_cur %>% rbind(dataQueryUK(cur_date - i))
   }
@@ -298,11 +306,11 @@ scale_factor = 10/14
 for (asc_bias in asc_bias_list) {
 
 
-  uk_data_Nr <- uk_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
-  italy_data_Nr <- italy_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
-  swiss_data_Nr <- swiss_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
-  france_data_Nr <- france_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
-  austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
+  uk_data_Nr <- uk_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
+  italy_data_Nr <- italy_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
+  swiss_data_Nr <- swiss_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
+  france_data_Nr <- france_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
+  austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
 
   for (size in event_size){
     uk_riskdt <- uk_data_Nr %>%
@@ -340,7 +348,7 @@ for (asc_bias in asc_bias_list) {
       # fitBounds(7.5, 47.5, 9, 46) %>%
       addPolygons(
         data = europe, 
-        fill = FALSE, color = "#943b29", weight = 1, smoothFactor = 0.5,
+        fill = FALSE, color = "#943b29", weight = 5, smoothFactor = 0.5,
         opacity = 1.0
       ) %>%
       addPolygons(
