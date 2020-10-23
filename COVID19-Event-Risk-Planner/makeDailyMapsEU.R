@@ -347,11 +347,6 @@ for (asc_bias in asc_bias_list) {
       # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
       # fitBounds(7.5, 47.5, 9, 46) %>%
       addPolygons(
-        data = europe, 
-        fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
-        opacity = 1.0
-      ) %>%
-      addPolygons(
         data = swiss_riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,
         opacity = 1.0, fillOpacity = 0.7,
@@ -399,6 +394,11 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ austria_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsAustria(austria_riskdt_map)
+      ) %>%
+      addPolygons(
+        data = europe, 
+        fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
+        opacity = 1.0
       ) %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",
