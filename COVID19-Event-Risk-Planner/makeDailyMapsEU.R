@@ -296,7 +296,7 @@ getDataFrance()
 scale_factor = 10/14
 
 for (asc_bias in asc_bias_list) {
-
+ 
 
   uk_data_Nr <- uk_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
   italy_data_Nr <- italy_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) %>% glimpse
