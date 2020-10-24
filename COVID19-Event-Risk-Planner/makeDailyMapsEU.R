@@ -304,7 +304,7 @@ getDataFrance()
 scale_factor = 10/14
 
 for (asc_bias in asc_bias_list) {
- 
+
 
   uk_data_Nr <- uk_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
   italy_data_Nr <- italy_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
@@ -346,6 +346,11 @@ for (asc_bias in asc_bias_list) {
       addProviderTiles(providers$CartoDB.Positron) %>%
       # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
       # fitBounds(7.5, 47.5, 9, 46) %>%
+      addPolygons(
+        data = europe, 
+        fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
+        opacity = 1.0
+      ) %>%
       addPolygons(
         data = swiss_riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,
@@ -394,11 +399,6 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ austria_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsAustria(austria_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = europe, 
-        fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
-        opacity = 1.0
       ) %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",

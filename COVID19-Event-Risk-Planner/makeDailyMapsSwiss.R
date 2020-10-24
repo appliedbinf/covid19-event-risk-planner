@@ -72,7 +72,7 @@ calc_risk <- function(I, g, pop) {
 
 ######## Create and save daily map widgets ########
 size <- 100
-asc_bias = 10
+asc_bias = 5
 
 getDataSwiss()
 
@@ -107,5 +107,5 @@ map <- leaflet() %>%
   )
 
 mapshot(map, file = file.path(getwd(), "daily_risk_map_swiss", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
-post_tweet(status = paste0("Swiss canton-level risk estimate update for ",  now("Europe/Zurich"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 10:1 ascertainment bias]"),
+post_tweet(status = paste0("Swiss canton-level risk estimate update for ",  now("Europe/Zurich"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 5:1 ascertainment bias]"),
  media = file.path("daily_risk_map_swiss", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
