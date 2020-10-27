@@ -10,9 +10,9 @@ name: R
 
 on:
   push:
-    branches: [ master ]
+    branches: [ ar0ch-patch-1 ]
   pull_request:
-    branches: [ master ]
+    branches: [ ar0ch-patch-1 ]
   workflow_dispatch:
 
 jobs:
