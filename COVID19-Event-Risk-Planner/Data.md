@@ -40,3 +40,17 @@ Federal Ministry for Social Affairs, Health, Care and Consumer Protection (BMSGP
 
 Santé publique France COVID-19 data for France :  https://www.data.gouv.fr/fr/datasets/donnees-relatives-aux-resultats-des-tests-virologiques-covid-19/  
 Note this resource also contains data for overseas departments of France, and for Saint Barthélemy, Saint Martin, and Saint Pierre and Miquelon.
+
+### Czech Republic
+#### Released: October 27, 2020
+COVID-19 data sourced from National Health Information System, Regional Hygiene Stations, Ministry of Health of the Czech Republic and prepared by the Institute of Health Information and Statistics of the Czech Republic and the Institute of Biostatistics and Analyses, Faculty of Medicine, Masaryk University: https://onemocneni-aktualne.mzcr.cz/covid-19 
+
+Komenda M., Karolyi M., Bulhart V., Žofka J., Brauner T., Hak J., Jarkovský J., Mužík J., Blaha M., Kubát J., Klimeš D., Langhammer P., Daňková Š ., Májek O., Bartůňková M., Dušek L. COVID 19: Overview of the current situation in the Czech Republic. Disease currently [online]. Prague: Ministry of Health of the Czech Republic, 2020. Available from: https://onemocneni-aktualne.mzcr.cz/covid-19 . Development: joint workplace of IHIS CR and IBA LF MU. ISSN 2694-9423.
+
+### Ireland
+#### Released: October 27, 2020
+Data is provided by the Health Service Executive (HSE), Health Protection Surveillance Centre (HPSC), The Central Statistics Office (CSO) and Gov.ie and accessed via Ireland's COVID-19 Data Hub: https://covid19ireland-geohive.hub.arcgis.com/
+
+### Spain
+#### Released: October 27, 2020
+COVID-19 data from España Ministerio de Sanidad and Instituto de Salud Carlos III: https://cnecovid.isciii.es/covid19/ 
