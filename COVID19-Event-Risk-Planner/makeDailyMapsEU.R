@@ -188,12 +188,6 @@ maplabsItaly <- function(riskData) {
   return(labels)
 }
 
-# Calculate risk
-calc_risk <- function(I, g, pop) {
-  p_I <- I / pop
-  r <- 1 - (1 - p_I)**g
-  return(round(r * 100, 1))
-}
 
 getDataFrance <- function() {
     
@@ -288,7 +282,117 @@ maplabsAustria <- function(riskData) {
     return(labels)
 }
 
+getDataSpain <- function(){
+  spain_geom <- st_read('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/spain-provinces.geojson')
+  #Main COVID-19 hub page: https://cnecovid.isciii.es/covid19/#distribuci%C3%B3n-geogr%C3%A1fica
+  SPAIN<- read.csv("https://cnecovid.isciii.es/covid19/resources/datos_provincias.csv",na.strings=FALSE) 
+  #code link file
+  SPAINcode = read.csv("map_data/spain_codenames.csv",encoding="UTF-8",na.strings=FALSE)
+  #Population data comes from  Instituto Nacional de Estadística: https://www.ine.es/jaxiT3/Datos.htm?t=2852#!tabs-tabla
+  
+  DataJoin = c()
+  Counties <- unique(SPAIN$provincia_iso)
+  DataJoin$ProvinceName = Counties
+  for(aa in 1:length(Counties)){
+    Subset = SPAIN[SPAIN$provincia_iso==Counties[aa],] 
+    Dates = as.Date(Subset$fecha)
+    LL = length(Dates)
+    ConfirmedCovidCases = cumsum(Subset$num_casos)
+    #CaseDiff = 10*( Subset$ConfirmedCovidCases[LL] - Subset$ConfirmedCovidCases[LL - 14])/ 14
+    cases = ConfirmedCovidCases[LL]
+    cases_past = ConfirmedCovidCases[LL - 14]
+    n  = ConfirmedCovidCases[LL] - ConfirmedCovidCases[LL - 14]
+    #Make sure difference in cases is positive. If not set to NA.
+    if(n<0){
+      CaseDiff = NA
+    }
+    DataJoin$date[aa] = as.character(Dates[LL])
+    DataJoin$n[aa] = n
+    DataJoin$cases[aa] = cases
+    DataJoin$cases_past[aa] = cases_past
+  }
+  
+  SPAINdata = as.data.frame(DataJoin)
+  SPAINcode = as.data.frame(SPAINcode)
+  spain_data_join = inner_join(SPAINdata,SPAINcode,by=c("ProvinceName"="code")) %>% mutate(pop = population2019)
+}
 
+maplabsSpain <- function(riskData) {
+  riskData <- riskData %>%
+    mutate(risk = case_when(
+      risk == 100 ~ '> 99',
+      risk == 0 ~ '< 1',
+      is.na(risk) ~ 'No data',
+      TRUE ~ as.character(risk)
+    ))
+  labels <- paste0(
+    "<strong>", paste0(riskData$name, ' County'), "</strong><br/>",
+    "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
+    "Latest Update: ", substr(riskData$date, 1, 10)
+  ) %>% lapply(htmltools::HTML)
+  return(labels)
+}
+
+getDataCzech <- function(){
+  czech_geom = st_read('https://gist.githubusercontent.com/carmoreira/deb0b3a5c101d1b2a47600ab225be262/raw/cb139cf24eb933b4694d07fd8bd0e979cca54d28/distictsCzechiaLow.json') 
+  czech_geom <- czech_geom %>% select(name, geometry) %>% mutate(name = as.character(name))
+  czech_pop <- read.csv('map_data/czech_pop.csv',encoding = "UTF-8", stringsAsFactors = F) %>% select(code = X.U.FEFF.Code, name = District, pop = Population)
+  
+  czech_geom$name[35] <- "Jablonec nad Nisou"
+  czech_geom$name[41] <- "Ústí nad Labem" 
+  czech_geom$name[48] <- czech_pop$name[44]
+  czech_geom$name[52] <- "Ústí nad Orlicí"
+  czech_geom$name[66] <- czech_pop$name[54]
+  
+  czechData <- read.csv('https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/kraj-okres-nakazeni-vyleceni-umrti.csv')
+  
+  names(czechData) <- c('Date','Code','District','Confirmed','Cure','Death')
+  czechData$Date <- as.Date(czechData$Date)
+  czechList <- unique(czechData$District)
+  
+  sortFunc <- function(code){
+    district <- czechData %>% filter(czechData$District == czechList[code]) %>% distinct(Date, .keep_all = TRUE)
+    today <- length(district$Date)
+    case <- district$Confirmed[today]
+    case_past <- district$Confirmed[today - 14]
+    difference <- district$Confirmed[today] - district$Confirmed[today - 14]
+    vec <- data.frame(code = czechList[code], date = district$Date[today], cases = cases, cases_past = cases_past, n = difference)
+    return(vec)
+  }
+  
+  # get the data table that includes department codes, last updated date, difference between 14 days
+  czechTable <- data.frame()
+  for (i in 1:length(czechList)){
+    vec <- sortFunc(i)
+    czechTable <- rbind(czechTable,vec)
+  }
+  
+  czech_data_join <- czechTable %>% 
+    inner_join(czech_pop, by = c("code")) 
+}
+
+maplabsCzech <- function(riskData) {
+  riskData <- riskData %>%
+    mutate(risk = case_when(
+      risk == 100 ~ '> 99',
+      risk == 0 ~ '< 1',
+      is.na(risk) ~ 'No data',
+      TRUE ~ as.character(risk)
+    ))
+  labels <- paste0(
+    "<strong>", paste0('District of ', riskData$name), "</strong><br/>",
+    "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
+    "Latest Update: ", substr(riskData$date, 1, 10)
+  ) %>% lapply(htmltools::HTML)
+  return(labels)
+}
+
+# Calculate risk
+calc_risk <- function(I, g, pop) {
+  p_I <- I / pop
+  r <- 1 - (1 - p_I)**g
+  return(round(r * 100, 1))
+}
 ######## Create and save daily map widgets ########
 
 event_size <<- c(10, 25, 50, 100, 500, 1000, 5000, 10000)
@@ -299,7 +403,8 @@ getDataSwiss()
 getDataItaly()
 getDataAustria()
 getDataFrance()
-
+getDataSpain()
+getDataCzech()
 
 scale_factor = 10/14
 
@@ -311,6 +416,8 @@ for (asc_bias in asc_bias_list) {
   swiss_data_Nr <- swiss_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
   france_data_Nr <- france_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
   austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
+  spain_data_Nr <- spain_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
+  czech_data_Nr <- czech_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
 
   for (size in event_size){
     uk_riskdt <- uk_data_Nr %>%
@@ -339,6 +446,16 @@ for (asc_bias in asc_bias_list) {
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
     austria_riskdt_map <- austria_geom %>% left_join(austria_riskdt, by = c("iso" = "code"))
+    
+    spain_riskdt <- spain_data_Nr %>% 
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+    
+    spain_riskdt_map <- spain_geom %>% left_join(spain_riskdt, by = "name") 
+    
+    czech_riskdt <- czech_data_Nr %>% 
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+    
+    czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name") 
 
 
 
