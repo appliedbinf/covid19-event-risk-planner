@@ -5,7 +5,8 @@
 # Aroon Chande <mail@aroonchande.com> <achande@ihrc.com>
 #####################################################################
 source("libraries.R")
-
+library(rvest)
+library(dplyr)
 
 
 get_token()
@@ -94,11 +95,15 @@ maplabsUK <- function(riskData) {
 
 getDataSwiss <- function() {
   dataurl <- getURL("https://raw.githubusercontent.com/openZH/covid_19/master/COVID19_Fallzahlen_CH_total_v2.csv") # date, abbreviation_canton_and_fl, ncumul_conf
+  liechtenstein <- read.csv(paste0('https://raw.githubusercontent.com/openZH/covid_19/master/fallzahlen_kanton_total_csv/COVID19_Fallzahlen_FL_total.csv')) %>%
+    mutate(date = as_date(date)) %>% arrange(desc(date)) %>% filter(!is.na(ncumul_conf)) %>% 
+    select(date = date, code = abbreviation_canton_and_fl, cases = ncumul_conf)
   data <- read.csv(text = dataurl, stringsAsFactors = FALSE) %>%
     mutate(date = as_date(date)) %>%
     arrange(desc(date)) %>%
     filter(!is.na(ncumul_conf)) %>%
-    select(date = date, code = abbreviation_canton_and_fl, cases = ncumul_conf)
+    select(date = date, code = abbreviation_canton_and_fl, cases = ncumul_conf) %>% 
+    rbind(liechtenstein)
   swiss_geom <<- st_read("https://gist.githubusercontent.com/mbostock/4207744/raw/3232c7558742bab53227e242a437f64ae4c58d9e/readme-swiss.json")
   pop <- read.csv("map_data/swiss_canton_pop.csv", stringsAsFactors = FALSE)
 
@@ -371,6 +376,7 @@ getDataCzech <- function(){
     inner_join(czech_pop, by = c("code")) 
 }
 
+
 maplabsCzech <- function(riskData) {
   riskData <- riskData %>%
     mutate(risk = case_when(
@@ -381,6 +387,82 @@ maplabsCzech <- function(riskData) {
     ))
   labels <- paste0(
     "<strong>", paste0('District of ', riskData$name), "</strong><br/>",
+    "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
+    "Latest Update: ", substr(riskData$date, 1, 10)
+  ) %>% lapply(htmltools::HTML)
+  return(labels)
+}
+
+getDataDenmark <- function(){
+  geomDanish <- st_read('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/denmark-municipalities.geojson')
+  
+  geomDanish$name <- as.character(gsub(" Kommune","",geomDanish$name))
+  
+  # adjust the names of municipalities in geojson file so that they'll match with out CURRENT variables
+  geomDanish[which(geomDanish$name == "Bornholms Regionskommune"),'name'] <- "Bornholm"
+  geomDanish[which(geomDanish$name == "Københavns"),'name'] <- "Copenhagen"
+  
+  webpages<-read_html("https://www.ssi.dk/sygdomme-beredskab-og-forskning/sygdomsovervaagning/c/covid19-overvaagning")
+  #extract the html blocks which are strong and contain links
+  JAM = webpages %>% html_nodes("strong") %>% html_nodes("a")
+  #JAM[2] should be the download link -- unless the website changes...Not sure if there is an easy way to double check this is the right code block?
+  #split the string to find the link using \"
+  DOWNLOADLINK = strsplit(as.character(JAM[2]),"\"")[[1]][2]
+  DOWNLOADLINK = paste0(DOWNLOADLINK,".zip")  #need to add .zip extension in order for the download/extraction process to perform correctly in R.
+  #Have the download link!
+  
+  # 2.) download and extract data:
+  temp <- tempfile() #temporary file for download
+  temp2 <- tempfile()#temporary file for extraction
+  download.file(DOWNLOADLINK,temp)
+  unzip(zipfile = temp, exdir = temp2)
+  DanishData  <- read.csv(file.path(temp2, "Municipality_cases_time_series.csv"),sep=";",encoding="UTF-8", stringsAsFactors = F)
+  unlink(temp)
+  unlink(temp2)
+  
+  DanishCounty <- names(DanishData)[2:length(names(DanishData))]
+  DanishData$date_sample <- as.Date(DanishData$date_sample)
+  getDanishData <- function(code){
+    subdata <- DanishData[,c("date_sample",DanishCounty[code])]
+    subdata$CumCases <- cumsum(subdata[,DanishCounty[code]])
+    x <- length(subdata$date_sample)
+    difference <- round((subdata[x,'CumCases'] - subdata[x-14,'CumCases'])*10/14)
+    vec <- data.frame(Municipality = DanishCounty[code], Date = subdata$date_sample[x], Difference = difference)
+    return(vec)
+  }
+  
+  dataTable <- data.frame(Municipality = as.character(), Date = as.character(), Difference = as.numeric())
+  for (i in 1:length(DanishCounty)){
+    vec <- getDanishData(i)
+    dataTable <- rbind(dataTable,vec)
+  }
+  dataTable <- dataTable %>% mutate(Municipality = as.character(Municipality), Date = as.Date(Date))
+  DanishPop <- as.data.frame(read.csv('map_data/denmark_pop.csv', encoding="UTF-8", stringsAsFactors = F)) ## get from Statistics Denmark: https://www.statbank.dk/statbank5a/SelectVarVal/saveselections.asp
+  names(DanishPop) <- c("Municipality",'Population')
+  
+  # make the population column as numeric
+  DanishPop$Population <- as.numeric(gsub(" ","",DanishPop$Population))
+  
+  # adjust some municipalities' names so that they match with population file
+  dataTable$Municipality[which(dataTable$Municipality == "Høje.Taastrup")] <-  "Høje-Taastrup"
+  dataTable$Municipality[which(dataTable$Municipality == "Faaborg.Midtfyn")] <-  "Faaborg-Midtfyn"
+  dataTable$Municipality[which(dataTable$Municipality == "Lyngby.Taarbæk")] <-  "Lyngby-Taarbæk"
+  dataTable$Municipality[which(dataTable$Municipality == "Ringkøbing.Skjern")] <-  "Ringkøbing-Skjern"
+  dataTable$Municipality[which(dataTable$Municipality == "Ikast.Brande")] <-  "Ikast-Brande"
+  
+  denmark_data_join <- inner_join(dataTable,DanishPop, by = 'Municipality') %>% rename(name = Municipality, date = Date, difference = Difference, pop = Population)
+}
+
+maplabsDenmark <- function(riskData) {
+  riskData <- riskData %>%
+    mutate(risk = case_when(
+      risk == 100 ~ '> 99',
+      risk == 0 ~ '< 1',
+      is.na(risk) ~ 'No data',
+      TRUE ~ as.character(risk)
+    ))
+  labels <- paste0(
+    "<strong>", paste0('Municipality of ', riskData$name), "</strong><br/>",
     "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
     "Latest Update: ", substr(riskData$date, 1, 10)
   ) %>% lapply(htmltools::HTML)
@@ -419,6 +501,8 @@ for (asc_bias in asc_bias_list) {
   spain_data_Nr <- spain_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
   czech_data_Nr <- czech_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
 
+  denmark_data_Nr <- denmark_data_join %>% mutate(Nr = difference * asc_bias * scale_factor) 
+
   for (size in event_size){
     uk_riskdt <- uk_data_Nr %>%
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
@@ -456,6 +540,12 @@ for (asc_bias in asc_bias_list) {
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
     
     czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name") 
+
+    denmark_riskdt <- denmark_data_Nr %>%
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+    
+    denmark_riskdt_map <- denmark_geom %>% left_join(denmark_riskdt, by = "name") 
+
 
 
 
