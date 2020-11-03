@@ -376,6 +376,7 @@ getDataCzech <- function(){
     inner_join(czech_pop, by = c("code")) 
 }
 
+
 maplabsCzech <- function(riskData) {
   riskData <- riskData %>%
     mutate(risk = case_when(
@@ -468,7 +469,6 @@ maplabsDenmark <- function(riskData) {
   return(labels)
 }
 
-
 # Calculate risk
 calc_risk <- function(I, g, pop) {
   p_I <- I / pop
@@ -500,6 +500,7 @@ for (asc_bias in asc_bias_list) {
   austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
   spain_data_Nr <- spain_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
   czech_data_Nr <- czech_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
+
   denmark_data_Nr <- denmark_data_join %>% mutate(Nr = difference * asc_bias * scale_factor) 
 
   for (size in event_size){
@@ -539,11 +540,12 @@ for (asc_bias in asc_bias_list) {
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
     
     czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name") 
-    
+
     denmark_riskdt <- denmark_data_Nr %>%
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
     
     denmark_riskdt_map <- denmark_geom %>% left_join(denmark_riskdt, by = "name") 
+
 
 
 
