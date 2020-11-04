@@ -527,7 +527,7 @@ for (asc_bias in asc_bias_list) {
 
     map <- leaflet() %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
-      # setView(lat = 37.1, lng = -95.7, zoom = 4) %>%
+      setView(lat = 48.6, lng = 7.17, zoom = 4) %>%
       # fitBounds(7.5, 47.5, 9, 46) %>%
       addPolygons(
         data = europe, 
