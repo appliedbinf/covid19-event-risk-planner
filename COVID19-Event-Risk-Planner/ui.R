@@ -15,6 +15,8 @@ library(sever)
 options(scipen = 999)
 
 
+event_size = c(10, 15, 20, 30, 50, 100, 500, 1000)
+
 shinyUI(fluidPage(
   theme = shinytheme("sandstone"),
   use_sever(),
@@ -75,8 +77,8 @@ shinyUI(fluidPage(
           shinyWidgets::sliderTextInput(
             "event_size_map",
             "Event Size: ",
-            choices = c(10, 25, 50, 100, 500, 1000, 5000, 10000),
-            selected = 100,
+            choices = event_size,
+            selected = 50,
             grid = T
           ),
           shinyWidgets::awesomeRadio(
@@ -116,7 +118,7 @@ shinyUI(fluidPage(
             paste0(
               "<p>This map shows the risk level of attending events of different sizes at within-country resolution.",
               "<br/><br/>",
-              "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a NUT-3 level area (County, Local Authority, Council, District), given the size of the event.",
+              "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a NUTS-3 level area (County, Local Authority, Council, District), given the size of the event.",
               "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
               "<br/><br/>",
               "Choose an event size and ascertainment bias below.</p>"
@@ -126,8 +128,8 @@ shinyUI(fluidPage(
           shinyWidgets::sliderTextInput(
             "global_event_size_map",
             "Event Size: ",
-            choices = c(10, 25, 50, 100, 500, 1000, 5000, 10000),
-            selected = 100,
+            choices = event_size,
+            selected = 50,
             grid = T
           ),
           shinyWidgets::awesomeRadio(
