@@ -108,7 +108,7 @@ asc_bias <- 5
 getDataUK()
 
 data_Nr <- data_join %>%
-  mutate(Nr = (cases - cases_past) * asc_bias)
+  mutate(Nr = (cases - cases_past) * asc_bias * 10/14)
 riskdt <- data_Nr %>%
   mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
