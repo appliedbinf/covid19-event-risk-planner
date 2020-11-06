@@ -15,7 +15,7 @@ library(sever)
 options(scipen = 999)
 
 
-event_size = c(10, 15, 20, 30, 50, 100, 500, 1000)
+event_size = c(10, 15, 25, 50, 100, 500, 1000, 5000)
 
 shinyUI(fluidPage(
   theme = shinytheme("sandstone"),
