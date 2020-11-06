@@ -454,7 +454,7 @@ calc_risk <- function(I, g, pop) {
   return(round(r * 100, 1))
 }
 ######## Create and save daily map widgets ########
-event_size = c(10, 15, 20, 30, 50, 100, 500, 1000)
+event_size = c(10, 15, 25, 50, 100, 500, 1000, 5000)
 asc_bias_list <<- c(5, 10)
 europe <<- st_read('map_data/european-selected-countries.geojson') 
 getDataUK()
