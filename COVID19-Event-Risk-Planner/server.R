@@ -9,17 +9,6 @@
 ## ---------------------------
 # options(shiny.reactlog = TRUE)
 options(scipen = 999)
-library(shiny)
-library(withr)
-library(ggplot2)
-library(ggrepel)
-library(matlab)
-library(lubridate)
-library(dplyr)
-library(ggthemes)
-library(leaflet)
-library(mapview)
-library(sever)
 # library(mapview, lib.loc = "/projects/covid19/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
 
 Sys.setenv(PATH = with_path("/projects/covid19/bin", Sys.getenv("PATH")))
@@ -94,6 +83,7 @@ shinyServer(function(input, output, session) {
 
   }) 
 
+  state_data = state_pops = current_time = daily_time <<- NULL
 
    observeEvent(input$event_size_map, {
     output$map_static <- renderUI({
@@ -132,8 +122,6 @@ shinyServer(function(input, output, session) {
     })
   })
 
-   updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
-  updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
 
   regions <- c(
     "USA, Alphabetical" = "states-alpha.png",
@@ -152,11 +140,13 @@ shinyServer(function(input, output, session) {
     "VA" = "VA.png", "VT" = "VT.png", "WA" = "WA.png", "WI" = "WI.png",
     "WV" = "WV.png", "WY" = "WY.png"
   )
+  updateSelectizeInput(session, "states_dd", choices = names(regions), selected = "GA")
+  updateSelectizeInput(session, "us_states", choices = names(regions), selected = "GA")
   updateSelectizeInput(session, "regions", choices = regions, selected = "states-alpha.png")
   daily_plots_dir <- list.dirs("www/daily_risk_plots/", full.names = F)
   names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
   updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
-  
+
   output$dl_map <- downloadHandler(
     filename = paste0("County-level COVID risk estimates map - ", today(), ".png"),
     content = function(file) {
@@ -371,7 +361,9 @@ dd_inputs <- reactive({
   dd_plot <- ""
   states_dd <- "US"
   observeEvent(dd_inputs(), {
-    req(state_data, dd_inputs())
+    if (any(is.null(state_data), is.null(state_pops),is.null(current_time), is.null(daily_time)))
+      NULL  
+    req(dd_inputs)
     xblock <- c(10, 100, 1000, 10**4, 10**5)
     names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game")
     # cat("218 ", values_dd$use_state, "\n")

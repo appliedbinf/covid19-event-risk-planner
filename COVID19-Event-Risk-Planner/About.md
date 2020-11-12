@@ -23,11 +23,12 @@ The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on
 
 #### International Collaborations
 
-**Italy**: http://datainterfaces.org/projects/covid19eventi/
+**Italy**: http://datainterfaces.org/projects/covid19eventi/  
+**Spain**: https://eventosycovid19.es  
 
 ### How to cite
 
-Chande, A.T., Lee, S., Harris, M., Hilley, T., Andris, C., Weitz J.S. (2020) 'Real-time, interactive website for US-county level Covid-19 event risk assessment', https://www.medrxiv.org/content/10.1101/2020.08.24.20181271v1
+Chande, A., Lee, S., Harris, M. et al. Real-time, interactive website for US-county-level COVID-19 event risk assessment. Nat Hum Behav (2020). https://doi.org/10.1038/s41562-020-01000-9
 
 Chande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Hilley, T., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool', URL http://covid19risk.biosci.gatech.edu/
 

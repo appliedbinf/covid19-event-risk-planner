@@ -328,7 +328,7 @@ maplabsSpain <- function(riskData) {
       TRUE ~ as.character(risk)
     ))
   labels <- paste0(
-    "<strong>", paste0(riskData$name, ' County'), "</strong><br/>",
+    "<strong>", riskData$name, "</strong><br/>",
     "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
     "Latest Update: ", substr(riskData$date, 1, 10)
   ) %>% lapply(htmltools::HTML)
@@ -593,7 +593,16 @@ for (asc_bias in asc_bias_list) {
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",
         onClick = JS("function(btn, map){ map.locate({setView: true, maxZoom: 7});}")
-      ))
+      )) %>%
+      addLegend(
+        data = uk_riskdt_map,
+        position = "topright", pal = uk_pal, values = ~risk,
+        title = "Risk Level (%)",
+        opacity = 0.7,
+        labFormat = function(type, cuts, p) {
+          paste0(uk_legendlabs)
+        }
+      )
     map$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
     mapshot(map, url = file.path(getwd(), "www", paste0("eu_", asc_bias, "_", size, ".html")))
   }
