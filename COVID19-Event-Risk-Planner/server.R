@@ -94,34 +94,8 @@ shinyServer(function(input, output, session) {
 
   }) 
 
-  get_data()
-  updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
-  updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
 
-  regions <- c(
-    "USA, Alphabetical" = "states-alpha.png",
-    "USA, By Rank" = "states-rank.png",
-    "AK" = "AK.png", "AL" = "AL.png", "AR" = "AR.png", "AZ" = "AZ.png",
-    "CA" = "CA.png", "CO" = "CO.png", "CT" = "CT.png", "DE" = "DE.png",
-    "FL" = "FL.png", "GA" = "GA.png", "HI" = "HI.png", "IA" = "IA.png",
-    "ID" = "ID.png", "IL" = "IL.png", "IN" = "IN.png", "KS" = "KS.png",
-    "KY" = "KY.png", "LA" = "LA.png", "MA" = "MA.png", "MD" = "MD.png",
-    "ME" = "ME.png", "MI" = "MI.png", "MN" = "MN.png", "MO" = "MO.png",
-    "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png", "ND" = "ND.png",
-    "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png", "NM" = "NM.png",
-    "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png", "OK" = "OK.png",
-    "OR" = "OR.png", "PA" = "PA.png", "RI" = "RI.png", "SC" = "SC.png",
-    "SD" = "SD.png", "TN" = "TN.png", "TX" = "TX.png", "UT" = "UT.png",
-    "VA" = "VA.png", "VT" = "VT.png", "WA" = "WA.png", "WI" = "WI.png",
-    "WV" = "WV.png", "WY" = "WY.png"
-  )
-  updateSelectizeInput(session, "regions", choices = regions, selected = "states-alpha.png")
-  daily_plots_dir <- list.dirs("www/daily_risk_plots/", full.names = F)
-  names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
-  updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
-
-
-  observeEvent(input$event_size_map, {
+   observeEvent(input$event_size_map, {
     output$map_static <- renderUI({
       tags$iframe(
         src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
@@ -158,7 +132,31 @@ shinyServer(function(input, output, session) {
     })
   })
 
+   updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
+  updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
 
+  regions <- c(
+    "USA, Alphabetical" = "states-alpha.png",
+    "USA, By Rank" = "states-rank.png",
+    "AK" = "AK.png", "AL" = "AL.png", "AR" = "AR.png", "AZ" = "AZ.png",
+    "CA" = "CA.png", "CO" = "CO.png", "CT" = "CT.png", "DE" = "DE.png",
+    "FL" = "FL.png", "GA" = "GA.png", "HI" = "HI.png", "IA" = "IA.png",
+    "ID" = "ID.png", "IL" = "IL.png", "IN" = "IN.png", "KS" = "KS.png",
+    "KY" = "KY.png", "LA" = "LA.png", "MA" = "MA.png", "MD" = "MD.png",
+    "ME" = "ME.png", "MI" = "MI.png", "MN" = "MN.png", "MO" = "MO.png",
+    "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png", "ND" = "ND.png",
+    "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png", "NM" = "NM.png",
+    "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png", "OK" = "OK.png",
+    "OR" = "OR.png", "PA" = "PA.png", "RI" = "RI.png", "SC" = "SC.png",
+    "SD" = "SD.png", "TN" = "TN.png", "TX" = "TX.png", "UT" = "UT.png",
+    "VA" = "VA.png", "VT" = "VT.png", "WA" = "WA.png", "WI" = "WI.png",
+    "WV" = "WV.png", "WY" = "WY.png"
+  )
+  updateSelectizeInput(session, "regions", choices = regions, selected = "states-alpha.png")
+  daily_plots_dir <- list.dirs("www/daily_risk_plots/", full.names = F)
+  names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
+  updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
+  
   output$dl_map <- downloadHandler(
     filename = paste0("County-level COVID risk estimates map - ", today(), ".png"),
     content = function(file) {
@@ -373,6 +371,7 @@ dd_inputs <- reactive({
   dd_plot <- ""
   states_dd <- "US"
   observeEvent(dd_inputs(), {
+    req(state_data, dd_inputs())
     xblock <- c(10, 100, 1000, 10**4, 10**5)
     names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game")
     # cat("218 ", values_dd$use_state, "\n")

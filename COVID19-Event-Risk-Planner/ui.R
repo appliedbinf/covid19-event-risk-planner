@@ -178,7 +178,7 @@ shinyUI(fluidPage(
           ),
           textInput("event_dd",
             "Event size:",
-            value = 275
+            placeholder = 275
           ),
           downloadButton("dl_dd", "Download plot"),
           htmlOutput("dd_text")
@@ -272,7 +272,7 @@ shinyUI(fluidPage(
     fluidRow(
       column(3), column(
         7,
-        HTML('<div class="well"><p>The COVID-19 Event Risk Assessment Planning Tool is a collaborative project led by <a href="https://ecotheory.biosci.gatech.edu/" rel="noopener" target="_blank">Prof. Joshua Weitz</a> and <a href="http://friendlycities.gatech.edu/" rel="noopener" target="_blank">Prof. Clio Andris</a> at the Georgia Institute of Technology, along with researchers at the <a href="https://www.abil.ihrc.com/" rel="noopener" target="_blank">Applied Bioinformatics Laboratory</a> and <a href="https://knight-hennessy.stanford.edu/program/scholars/2019/mallory-harris" rel="noopener" target="_blank">Stanford University</a>, and powered by <a href="https://rstudio.com/" rel="noopener" target="_blank">RStudio</a>.</p></div>')
+        HTML('<div class="well"><p>The COVID-19 Event Risk Assessment Planning Tool is a collaborative project led by <a href="https://ecotheory.biosci.gatech.edu/" rel="noopener" target="_blank">Prof. Joshua Weitz</a> and <a href="http://friendlycities.gatech.edu/" rel="noopener" target="_blank">Prof. Clio Andris</a> at the Georgia Institute of Technology, along with researchers at the <a href="https://www.abil.ihrc.com/" rel="noopener" target="_blank">Applied Bioinformatics Laboratory</a> and <a href="https://knight-hennessy.stanford.edu/program/scholars/2019/mallory-harris" rel="noopener" target="_blank">Stanford University</a>, and powered by <a href="https://rstudio.com/" rel="noopener" target="_blank">RStudio</a>.  Description of the method and analyses available at <a href="https://www.nature.com/articles/s41562-020-01000-9/" rel="noopener" target="_blank">Nature Human Behaviour</a>.</p></div>')
       ), column(1)
     )
   ),
