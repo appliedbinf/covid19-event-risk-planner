@@ -135,10 +135,10 @@ shinyServer(function(input, output, session) {
     "MO" = "MO.png", "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png",
     "ND" = "ND.png", "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png",
     "NM" = "NM.png", "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png",
-    "OK" = "OK.png", "OR" = "OR.png", "PA" = "PA.png", "RI" = "RI.png",
-    "SC" = "SC.png", "SD" = "SD.png", "TN" = "TN.png", "TX" = "TX.png",
-    "UT" = "UT.png", "VA" = "VA.png", "VT" = "VT.png", "WA" = "WA.png",
-    "WI" = "WI.png", "WV" = "WV.png", "WY" = "WY.png"
+    "OK" = "OK.png", "OR" = "OR.png", "PA" = "PA.png", "PR" = "PR.png", 
+    "RI" = "RI.png", "SC" = "SC.png", "SD" = "SD.png", "TN" = "TN.png",
+    "TX" = "TX.png", "UT" = "UT.png", "VA" = "VA.png", "VT" = "VT.png",
+    "WA" = "WA.png", "WI" = "WI.png", "WV" = "WV.png", "WY" = "WY.png"
   )
   updateSelectizeInput(session, "states_dd", choices = names(regions), selected = "GA")
   updateSelectizeInput(session, "us_states", choices = names(regions), selected = "GA")
