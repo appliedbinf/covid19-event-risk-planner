@@ -84,7 +84,7 @@ scale_factor = 10/14
 
 
 getData()
-
+risk_data = list()
 
 for (asc_bias in asc_bias_list) {
   data_Nr <- data_join %>%
@@ -100,9 +100,11 @@ for (asc_bias in asc_bias_list) {
       #     mutate(risk = if_else(Nr > 0, round(calc_risk(Nr, size, pop)), 0)) %>%
       #     right_join(county, by = c("fips" = "GEOID"))
       riskdt <- data_Nr %>%
-        mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+        mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0), "asc_bias" = asc_bias, "event_size" = size)
 
       riskdt_map <- county %>% left_join(riskdt, by = c("GEOID" = "fips"))
+      id = paste(asc_bias, size, sep="_")
+      risk_data[[id]] =  st_drop_geometry(riskdt_map)
 
       map <- leaflet() %>%
         addProviderTiles(providers$CartoDB.Positron) %>%
@@ -183,3 +185,6 @@ for (asc_bias in asc_bias_list) {
     }
   }
 }
+
+risk_data = do.call(rbind.data.frame, risk_data)
+write.csv(risk_data, "www/usa_risk_counties.csv", quote=F, row.names=F)
