@@ -79,15 +79,16 @@ calc_risk <- function(I, g, pop) {
 
 ######## create and save daily map widgets ########
 event_size = c(10, 15, 25, 50, 100, 500, 1000, 5000)
-# event_size = c(50)
 asc_bias_list <<- c(5, 10)
+scale_factor = 10/14
+
 
 getData()
 
 
 for (asc_bias in asc_bias_list) {
   data_Nr <- data_join %>%
-    mutate(Nr = (cases - cases_past) * asc_bias)
+    mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
 
   if (dim(data_Nr)[1] > 2000) {
     # dir.create(file.path('daily_risk_map', current_time), recursive = T)

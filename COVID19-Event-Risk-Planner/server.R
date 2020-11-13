@@ -83,8 +83,6 @@ shinyServer(function(input, output, session) {
 
   }) 
 
-  state_data = state_pops = current_time = daily_time <<- NULL
-
    observeEvent(input$event_size_map, {
     output$map_static <- renderUI({
       tags$iframe(
@@ -235,7 +233,7 @@ shinyServer(function(input, output, session) {
     outtext <- reactiveValuesToList(values_dd)
     paste(outtext, collapse = "\t")
   })
-
+  get_data()
   pred_plot <- ""
   output$plot_us <- renderPlot({
     xblock <- c(10, 100, 1000, 10**4, 10**5)
@@ -361,8 +359,6 @@ dd_inputs <- reactive({
   dd_plot <- ""
   states_dd <- "US"
   observeEvent(dd_inputs(), {
-    if (any(is.null(state_data), is.null(state_pops),is.null(current_time), is.null(daily_time)))
-      NULL  
     req(dd_inputs)
     xblock <- c(10, 100, 1000, 10**4, 10**5)
     names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game")
