@@ -100,9 +100,9 @@ for (state in names(rl)) {
   rank_ <- grep(state, ci$state)
   p <- ggplot(rl[[state]]) +
     geom_area(aes(x = svec, y = risk, group = rev(nvec), fill = nvec), position = "identity") +
-    scale_fill_manual(values = c("white", "white", "grey", "grey50")) +
-    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(12, 150)), linetype = c(rep(2, 50), rep(1, 150)), position = "identity") +
-    scale_color_manual(values = c("black", "#003057", "#EAAA00"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
+    scale_fill_manual(values = c("white", "white", "grey50")) +
+    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(12, 100)), linetype = c(rep(2, 50), rep(1, 100)), position = "identity") +
+    scale_color_manual(values = c("black", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
     scale_x_continuous(name = "Event size", breaks = xblock, labels = format(xblock, big.mark = ",", trim = T), trans = "log10", expand = c(.1, .1)) +
     theme_clean() +
     annotation_logticks(scaled = , sides = "b") +
@@ -126,9 +126,9 @@ for (state in names(rl)) {
 
   p2 <- ggplot(rl[[state]]) +
     geom_area(aes(x = svec, y = risk, group = rev(nvec), fill = nvec), position = "identity") +
-    scale_fill_manual(values = c("white", "white", "grey", "grey50")) +
-    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(2, 150)), linetype = c(rep(2, 50), rep(1, 150)), position = "identity") +
-    scale_color_manual(values = c("black", "#003057", "#EAAA00"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
+    scale_fill_manual(values = c("white", "white", "grey50")) +
+    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(2, 100)), linetype = c(rep(2, 50), rep(1, 100)), position = "identity") +
+    scale_color_manual(values = c("black", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
     scale_x_continuous(name = "Event size", breaks = xblock, labels = format(xblock, big.mark = ",", trim = T), trans = "log10", expand = c(.1, .1)) +
     theme_clean() +
     annotation_logticks(scaled = , sides = "b") +
