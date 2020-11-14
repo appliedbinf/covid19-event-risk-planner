@@ -174,8 +174,10 @@ shinyServer(function(input, output, session) {
         width <- 864
         height <- 504
       }
+      src_file = paste0(risk_folder, "/", region)
+      shiny::validate(need(file.exists(src_file), message = "No historical plot data available"))
       list(
-        src = paste0(risk_folder, "/", region),
+        src = src_file,
         width = width,
         height = height
       )
