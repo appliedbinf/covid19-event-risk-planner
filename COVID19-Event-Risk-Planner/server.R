@@ -125,18 +125,18 @@ shinyServer(function(input, output, session) {
     "USA, Alphabetical" = "states-alpha.png",
     "USA, By Rank" = "states-rank.png",
     "AK" = "AK.png", "AL" = "AL.png", "AR" = "AR.png", "AZ" = "AZ.png",
-    "CA" = "CA.png", "CO" = "CO.png", "CT" = "CT.png", "DE" = "DE.png",
-    "FL" = "FL.png", "GA" = "GA.png", "HI" = "HI.png", "IA" = "IA.png",
-    "ID" = "ID.png", "IL" = "IL.png", "IN" = "IN.png", "KS" = "KS.png",
-    "KY" = "KY.png", "LA" = "LA.png", "MA" = "MA.png", "MD" = "MD.png",
-    "ME" = "ME.png", "MI" = "MI.png", "MN" = "MN.png", "MO" = "MO.png",
-    "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png", "ND" = "ND.png",
-    "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png", "NM" = "NM.png",
-    "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png", "OK" = "OK.png",
-    "OR" = "OR.png", "PA" = "PA.png", "RI" = "RI.png", "SC" = "SC.png",
-    "SD" = "SD.png", "TN" = "TN.png", "TX" = "TX.png", "UT" = "UT.png",
-    "VA" = "VA.png", "VT" = "VT.png", "WA" = "WA.png", "WI" = "WI.png",
-    "WV" = "WV.png", "WY" = "WY.png"
+    "CA" = "CA.png", "CO" = "CO.png", "CT" = "CT.png", "DC" = "DC.png",
+    "DE" = "DE.png", "FL" = "FL.png", "GA" = "GA.png", "HI" = "HI.png",
+    "IA" = "IA.png", "ID" = "ID.png", "IL" = "IL.png", "IN" = "IN.png",
+    "KS" = "KS.png", "KY" = "KY.png", "LA" = "LA.png", "MA" = "MA.png",
+    "MD" = "MD.png", "ME" = "ME.png", "MI" = "MI.png", "MN" = "MN.png",
+    "MO" = "MO.png", "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png",
+    "ND" = "ND.png", "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png",
+    "NM" = "NM.png", "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png",
+    "OK" = "OK.png", "OR" = "OR.png", "PA" = "PA.png", "PR" = "PR.png", 
+    "RI" = "RI.png", "SC" = "SC.png", "SD" = "SD.png", "TN" = "TN.png",
+    "TX" = "TX.png", "UT" = "UT.png", "VA" = "VA.png", "VT" = "VT.png",
+    "WA" = "WA.png", "WI" = "WI.png", "WV" = "WV.png", "WY" = "WY.png"
   )
   updateSelectizeInput(session, "states_dd", choices = names(regions), selected = "GA")
   updateSelectizeInput(session, "us_states", choices = names(regions), selected = "GA")
