@@ -1,6 +1,6 @@
 ### About
 
-This site provides interactive context to assess the risk that one or more individuals infected with COVID-19 are present in an event of various sizes.  The model is simple, intentionally so, and provided some context for the rationale to halt large gatherings in early-mid March and newly relevant context for considering when and how to re-open.  Precisely because of under-testing and the risk of exposure and infection, these risk calculations provide furher support for the ongoing need for social distancing and protective measures. Such precautions are still needed even in small events, given the large number of circulating cases.
+This site provides interactive context to assess the risk that one or more individuals infected with COVID-19 are present in an event of various sizes.  The model is simple, intentionally so, and provided some context for the rationale to halt large gatherings in early-mid March and newly relevant context for considering when and how to re-open.  Precisely because of under-testing and the risk of exposure and infection, these risk calculations provide further support for the ongoing need for social distancing and protective measures. Such precautions are still needed even in small events, given the large number of circulating cases.
 
 
 ### Contributors:  

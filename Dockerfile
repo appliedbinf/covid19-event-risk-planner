@@ -106,6 +106,15 @@ RUN sudo echo -e "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
 1 */4 * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_daily.sh \n\
 " > /var/spool/cron/crontabs/root
 
+RUN mkdir /root/.ssh
+COPY docker_github /root/.ssh/id_rsa
+COPY docker_github.pub /root/.ssh/id_rsa.pub
+RUN ssh-keyscan -H github.com >> /root/.ssh/known_hosts
+RUN git config --global user.email "c19r@atc.io"
+RUN git config --global user.name "c19r-bot"
+RUN git clone git@github.com:appliedbinf/covid19-event-risk-planner.git /root/repo
+
+
 COPY COVID19-Event-Risk-Planner /srv/shiny-server
 
 EXPOSE 3838
