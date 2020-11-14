@@ -62,7 +62,7 @@ for (state in states) {
   pop <- as.numeric(state_pops[state_pops$state == state, "pop"])
   C_i <- as.numeric(state_data[state_data$state == state, "C_i"])
   ci_list[[state]] <- data.frame("state" = state, "ci" = C_i / pop, "realci" = C_i)
-  nvec <- c(C_i, 5 * C_i, 10 * C_i, 20 * C_i)
+  nvec <- c(C_i, 5 * C_i, 10 * C_i)
   event_size <- c(10, 100, 1000, 1000)
   risk <- calc_risk(nvec, event_size, pop)
 
@@ -82,7 +82,7 @@ for (state in states) {
 
   risk.df <- do.call(rbind.data.frame, risk_vals_list)
 
-  risk.df$nvec <- factor(risk.df$nvec, levels = c(C_i, 5 * C_i, 10 * C_i, 20 * C_i))
+  risk.df$nvec <- factor(risk.df$nvec, levels = c(C_i, 5 * C_i, 10 * C_i))
 
 
   rl[[state]] <- risk.df
@@ -102,7 +102,7 @@ for (state in names(rl)) {
     geom_area(aes(x = svec, y = risk, group = rev(nvec), fill = nvec), position = "identity") +
     scale_fill_manual(values = c("white", "white", "grey", "grey50")) +
     geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(12, 150)), linetype = c(rep(2, 50), rep(1, 150)), position = "identity") +
-    scale_color_manual(values = c("black", "#003057", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]), bquote("20x C"["i"]))) +
+    scale_color_manual(values = c("black", "#003057", "#EAAA00"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
     scale_x_continuous(name = "Event size", breaks = xblock, labels = format(xblock, big.mark = ",", trim = T), trans = "log10", expand = c(.1, .1)) +
     theme_clean() +
     annotation_logticks(scaled = , sides = "b") +
@@ -128,7 +128,7 @@ for (state in names(rl)) {
     geom_area(aes(x = svec, y = risk, group = rev(nvec), fill = nvec), position = "identity") +
     scale_fill_manual(values = c("white", "white", "grey", "grey50")) +
     geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(2, 150)), linetype = c(rep(2, 50), rep(1, 150)), position = "identity") +
-    scale_color_manual(values = c("black", "#003057", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]), bquote("20x C"["i"]))) +
+    scale_color_manual(values = c("black", "#003057", "#EAAA00"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
     scale_x_continuous(name = "Event size", breaks = xblock, labels = format(xblock, big.mark = ",", trim = T), trans = "log10", expand = c(.1, .1)) +
     theme_clean() +
     annotation_logticks(scaled = , sides = "b") +
