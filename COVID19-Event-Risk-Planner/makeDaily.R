@@ -152,8 +152,8 @@ for (state in names(rl)) {
   ggsave(paste0("www/daily_risk_plots/", current_time, "/", state, ".png"), plot = p2, width = 12, height = 7, units = "in", dpi = 320)
 }
 
-p <- ggarrange(plotlist = plots[ci$state], nrow = 10, ncol = 5, common.legend = T)
-png(paste0("www/daily_risk_plots/", current_time, "/states-rank.png"), width = 6600, height = 7100, units = "px")
+p <- ggarrange(plotlist = plots[ci$state], nrow = 11, ncol = 5, common.legend = T)
+png(paste0("www/daily_risk_plots/", current_time, "/states-rank.png"), width = 6600, height = 7810, units = "px")
 annotate_figure(p,
   top = text_grob("US COVID19 Continuous Risk Estimates, by rank", face = "bold", size = 140),
   bottom = text_grob(paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", ymd_hms(daily_time, tz = ""), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/"),
@@ -162,8 +162,8 @@ annotate_figure(p,
 )
 dev.off()
 
-p <- ggarrange(plotlist = plots, nrow = 10, ncol = 5, common.legend = T)
-png(paste0("www/daily_risk_plots/", current_time, "/states-alpha.png"), width = 6600, height = 7100, units = "px")
+p <- ggarrange(plotlist = plots, nrow = 11, ncol = 5, common.legend = T)
+png(paste0("www/daily_risk_plots/", current_time, "/states-alpha.png"), width = 6600, height = 7810, units = "px")
 annotate_figure(p,
   top = text_grob("US COVID19 Continuous Risk Estimates, alphabetical", face = "bold", size = 140),
   bottom = text_grob(paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", ymd_hms(daily_time, tz = ""), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/"),
