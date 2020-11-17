@@ -219,6 +219,23 @@ shinyUI(fluidPage(
       )
     ),
     tabPanel(
+      value = "risk-by-zip-calc",
+      title = "Travel risk planner",
+      fluid = TRUE,
+      sidebarLayout(
+        sidebarPanel(
+          width = 3,
+          # Place controls here
+        ),
+        mainPanel(
+          fluidRow(column(
+            10,
+            # Add UI outputs here
+            )
+        )
+      )
+    ),
+    tabPanel(
       id = "tuts",
       "Tutorial",
       fluid = TRUE,
