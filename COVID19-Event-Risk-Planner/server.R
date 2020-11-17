@@ -17,8 +17,8 @@ pcrit <- function(x) {
   0.01 / x
 }
 
-calc_risk <- function(I, n, USpop) {
-  p_I <- (I / USpop) * (10.0 / 14.0)
+calc_risk <- function(I, n, USpop, scaling_factor=10/14) {
+  p_I <- (I / USpop) * scaling_factor
   r <- 1 - (1 - p_I)**n
   round(100 * r, 1)
 }
@@ -395,7 +395,7 @@ dd_inputs <- reactive({
     }
     nvec <- c(C_i, 5 * C_i, 10 * C_i)
     event_size <- as.numeric(gsub("[ ,-]", "", isolate(input$event_dd)))
-    risk <- calc_risk(nvec, event_size, USpop)
+    risk <- calc_risk(nvec, event_size, USpop, 1)
     risk <- case_when(risk < .1 ~ "<0.1", risk > 99 ~ ">99", TRUE ~ as.character(risk))
 
     output$dd_text <- renderUI({
