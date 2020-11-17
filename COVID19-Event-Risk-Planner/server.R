@@ -61,7 +61,7 @@ timeout <- sever_default(title = "Session timeout reached",
 
 shinyServer(function(input, output, session) {
   rupture(ms = 600000, html=timeout)
-  server(html=disconnected)
+  sever(html=disconnected)
   observeEvent(input$ruptured, {
     session$close()
     })
