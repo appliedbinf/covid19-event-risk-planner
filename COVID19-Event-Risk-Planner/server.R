@@ -47,14 +47,21 @@ get_data <- function() {
 }
 
 
-disconnected <- sever_default(title = "Session timeout reached", 
+disconnected <- sever_default(title = "Session disconnected", 
+    subtitle = "Your session disconnected for some reason :(", 
+    button = "Reconnect",
+    button_class = "warning"
+    )
+timeout <- sever_default(title = "Session timeout reached", 
     subtitle = "Your session ended due to inactivity", 
     button = "Reconnect",
     button_class = "warning"
     )
 
+
 shinyServer(function(input, output, session) {
-  rupture(ms = 600000, html=disconnected)
+  rupture(ms = 600000, html=timeout)
+  server(html=disconnected)
   observeEvent(input$ruptured, {
     session$close()
     })
