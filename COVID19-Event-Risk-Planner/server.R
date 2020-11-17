@@ -390,13 +390,13 @@ dd_inputs <- reactive({
     event_size <- as.numeric(gsub("[ ,-]", "", isolate(input$event_dd)))
     risk <- calc_risk(nvec, event_size, USpop)
     risk <- case_when(risk < .1 ~ "<0.1", risk > 99 ~ ">99", TRUE ~ as.character(risk))
-
+    avg_Ci = nvec * 10 / 14
 
     output$dd_text <- renderUI({
       HTML(paste0(
-        "<p style='font-size: 18px;'><br/><strong>C<sub>I</sub> = Current reported incidence</strong><br/>Chance someone is COVID19 positive at C<sub>I</sub>  (", format(nvec[1], big.mark = ","), "): ", risk[1], "%<br/>",
-        "Chance someone is COVID19 positive at 5x C<sub>I</sub> (", format(nvec[2], big.mark = ","), "): ", risk[2], "%<br/>",
-        "Chance someone is COVID19 positive at 10x C<sub>I</sub> (", format(nvec[3], big.mark = ","), "): ", risk[3], "%</p>"
+        "<p style='font-size: 18px;'><br/><strong>C<sub>I</sub> = Current reported incidence</strong><br/>Chance someone is COVID19 positive at C<sub>I</sub>  (", format(avg_Ci[1], big.mark = ","), "): ", risk[1], "%<br/>",
+        "Chance someone is COVID19 positive at 5x C<sub>I</sub> (", format(avg_Ci[2], big.mark = ","), "): ", risk[2], "%<br/>",
+        "Chance someone is COVID19 positive at 10x C<sub>I</sub> (", format(avg_Ci[3], big.mark = ","), "): ", risk[3], "%</p>"
       ))
     })
 
