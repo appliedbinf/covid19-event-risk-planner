@@ -1,7 +1,28 @@
-FROM rstudio/plumber
+FROM openanalytics/r-base
+
 MAINTAINER Aroon Chande "achande@ihrc.com, mail@aroonchande.com"
 
-RUN R -e "install.packages('dplyr')"
-RUN R -e "install.packages('lubridate')"
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+  git-core \
+  libssl-dev \
+  libcurl4-gnutls-dev \
+  curl \
+  libsodium-dev \
+  libxml2-dev
+
+RUN echo 'options(\n\
+  repos = c(CRAN = "https://cloud.r-project.org/"),\n\
+  download.file.method = "libcurl",\n\
+  # Detect number of physical cores\n\
+  Ncpus = parallel::detectCores(logical=FALSE)\n\
+)' >> /etc/R/Rprofile.site
+
+
+RUN R -e "install.packages(c('dplyr', 'lubridate', 'plumber'))"
+
+EXPOSE 8000
+ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(rev(commandArgs())[1]); pr$run(host='0.0.0.0', port=8000, swagger=TRUE)"]
 
 CMD ["/api/plumber.R"]
