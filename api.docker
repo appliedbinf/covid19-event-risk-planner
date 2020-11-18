@@ -1,0 +1,7 @@
+FROM rstudio/plumber
+MAINTAINER Aroon Chande "achande@ihrc.com, mail@aroonchande.com"
+
+RUN R -e "install.packages('dplyr')"
+RUN R -e "install.packages('lubridate')"
+
+CMD ["/api/plumber.R"]
