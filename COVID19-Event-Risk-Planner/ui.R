@@ -225,7 +225,28 @@ shinyUI(fluidPage(
       sidebarLayout(
         sidebarPanel(
           width = 3,
-          # Place controls here
+           # Place controls here
+          HTML(paste0(
+            "<p>Enter the zip codes of where your guests are coming from. Include attendees from your household.</p>"
+          )
+          ),
+
+          matrixInput("calcMatrix", 
+                      value = matrix(data = NA, nrow = 5, ncol = 2, byrow = FALSE,
+                                     dimnames = list(c("1", "2", "3", "4", "5"),
+                                                     c("Zip Code", "Attendees"))),
+                      class = "numeric",
+                      rows = list(
+                        names = FALSE,
+                        editableNames = FALSE),
+                      cols = list(
+                        names = TRUE,
+                        editableNames = FALSE)
+          ),
+          actionButton("button", "Calculate the risk"),
+          
+          textOutput("risk")
+          
         ),
         mainPanel(
           fluidRow(column(
