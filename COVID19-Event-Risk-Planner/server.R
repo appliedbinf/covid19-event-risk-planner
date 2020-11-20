@@ -28,6 +28,44 @@ roundUpNice <- function(x, nice = c(1, 2, 4, 5, 6, 8, 10)) {
   10^floor(log10(x)) * nice[[which(x <= 10^floor(log10(x)) * nice)[[1]]]]
 }
 
+# check if the input zip codes are valid 
+validzip <- function(mat){
+  check <- ''
+  for(i in c(1:5)){
+    if(is.na(mat[i, 1]) | (mat[i, 1] %in% zipfinal$Zip)){}
+    else{
+      check <- paste0(check," ", i)
+      print(check)
+    }
+  }
+  return(check)
+}
+
+# calculate zip codes risk
+calc_risk_zip <- function(mat){
+  print(mat)
+  riskall <- 1
+  check <- validzip(mat)
+  print(check)
+  if(nchar(check)>1){
+    return(paste0('Invalid zipcode: row', check))
+  }else{
+    for (i in c(1:5)){
+      if(!is.na(mat[i,1])){
+        print(mat[i,1])
+        if(is.na(mat[i,2])){return('Enter the number of attendees')}
+        risk <- zipfinal$pnI[zipfinal$Zip==mat[i, 1]] ** mat[i, 2]
+        print(risk)
+        riskall <- riskall*risk
+      }
+      else{
+        if(!is.na(mat[i,2])){return('Enter the zip code')}
+      }
+    }
+    return(paste0('Risk: ', round(100*(1-riskall),1), '%'))
+  }
+}
+
 get_data <- function() {
   current_fh <- tail(list.files("states_current/", full.names = TRUE), 1)
   current_time <<- gsub(".csv", "", basename(current_fh))
@@ -44,6 +82,17 @@ get_data <- function() {
     select(state, positive) %>%
     arrange(state)
   state_data$C_i <<- round((state_data$positive - states_historic$positive)  * 10 / 14)
+  
+  zipdata <- read.csv( "https://raw.githubusercontent.com/nychealth/coronavirus-data/master/latest/last7days-by-modzcta.csv", stringsAsFactors = FALSE) 
+  countytozip <- st_read('map_data/us_zip_to_county.geojson', stringsAsFactors = F) %>% as.data.frame %>% dplyr::select(c('Zip', 'Longitude', 'Latitude', 'GEOID', 'NAME')) %>% mutate(GEOID = as.numeric(GEOID)) 
+  popnyc <- read.csv('map_data/ZipNYCPop.csv', stringsAsFactors = FALSE)
+
+  zipfinal <<- countytozip %>% left_join(data_join, by=c('GEOID'='fips')) %>% 
+    left_join(zipdata %>% dplyr::select(c('modzcta', 'modzcta_name', 'people_positive')), by=c('Zip'='modzcta')) %>% 
+    left_join(popnyc, by=c('Zip'='zip'), suffix = c('_county', '_zip')) %>%
+    mutate(Nr = if_else(is.na(people_positive), Nr, people_positive)) %>%
+    mutate(pnI = if_else(is.na(people_positive), (1-(Nr*4)*10/14/pop_county), (1-(people_positive)*4*10/7/pop_zip)))
+
 }
 
 
@@ -105,6 +154,13 @@ shinyServer(function(input, output, session) {
         src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
         style="position: relative; height: 60vh; width: 95vw; max-width: 992px; max-height: 500px; min-height: 350px; align: center", frameBorder = "0"
       )
+    })
+  })
+  
+  # risk zip calculator 
+  observeEvent(input$button, {
+    output$risk <- renderText({ 
+      calc_risk_zip(input$calcMatrix)
     })
   })
 
