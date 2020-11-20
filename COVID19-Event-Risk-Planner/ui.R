@@ -10,6 +10,7 @@
 library(shiny)
 library(shinythemes)
 library(shinyWidgets)
+library(shinyMatrix)
 library(leaflet)
 library(sever)
 options(scipen = 999)
