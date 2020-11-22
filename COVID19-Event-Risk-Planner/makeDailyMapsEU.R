@@ -505,6 +505,49 @@ maplabsDenmark <- function(riskData) {
   return(labels)
 }
 
+getDataIreland <- function() {
+    
+    ireland_geom <<- st_read('map_data/Ireland_Counties.geojson')
+
+    #Main COVID-19 hub page: https://covid-19.geohive.ie/datasets/d9be85b30d7748b5b7c09450b8aede63_0
+    data <- read.csv("https://opendata.arcgis.com/datasets/d9be85b30d7748b5b7c09450b8aede63_0.csv") %>%
+        mutate(date = as.Date(TimeStamp)) %>%
+        select(CountyName, date, cases=ConfirmedCovidCases, pop = PopulationCensus16) %>%
+        arrange(desc(date))
+    data_cur <<- data %>%
+        group_by(CountyName) %>%
+        summarise(CountyName = first(CountyName), cases = first(cases), date = first(date), pop = first(pop)) %>%
+        as.data.frame()
+    past_date <- data_cur$date[1] - 14
+    data_past <- data %>%
+        filter(date == past_date) %>%
+        group_by(CountyName) %>%
+        summarise(CountyName = first(CountyName), cases = first(cases), date = first(date)) %>%
+        as.data.frame()
+
+    ireland_data_join <<- inner_join(data_cur, data_past, by = "CountyName", suffix=c('', '_past'))
+    ireland_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
+    ireland_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99" , "No or missing data")
+}
+
+# Create mouse-over labels
+maplabsIreland <- function(riskData) {
+    riskData <- riskData %>%
+        mutate(risk = case_when(
+            risk == 100 ~ '> 99',
+            risk == 0 ~ '< 1',
+            is.na(risk) ~ 'No data',
+            TRUE ~ as.character(risk)
+        ))
+    labels <- paste0(
+        "<strong>", riskData$name, "</strong><br/>",
+        "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
+        "Latest Update: ", substr(riskData$date, 1, 10)
+    ) %>% lapply(htmltools::HTML)
+    return(labels)
+}
+
+
 # Calculate risk
 calc_risk <- function(I, g, pop) {
   p_I <- I / pop
@@ -524,6 +567,7 @@ getDataSpain()
 getDataCzech()
 getDataSweden()
 getDataDenmark()
+getDataIreland()
 
 scale_factor = 10/14
 
@@ -539,6 +583,7 @@ for (asc_bias in asc_bias_list) {
   czech_data_Nr <- czech_data_join %>% mutate(Nr = cases * asc_bias * scale_factor) 
   sweden_data_Nr <- sweden_data_join %>% mutate(Nr = cases * asc_bias * scale_factor) 
   denmark_data_Nr <- denmark_data_join %>% mutate(Nr = difference * asc_bias * scale_factor) 
+  ireland_data_Nr <- ireland_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
 
   for (size in event_size){
     uk_riskdt <- uk_data_Nr %>%
@@ -586,7 +631,12 @@ for (asc_bias in asc_bias_list) {
     denmark_riskdt <- denmark_data_Nr %>%
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
     
-    denmark_riskdt_map <- denmark_geom %>% left_join(denmark_riskdt, by = "name") 
+    denmark_riskdt_map <- denmark_geom %>% left_join(denmark_riskdt, by = "name")
+
+    ireland_riskdt <- ireland_data_Nr %>%
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+    
+    ireland_riskdt_map <- ireland_geom %>% left_join(ireland_riskdt, by = c("id" = "CountyName")) 
 
 
 
@@ -671,6 +721,14 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ austria_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsDenmark(denmark_riskdt_map)
+      )  %>%
+      addPolygons(
+        data = ireland_riskdt_map,
+        color = "#444444", weight = 0.2, smoothFactor = 0.1,
+        opacity = 1.0, fillOpacity = 0.7,
+        fillColor = ~ austria_pal(risk),
+        highlight = highlightOptions(weight = 1),
+        label = maplabsIreland(ireland_riskdt_map)
       ) %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",
