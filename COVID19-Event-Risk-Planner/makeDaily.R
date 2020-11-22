@@ -10,10 +10,9 @@ library(lubridate)
 library(mapview)
 library(matlab)
 library(RCurl)
-library(rtweet)
 library(sf)
 library(withr)
-
+library(rtweet)
 
 get_token()
 
@@ -40,7 +39,7 @@ dir.create(paste0("www/daily_risk_plots/", current_time))
 daily_fh <- tail(list.files("states_daily/", full.names = TRUE), 1)
 daily_time <- gsub(".csv", "", basename(daily_fh))
 state_current <<- read.csv(current_fh, stringsAsFactors = F)
-states <- state_current %>% filter(state %nin% c("AS", "MP", "VI", "GU", "PR", "DC"))
+states <- state_current %>% filter(state %nin% c("AS", "MP", "VI", "GU"))
 states <- states$state
 cur_date <- gsub("-", "", Sys.Date())
 past_date <- ymd(cur_date) - 14
@@ -63,7 +62,7 @@ for (state in states) {
   pop <- as.numeric(state_pops[state_pops$state == state, "pop"])
   C_i <- as.numeric(state_data[state_data$state == state, "C_i"])
   ci_list[[state]] <- data.frame("state" = state, "ci" = C_i / pop, "realci" = C_i)
-  nvec <- c(C_i, 5 * C_i, 10 * C_i, 20 * C_i)
+  nvec <- c(C_i, 5 * C_i, 10 * C_i)
   event_size <- c(10, 100, 1000, 1000)
   risk <- calc_risk(nvec, event_size, pop)
 
@@ -83,7 +82,7 @@ for (state in states) {
 
   risk.df <- do.call(rbind.data.frame, risk_vals_list)
 
-  risk.df$nvec <- factor(risk.df$nvec, levels = c(C_i, 5 * C_i, 10 * C_i, 20 * C_i))
+  risk.df$nvec <- factor(risk.df$nvec, levels = c(C_i, 5 * C_i, 10 * C_i))
 
 
   rl[[state]] <- risk.df
@@ -101,9 +100,9 @@ for (state in names(rl)) {
   rank_ <- grep(state, ci$state)
   p <- ggplot(rl[[state]]) +
     geom_area(aes(x = svec, y = risk, group = rev(nvec), fill = nvec), position = "identity") +
-    scale_fill_manual(values = c("white", "white", "grey", "grey50")) +
-    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(12, 150)), linetype = c(rep(2, 50), rep(1, 150)), position = "identity") +
-    scale_color_manual(values = c("black", "#003057", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]), bquote("20x C"["i"]))) +
+    scale_fill_manual(values = c("white", "white", "grey50")) +
+    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(12, 100)), linetype = c(rep(2, 50), rep(1, 100)), position = "identity") +
+    scale_color_manual(values = c("black", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
     scale_x_continuous(name = "Event size", breaks = xblock, labels = format(xblock, big.mark = ",", trim = T), trans = "log10", expand = c(.1, .1)) +
     theme_clean() +
     annotation_logticks(scaled = , sides = "b") +
@@ -127,9 +126,9 @@ for (state in names(rl)) {
 
   p2 <- ggplot(rl[[state]]) +
     geom_area(aes(x = svec, y = risk, group = rev(nvec), fill = nvec), position = "identity") +
-    scale_fill_manual(values = c("white", "white", "grey", "grey50")) +
-    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(2, 150)), linetype = c(rep(2, 50), rep(1, 150)), position = "identity") +
-    scale_color_manual(values = c("black", "#003057", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]), bquote("20x C"["i"]))) +
+    scale_fill_manual(values = c("white", "white", "grey50")) +
+    geom_path(aes(x = svec, y = risk, group = nvec, color = nvec), size = c(rep(1, 50), rep(2, 100)), linetype = c(rep(2, 50), rep(1, 100)), position = "identity") +
+    scale_color_manual(values = c("black", "#EAAA00", "red"), labels = c(bquote("C"["i"]), bquote("5x C"["i"]), bquote("10x C"["i"]))) +
     scale_x_continuous(name = "Event size", breaks = xblock, labels = format(xblock, big.mark = ",", trim = T), trans = "log10", expand = c(.1, .1)) +
     theme_clean() +
     annotation_logticks(scaled = , sides = "b") +
@@ -153,8 +152,8 @@ for (state in names(rl)) {
   ggsave(paste0("www/daily_risk_plots/", current_time, "/", state, ".png"), plot = p2, width = 12, height = 7, units = "in", dpi = 320)
 }
 
-p <- ggarrange(plotlist = plots[ci$state], nrow = 10, ncol = 5, common.legend = T)
-png(paste0("www/daily_risk_plots/", current_time, "/states-rank.png"), width = 6600, height = 7100, units = "px")
+p <- ggarrange(plotlist = plots[ci$state], nrow = 11, ncol = 5, common.legend = T)
+png(paste0("www/daily_risk_plots/", current_time, "/states-rank.png"), width = 6600, height = 7810, units = "px")
 annotate_figure(p,
   top = text_grob("US COVID19 Continuous Risk Estimates, by rank", face = "bold", size = 140),
   bottom = text_grob(paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", ymd_hms(daily_time, tz = ""), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/"),
@@ -163,8 +162,8 @@ annotate_figure(p,
 )
 dev.off()
 
-p <- ggarrange(plotlist = plots, nrow = 10, ncol = 5, common.legend = T)
-png(paste0("www/daily_risk_plots/", current_time, "/states-alpha.png"), width = 6600, height = 7100, units = "px")
+p <- ggarrange(plotlist = plots, nrow = 11, ncol = 5, common.legend = T)
+png(paste0("www/daily_risk_plots/", current_time, "/states-alpha.png"), width = 6600, height = 7810, units = "px")
 annotate_figure(p,
   top = text_grob("US COVID19 Continuous Risk Estimates, alphabetical", face = "bold", size = 140),
   bottom = text_grob(paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", ymd_hms(daily_time, tz = ""), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/"),

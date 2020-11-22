@@ -9,17 +9,6 @@
 ## ---------------------------
 # options(shiny.reactlog = TRUE)
 options(scipen = 999)
-library(shiny)
-library(withr)
-library(ggplot2)
-library(ggrepel)
-library(matlab)
-library(lubridate)
-library(dplyr)
-library(ggthemes)
-library(leaflet)
-library(mapview)
-library(sever)
 # library(mapview, lib.loc = "/projects/covid19/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
 
 Sys.setenv(PATH = with_path("/projects/covid19/bin", Sys.getenv("PATH")))
@@ -28,8 +17,8 @@ pcrit <- function(x) {
   0.01 / x
 }
 
-calc_risk <- function(I, n, USpop) {
-  p_I <- (I / USpop) * (10.0 / 14.0)
+calc_risk <- function(I, n, USpop, scaling_factor=10/14) {
+  p_I <- (I / USpop) * scaling_factor
   r <- 1 - (1 - p_I)**n
   round(100 * r, 1)
 }
@@ -54,18 +43,25 @@ get_data <- function() {
   state_data <<- state_current %>%
     select(state, positive) %>%
     arrange(state)
-  state_data$C_i <<- state_data$positive - states_historic$positive
+  state_data$C_i <<- round((state_data$positive - states_historic$positive)  * 10 / 14)
 }
 
 
-disconnected <- sever_default(title = "Session timeout reached", 
+disconnected <- sever_default(title = "Session disconnected", 
+    subtitle = "Your session disconnected for some reason :(", 
+    button = "Reconnect",
+    button_class = "warning"
+    )
+timeout <- sever_default(title = "Session timeout reached", 
     subtitle = "Your session ended due to inactivity", 
     button = "Reconnect",
     button_class = "warning"
     )
 
+
 shinyServer(function(input, output, session) {
-  rupture(ms = 600000, html=disconnected)
+  rupture(ms = 600000, html=timeout)
+  sever(html=disconnected)
   observeEvent(input$ruptured, {
     session$close()
     })
@@ -94,34 +90,7 @@ shinyServer(function(input, output, session) {
 
   }) 
 
-  get_data()
-  updateSelectizeInput(session, "states_dd", choices = states, selected = "GA")
-  updateSelectizeInput(session, "us_states", choices = states, selected = "GA")
-
-  regions <- c(
-    "USA, Alphabetical" = "states-alpha.png",
-    "USA, By Rank" = "states-rank.png",
-    "AK" = "AK.png", "AL" = "AL.png", "AR" = "AR.png", "AZ" = "AZ.png",
-    "CA" = "CA.png", "CO" = "CO.png", "CT" = "CT.png", "DE" = "DE.png",
-    "FL" = "FL.png", "GA" = "GA.png", "HI" = "HI.png", "IA" = "IA.png",
-    "ID" = "ID.png", "IL" = "IL.png", "IN" = "IN.png", "KS" = "KS.png",
-    "KY" = "KY.png", "LA" = "LA.png", "MA" = "MA.png", "MD" = "MD.png",
-    "ME" = "ME.png", "MI" = "MI.png", "MN" = "MN.png", "MO" = "MO.png",
-    "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png", "ND" = "ND.png",
-    "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png", "NM" = "NM.png",
-    "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png", "OK" = "OK.png",
-    "OR" = "OR.png", "PA" = "PA.png", "RI" = "RI.png", "SC" = "SC.png",
-    "SD" = "SD.png", "TN" = "TN.png", "TX" = "TX.png", "UT" = "UT.png",
-    "VA" = "VA.png", "VT" = "VT.png", "WA" = "WA.png", "WI" = "WI.png",
-    "WV" = "WV.png", "WY" = "WY.png"
-  )
-  updateSelectizeInput(session, "regions", choices = regions, selected = "states-alpha.png")
-  daily_plots_dir <- list.dirs("www/daily_risk_plots/", full.names = F)
-  names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
-  updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
-
-
-  observeEvent(input$event_size_map, {
+   observeEvent(input$event_size_map, {
     output$map_static <- renderUI({
       tags$iframe(
         src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
@@ -159,6 +128,30 @@ shinyServer(function(input, output, session) {
   })
 
 
+  regions <- c(
+    "USA, Alphabetical" = "states-alpha.png",
+    "USA, By Rank" = "states-rank.png",
+    "AK" = "AK.png", "AL" = "AL.png", "AR" = "AR.png", "AZ" = "AZ.png",
+    "CA" = "CA.png", "CO" = "CO.png", "CT" = "CT.png", "DC" = "DC.png",
+    "DE" = "DE.png", "FL" = "FL.png", "GA" = "GA.png", "HI" = "HI.png",
+    "IA" = "IA.png", "ID" = "ID.png", "IL" = "IL.png", "IN" = "IN.png",
+    "KS" = "KS.png", "KY" = "KY.png", "LA" = "LA.png", "MA" = "MA.png",
+    "MD" = "MD.png", "ME" = "ME.png", "MI" = "MI.png", "MN" = "MN.png",
+    "MO" = "MO.png", "MS" = "MS.png", "MT" = "MT.png", "NC" = "NC.png",
+    "ND" = "ND.png", "NE" = "NE.png", "NH" = "NH.png", "NJ" = "NJ.png",
+    "NM" = "NM.png", "NV" = "NV.png", "NY" = "NY.png", "OH" = "OH.png",
+    "OK" = "OK.png", "OR" = "OR.png", "PA" = "PA.png", "PR" = "PR.png", 
+    "RI" = "RI.png", "SC" = "SC.png", "SD" = "SD.png", "TN" = "TN.png",
+    "TX" = "TX.png", "UT" = "UT.png", "VA" = "VA.png", "VT" = "VT.png",
+    "WA" = "WA.png", "WI" = "WI.png", "WV" = "WV.png", "WY" = "WY.png"
+  )
+  updateSelectizeInput(session, "states_dd", choices = names(regions), selected = "GA")
+  updateSelectizeInput(session, "us_states", choices = names(regions), selected = "GA")
+  updateSelectizeInput(session, "regions", choices = regions, selected = "states-alpha.png")
+  daily_plots_dir <- list.dirs("www/daily_risk_plots/", full.names = F)
+  names(daily_plots_dir) <- ymd_hms(daily_plots_dir, tz = "America/New_York")
+  updateSelectizeInput(session, "date", choices = rev(daily_plots_dir), selected = tail(daily_plots_dir, 1))
+
   output$dl_map <- downloadHandler(
     filename = paste0("County-level COVID risk estimates map - ", today(), ".png"),
     content = function(file) {
@@ -188,8 +181,10 @@ shinyServer(function(input, output, session) {
         width <- 864
         height <- 504
       }
+      src_file = paste0(risk_folder, "/", region)
+      shiny::validate(need(file.exists(src_file), message = "No historical plot data available"))
       list(
-        src = paste0(risk_folder, "/", region),
+        src = src_file,
         width = width,
         height = height
       )
@@ -247,7 +242,7 @@ shinyServer(function(input, output, session) {
     outtext <- reactiveValuesToList(values_dd)
     paste(outtext, collapse = "\t")
   })
-
+  get_data()
   pred_plot <- ""
   output$plot_us <- renderPlot({
     xblock <- c(10, 100, 1000, 10**4, 10**5)
@@ -373,6 +368,7 @@ dd_inputs <- reactive({
   dd_plot <- ""
   states_dd <- "US"
   observeEvent(dd_inputs(), {
+    req(dd_inputs)
     xblock <- c(10, 100, 1000, 10**4, 10**5)
     names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game")
     # cat("218 ", values_dd$use_state, "\n")
@@ -399,9 +395,8 @@ dd_inputs <- reactive({
     }
     nvec <- c(C_i, 5 * C_i, 10 * C_i)
     event_size <- as.numeric(gsub("[ ,-]", "", isolate(input$event_dd)))
-    risk <- calc_risk(nvec, event_size, USpop)
+    risk <- calc_risk(nvec, event_size, USpop, 1)
     risk <- case_when(risk < .1 ~ "<0.1", risk > 99 ~ ">99", TRUE ~ as.character(risk))
-
 
     output$dd_text <- renderUI({
       HTML(paste0(

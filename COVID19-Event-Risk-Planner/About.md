@@ -1,6 +1,6 @@
 ### About
 
-This site provides interactive context to assess the risk that one or more individuals infected with COVID-19 are present in an event of various sizes.  The model is simple, intentionally so, and provided some context for the rationale to halt large gatherings in early-mid March and newly relevant context for considering when and how to re-open.  Precisely because of under-testing and the risk of exposure and infection, these risk calculations provide furher support for the ongoing need for social distancing and protective measures. Such precautions are still needed even in small events, given the large number of circulating cases.
+This site provides interactive context to assess the risk that one or more individuals infected with COVID-19 are present in an event of various sizes.  The model is simple, intentionally so, and provided some context for the rationale to halt large gatherings in early-mid March and newly relevant context for considering when and how to re-open.  Precisely because of under-testing and the risk of exposure and infection, these risk calculations provide further support for the ongoing need for social distancing and protective measures. Such precautions are still needed even in small events, given the large number of circulating cases.
 
 
 ### Contributors:  
@@ -23,11 +23,12 @@ The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on
 
 #### International Collaborations
 
-**Italy**: http://datainterfaces.org/projects/covid19eventi/
+**Italy**: http://datainterfaces.org/projects/covid19eventi/  
+**Spain**: https://eventosycovid19.es  
 
 ### How to cite
 
-Chande, A.T., Lee, S., Harris, M., Hilley, T., Andris, C., Weitz J.S. (2020) 'Real-time, interactive website for US-county level Covid-19 event risk assessment', https://www.medrxiv.org/content/10.1101/2020.08.24.20181271v1
+Chande, A., Lee, S., Harris, M. et al. Real-time, interactive website for US-county-level COVID-19 event risk assessment. Nat Hum Behav (2020). https://doi.org/10.1038/s41562-020-01000-9
 
 Chande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Hilley, T., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool', URL http://covid19risk.biosci.gatech.edu/
 

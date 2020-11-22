@@ -15,7 +15,7 @@ library(sever)
 options(scipen = 999)
 
 
-event_size = c(10, 15, 20, 30, 50, 100, 500, 1000)
+event_size = c(10, 15, 25, 50, 100, 500, 1000, 5000)
 
 shinyUI(fluidPage(
   theme = shinytheme("sandstone"),
@@ -66,9 +66,9 @@ shinyUI(fluidPage(
           HTML(
             paste0(
               "<p>This map shows the risk level of attending an event, given the event size and location.",
-              "<br/><br/>",
+              "<br/><br/>You can reduce the risk that one case becomes many by wearing a mask, distancing, and gathering outdoors in smaller groups<br/><br/>",
               "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a county, given the size of the event.",
-              "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
+              "<br/><br/>", "Based on seroprevalence data and increases in testing, by default we assume there are five times more cases than are being reported (5:1 ascertainment bias). In places with less testing availability, that bias may be higher. We are evaluating the inclusion of lower ascertainment biases based on increased testing.",
               "<br/><br/>",
               "Choose an event size and ascertainment bias below.</p>"
             )
@@ -117,9 +117,9 @@ shinyUI(fluidPage(
           HTML(
             paste0(
               "<p>This map shows the risk level of attending events of different sizes at within-country resolution.",
-              "<br/><br/>",
+              "<br/><br/>You can reduce the risk that one case becomes many by wearing a mask, distancing, and gathering outdoors in smaller groups<br/><br/>",
               "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a NUTS-3 level area (County, Local Authority, Council, District), given the size of the event.",
-              "<br/><br/>", "Based on seroprevalence data, we assume there are ten times more cases than are being reported (10:1 ascertainment bias). In places with more testing availability, that rate may be lower.",
+              "<br/><br/>", "Based on seroprevalence data and increases in testing, by default we assume there are five times more cases than are being reported (5:1 ascertainment bias). In places with less testing availability, that bias may be higher. We are evaluating the inclusion of lower ascertainment biases based on increased testing.",
               "<br/><br/>",
               "Choose an event size and ascertainment bias below.</p>"
             )
@@ -178,7 +178,7 @@ shinyUI(fluidPage(
           ),
           textInput("event_dd",
             "Event size:",
-            value = 275
+            placeholder = 275
           ),
           downloadButton("dl_dd", "Download plot"),
           htmlOutput("dd_text")
@@ -272,7 +272,7 @@ shinyUI(fluidPage(
     fluidRow(
       column(3), column(
         7,
-        HTML('<div class="well"><p>The COVID-19 Event Risk Assessment Planning Tool is a collaborative project led by <a href="https://ecotheory.biosci.gatech.edu/" rel="noopener" target="_blank">Prof. Joshua Weitz</a> and <a href="http://friendlycities.gatech.edu/" rel="noopener" target="_blank">Prof. Clio Andris</a> at the Georgia Institute of Technology, along with researchers at the <a href="https://www.abil.ihrc.com/" rel="noopener" target="_blank">Applied Bioinformatics Laboratory</a> and <a href="https://knight-hennessy.stanford.edu/program/scholars/2019/mallory-harris" rel="noopener" target="_blank">Stanford University</a>, and powered by <a href="https://rstudio.com/" rel="noopener" target="_blank">RStudio</a>.</p></div>')
+        HTML('<div class="well"><p>The COVID-19 Event Risk Assessment Planning Tool is a collaborative project led by <a href="https://ecotheory.biosci.gatech.edu/" rel="noopener" target="_blank">Prof. Joshua Weitz</a> and <a href="http://friendlycities.gatech.edu/" rel="noopener" target="_blank">Prof. Clio Andris</a> at the Georgia Institute of Technology, along with researchers at the <a href="https://www.abil.ihrc.com/" rel="noopener" target="_blank">Applied Bioinformatics Laboratory</a> and <a href="https://knight-hennessy.stanford.edu/program/scholars/2019/mallory-harris" rel="noopener" target="_blank">Stanford University</a>, and powered by <a href="https://rstudio.com/" rel="noopener" target="_blank">RStudio</a>.  Description of the method and analyses available at <a href="https://www.nature.com/articles/s41562-020-01000-9/" rel="noopener" target="_blank">Nature Human Behaviour</a>.</p></div>')
       ), column(1)
     )
   ),

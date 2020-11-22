@@ -1,3 +1,19 @@
+### LA Times
+- Nov. 11, 2020
+    https://www.latimes.com/science/story/2020-11-11/covid-19-risk-thanksgiving-2020-what-to-expect
+
+### WIRED Science 
+- Nov. 11, 2020
+    https://www.wired.com/story/thinking-about-a-holiday-gathering-look-at-this-map/
+
+### Boston Globe 
+- Nov. 11, 2020
+    https://www.bostonglobe.com/2020/11/10/nation/youre-not-doomed-zoom-how-have-safer-thanksgiving-during-pandemic/
+
+### WebMD 
+- Nov. 09, 2020
+    https://www.webmd.com/lung/news/20201109/whats-my-risk-of-covid
+
 ### Healthline
 - Aug. 13, 2020
     https://www.healthline.com/health-news/covid19-tracker-assesses-risk-public-gatherings
