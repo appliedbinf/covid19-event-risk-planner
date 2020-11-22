@@ -390,21 +390,21 @@ getDataSweden <- function() {
     arrange(desc(date))
 
   sweden_geom <<- st_read("map_data/sweden-counties.geojson")
-  sweden_pop <- read.csv("map_data/sweden_pop.csv", stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+  sweden_pop <<- read.csv("map_data/sweden_pop.csv", stringsAsFactors = FALSE, fileEncoding = "UTF-8")
 
-  data_cur <<- data %>%
+  data_cur <- swedenData %>%
     group_by(County) %>%
     summarise(County = first(County), cases = sum(cases), date = first(date)) %>%
     as.data.frame()
   past_date <- data_cur$date[1] - 14
-  data_past <- data %>%
+  data_past <- swedenData %>%
     filter(date <= past_date) %>%
     group_by(County) %>%
     summarise(County = first(County), cases = sum(cases), date = first(date)) %>%
     as.data.frame()
   sweden_data_join <<- data_cur %>%
     inner_join(data_past, by = "County", suffix = c("", "_past")) %>%
-    inner_join(pop, by = c("County")) 
+    inner_join(sweden_pop, by = c("County")) 
   sweden_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
   sweden_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
 }
@@ -576,9 +576,9 @@ for (asc_bias in asc_bias_list) {
     czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name")
 
     sweden_riskdt <- sweden_data_Nr %>% 
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, Population)), 0))
     
-    sweden_riskdt_map <- sweden_geom %>% left_join(sweden_riskdt, by = "name") 
+    sweden_riskdt_map <- sweden_geom %>% left_join(sweden_riskdt, by = c("name" = "County")) 
 
     # denmark_riskdt <- denmark_data_Nr %>%
     #   mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
