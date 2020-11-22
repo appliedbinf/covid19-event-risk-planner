@@ -371,6 +371,62 @@ maplabsCzech <- function(riskData) {
   return(labels)
 }
 
+getDataSweden <- function() {
+  temp <- tempfile()
+  download.file(url = "https://fohm.maps.arcgis.com/sharing/rest/content/items/b5e7488e117749c19881cce45db13f7e/data", destfile = temp, mode="wb")
+  swedenResource <- as.data.frame(readxl::read_excel(temp,col_names =T))
+  unlink(temp)
+  names(swedenResource)[1] <- 'date'
+  swedenResource$date <- as.Date(swedenResource$date)
+  SwedenCounty <- names(swedenResource)[3:length(names(swedenResource))]
+  SwedenCounty[SwedenCounty == "Jämtland_Härjedalen"] <- "Jämtland"
+  SwedenCounty[SwedenCounty == "Sörmland"] <- "Södermanland"
+  SwedenCounty[SwedenCounty == "Västra_Götaland"] <- "Västra Götaland"
+  names(swedenResource) = c(names(swedenResource)[1:2],SwedenCounty)
+
+  swedenData = swedenResource %>% 
+    pivot_longer(3:23, names_to="County", values_to="cases") %>%
+    select(-Totalt_antal_fall) %>%
+    arrange(desc(date))
+
+  sweden_geom <<- st_read("map_data/sweden-counties.geojson")
+  sweden_pop <- read.csv("map_data/sweden_pop.csv", stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+
+  data_cur <<- data %>%
+    group_by(County) %>%
+    summarise(County = first(County), cases = sum(cases), date = first(date)) %>%
+    as.data.frame()
+  past_date <- data_cur$date[1] - 14
+  data_past <- data %>%
+    filter(date <= past_date) %>%
+    group_by(County) %>%
+    summarise(County = first(County), cases = sum(cases), date = first(date)) %>%
+    as.data.frame()
+  sweden_data_join <<- data_cur %>%
+    inner_join(data_past, by = "County", suffix = c("", "_past")) %>%
+    inner_join(pop, by = c("County")) 
+  sweden_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
+  sweden_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
+}
+
+# Create mouse-over labels
+maplabsSweden <- function(riskData) {
+  riskData <- riskData %>%
+    mutate(risk = case_when(
+      risk == 100 ~ "> 99",
+      risk == 0 ~ "< 1",
+      is.na(risk) ~ "No data",
+      TRUE ~ as.character(risk)
+    ))
+  labels <- paste0(
+    "<strong>", paste0(riskData$name), "</strong><br/>",
+    "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
+    "Latest Update: ", substr(riskData$date, 1, 10)
+  ) %>% lapply(htmltools::HTML)
+  return(labels)
+}
+
+
 # getDataDenmark <- function(){
 #   geomDanish <- st_read('map_data/denmark-municipalities.geojson')
   
@@ -464,6 +520,7 @@ getDataAustria()
 getDataFrance()
 getDataSpain()
 getDataCzech()
+getDataSweden()
 
 scale_factor = 10/14
 
@@ -477,6 +534,7 @@ for (asc_bias in asc_bias_list) {
   austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
   spain_data_Nr <- spain_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
   czech_data_Nr <- czech_data_join %>% mutate(Nr = cases * asc_bias * scale_factor) 
+  sweden_data_Nr <- sweden_data_join %>% mutate(Nr = cases * asc_bias * scale_factor) 
   # denmark_data_Nr <- denmark_data_join %>% mutate(Nr = difference * asc_bias * scale_factor) 
 
   for (size in event_size){
@@ -515,7 +573,12 @@ for (asc_bias in asc_bias_list) {
     czech_riskdt <- czech_data_Nr %>% 
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
     
-    czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name") 
+    czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name")
+
+    sweden_riskdt <- sweden_data_Nr %>% 
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+    
+    sweden_riskdt_map <- sweden_geom %>% left_join(sweden_riskdt, by = "name") 
 
     # denmark_riskdt <- denmark_data_Nr %>%
     #   mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
@@ -589,6 +652,14 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ austria_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsCzech(czech_riskdt_map)
+      ) %>%
+      addPolygons(
+        data = sweden_riskdt_map,
+        color = "#444444", weight = 0.2, smoothFactor = 0.1,
+        opacity = 1.0, fillOpacity = 0.7,
+        fillColor = ~ austria_pal(risk),
+        highlight = highlightOptions(weight = 1),
+        label = maplabsSweden(sweden_riskdt_map)
       ) %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",
