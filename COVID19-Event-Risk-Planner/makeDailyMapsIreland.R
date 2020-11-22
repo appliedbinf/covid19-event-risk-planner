@@ -11,38 +11,33 @@ get_token()
 args = commandArgs(trailingOnly=TRUE)
 current_time <- args[1]
 
-getDataAustria <- function() {
+getDataIreland <- function() {
     
-    data <- read.csv('https://covid19-dashboard.ages.at/data/CovidFaelle_Timeline_GKZ.csv',sep = ';',encoding = 'UTF-8', stringsAsFactors = FALSE) %>% 
-        select(date = Time, name = Bezirk, code = GKZ, population = AnzEinwohner, cases = AnzahlFaelleSum)
-    # format the date 
-    for (i in 1:length(data$date)){
-        data$date[i] <- unlist(strsplit(data$date[i],' '))[1]
-    }
-    data <- data %>% mutate(date = as.Date(format(strptime(as.character(date),"%d.%m.%Y"), "%Y-%m-%d")), 
-               code = as.character(code)) %>% 
-        arrange(desc(date)) %>% filter(!is.na(cases)) 
-    geom <<- st_read('https://raw.githubusercontent.com/ginseng666/GeoJSON-TopoJSON-Austria/master/2017/simplified-99.9/bezirke_999_geo.json')
-    
-    cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
-    past_date <- ymd(cur_date) - 14
-    data_cur <<- data %>% group_by(code) %>% 
-        summarise(code = first(code), cases = first(cases), date = first(date), pop = first(population)) %>% 
+    geom <<- st_read('map_data/Ireland_Counties.geojson')
+
+    #Main COVID-19 hub page: https://covid-19.geohive.ie/datasets/d9be85b30d7748b5b7c09450b8aede63_0
+    data <- read.csv("https://opendata.arcgis.com/datasets/d9be85b30d7748b5b7c09450b8aede63_0.csv") %>%
+        mutate(date = as.Date(TimeStamp)) %>%
+        select(CountyName, date, cases=ConfirmedCovidCases, pop = PopulationCensus16) %>%
+        arrange(desc(date))
+    data_cur <<- data %>%
+        group_by(CountyName) %>%
+        summarise(CountyName = first(CountyName), cases = first(cases), date = first(date), pop = first(pop)) %>%
         as.data.frame()
-    data_past <- data %>% 
-        filter(date <= past_date) %>% 
-        group_by(code) %>% 
-        summarise(code = first(code), cases = first(cases), date = first(date)) %>% 
+    past_date <- data_cur$date[1] - 14
+    data_past <- data %>%
+        filter(date == past_date) %>%
+        group_by(CountyName) %>%
+        summarise(CountyName = first(CountyName), cases = first(cases), date = first(date)) %>%
         as.data.frame()
-    data_join <<- data_cur %>%
-        inner_join(data_past, by = "code", suffix=c('', '_past')) %>%
-        mutate(n = date-date_past) 
+
+    data_join <<- inner_join(data_cur, data_past, by = "CountyName", suffix=c('', '_past'))
     pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
     legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99" , "No or missing data")
 }
 
 # Create mouse-over labels
-maplabsAustria <- function(riskData) {
+maplabsIreland <- function(riskData) {
     riskData <- riskData %>%
         mutate(risk = case_when(
             risk == 100 ~ '> 99',
@@ -73,7 +68,7 @@ size <- 50
 asc_bias <- 5
 
 
-getDataAustria()
+getDataIreland()
 
 data_Nr <- data_join %>%
 mutate(Nr = (cases - cases_past) * asc_bias * 10/14) 
