@@ -79,7 +79,7 @@ calc_risk <- function(I, g, pop) {
 
 
 ######## create and save daily map widgets ########
-event_size = c(10, 15, 25, 50, 100, 500, 1000, 5000)
+event_size = c(10, 15, 20, 25, 50, 100, 500, 1000, 5000)
 asc_bias_list <<- c(5, 10)
 scale_factor = 10/14
 

@@ -10,3 +10,4 @@ Rscript ${base}/makeDailyMapsItaly.R $fname
 Rscript ${base}/makeDailyMapsFrance.R $fname
 Rscript ${base}/makeDailyMapsAustria.R $fname
 Rscript ${base}/makeDailyMapSweden.R $fname
+Rscript ${base}/makeDailyMapIreland.R $fname
