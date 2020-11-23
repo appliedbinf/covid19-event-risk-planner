@@ -15,7 +15,7 @@ library(sever)
 options(scipen = 999)
 
 
-event_size = c(10, 15, 20, 25, 50, 100, 500, 1000, 5000)
+event_size = c("10"=0, "15"=1, "20"=2, "25"=3, "50"=4, "100"=5, "500"=6, "1000"=7, "5000"=8)
 
 shinyUI(fluidPage(
   theme = shinytheme("sandstone"),
@@ -77,8 +77,8 @@ shinyUI(fluidPage(
           shinyWidgets::sliderTextInput(
             "event_size_map",
             "Event Size: ",
-            choices = event_size,
-            selected = 50,
+            choices = names(event_size),
+            selected = "50",
             grid = T
           ),
           shinyWidgets::awesomeRadio(
@@ -128,8 +128,8 @@ shinyUI(fluidPage(
           shinyWidgets::sliderTextInput(
             "global_event_size_map",
             "Event Size: ",
-            choices = event_size,
-            selected = 50,
+            choices = names(event_size),
+            selected = "50",
             grid = T
           ),
           shinyWidgets::awesomeRadio(

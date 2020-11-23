@@ -57,7 +57,7 @@ timeout <- sever_default(title = "Session timeout reached",
     button = "Reconnect",
     button_class = "warning"
     )
-
+event_size = c("10"=0, "15"=1, "20"=2, "25"=3, "50"=4, "100"=5, "500"=6, "1000"=7, "5000"=8)
 
 shinyServer(function(input, output, session) {
   rupture(ms = 600000, html=timeout)
@@ -91,18 +91,17 @@ shinyServer(function(input, output, session) {
   }) 
 
    observeEvent(input$event_size_map, {
-    output$map_static <- renderUI({
-      tags$iframe(
-        src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
-        style="position: relative; height: 60vh; width: 95vw; max-width: 992px; max-height: 500px; min-height: 350px; align: center", frameBorder = "0"
-      )
-    })
+    print(input$event_size_map)
+    js = glue::glue("document.getElementsByClassName('leaflet-control-layers')[0].getElementsByTagName('input')[{event_size[as.character(input$event_size_map)]}].click();")
+    print(js)
+    shinyjs::runjs(js)
   })
 
   observeEvent(input$asc_bias, {
     output$map_static <- renderUI({
       tags$iframe(
-        src = paste0(input$asc_bias, "_", input$event_size_map, ".html"),
+        id = "leaflet",
+        src = paste0(input$asc_bias, ".html"),
         style="position: relative; height: 60vh; width: 95vw; max-width: 992px; max-height: 500px; min-height: 350px; align: center", frameBorder = "0"
       )
     })
