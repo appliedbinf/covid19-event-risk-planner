@@ -76,18 +76,17 @@ mutate(Nr = (cases - cases_past) * asc_bias * 10/14)
 riskdt <- data_Nr %>% 
     mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
-riskdt_map <- geom %>% left_join(riskdt, by = c("iso" = "code"))
+riskdt_map <- geom %>% left_join(riskdt, by = c("id" = "CountyName"))
 map <- leaflet() %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
-    # setView(lat = 47, lng = -8.2, zoom = 4) %>%
-    fitBounds(10, 48, 16.2, 46.4) %>% 
+    setView(lat = 53, lng = -7.5, zoom = 6) %>%
     addPolygons(
         data = riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,
         opacity = 1.0, fillOpacity = 0.7,
         fillColor = ~ pal(risk),
         highlight = highlightOptions(weight = 1),
-        label = maplabsAustria(riskdt_map)
+        label = maplabsIreland(riskdt_map)
     ) %>%
     addLegend(
         data = riskdt_map,
@@ -97,6 +96,6 @@ map <- leaflet() %>%
         labFormat = function(type, cuts, p) {
             paste0(legendlabs)
         })
-mapshot(map, file = file.path(getwd(), "daily_risk_map_austria", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
-post_tweet(status = paste0("Austrian state-level risk estimate update for ",  now("Europe/Vienna"), " ", tz("Europe/Vienna"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 5:1 ascertainment bias]"),
+mapshot(map, file = file.path(getwd(), "daily_risk_map_ireland", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
+post_tweet(status = paste0("Ireland county-level risk estimate update for ",  now("Europe/Dublin"), " ", tz("Europe/Vienna"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 5:1 ascertainment bias]"),
  media = file.path("daily_risk_map_austria", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))

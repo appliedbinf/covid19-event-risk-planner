@@ -9,5 +9,6 @@ Rscript ${base}/makeDailyMapsUK.R $fname
 Rscript ${base}/makeDailyMapsItaly.R $fname
 Rscript ${base}/makeDailyMapsFrance.R $fname
 Rscript ${base}/makeDailyMapsAustria.R $fname
-Rscript ${base}/makeDailyMapSweden.R $fname
-Rscript ${base}/makeDailyMapIreland.R $fname
+Rscript ${base}/makeDailyMapsSweden.R $fname
+Rscript ${base}/makeDailyMapsIreland.R $fname
+Rscript ${base}/makeDailyMapsDenmark.R $fname

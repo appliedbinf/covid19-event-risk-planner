@@ -62,7 +62,7 @@ maplabs <- function(riskData) {
     ))
   labels <- paste0(
     "<strong>", paste0(riskData$NAME, ", ", riskData$stname), "</strong><br/>",
-    "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", " &#37;"), "</b><br/>",
+    "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
     "Updated: ", now("America/New_York"), " Eastern time"  
   ) %>% lapply(htmltools::HTML)
   return(labels)
