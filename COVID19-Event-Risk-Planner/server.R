@@ -82,10 +82,31 @@ get_data <- function() {
     select(state, positive) %>%
     arrange(state)
   state_data$C_i <<- round((state_data$positive - states_historic$positive)  * 10 / 14)
-  
+ 
+  data <- read.csv("https://covid19risk.biosci.gatech.edu/usa_risk_counties.csv", stringsAsFactors = FALSE )
   zipdata <- read.csv( "https://raw.githubusercontent.com/nychealth/coronavirus-data/master/latest/last7days-by-modzcta.csv", stringsAsFactors = FALSE) 
-  countytozip <- st_read('map_data/us_zip_to_county.geojson', stringsAsFactors = F) %>% as.data.frame %>% dplyr::select(c('Zip', 'Longitude', 'Latitude', 'GEOID', 'NAME')) %>% mutate(GEOID = as.numeric(GEOID)) 
+  countytozip <- st_read('map_data/us_zip_to_county.shp', stringsAsFactors = F) %>% as.data.frame %>% dplyr::select(c('Zip', 'Longitude', 'Latitude', 'GEOID', 'NAME')) %>% mutate(GEOID = as.numeric(GEOID)) 
+  st_write(countytozip, 'map_data/us_zip_to_county.geojson')
+  pop <- read.csv('map_data/county-population2.csv', stringsAsFactors = FALSE)
   popnyc <- read.csv('map_data/ZipNYCPop.csv', stringsAsFactors = FALSE)
+  
+  data_cur <<- data %>% filter(date == cur_date) %>% 
+        mutate(fips = case_when(
+            county == "New York City" ~ 99999,
+            TRUE ~ as.numeric(fips)
+        )) %>%
+        dplyr::select(c(fips, cases, deaths))
+  data_past <<- data %>%
+      filter(date == past_date) %>%
+      mutate(fips = case_when(
+          county == "New York City" ~ 99999,
+          TRUE ~ as.numeric(fips)
+      )) %>%
+      dplyr::select(fips = fips, cases_past = cases)
+  data_join <<- data_cur %>%
+      inner_join(data_past, by = "fips") %>%
+      inner_join(pop, by = "fips") %>% 
+      mutate(Nr = (cases-cases_past))
 
   zipfinal <<- countytozip %>% left_join(data_join, by=c('GEOID'='fips')) %>% 
     left_join(zipdata %>% dplyr::select(c('modzcta', 'modzcta_name', 'people_positive')), by=c('Zip'='modzcta')) %>% 
