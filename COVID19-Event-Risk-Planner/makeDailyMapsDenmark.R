@@ -115,7 +115,7 @@ riskdt <- data_Nr %>%
 riskdt_map <- geom %>% left_join(riskdt, by = "name")
 map <- leaflet() %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
-    setView(lat = 55, lng = 9.3, zoom = 6) %>%
+    setView(lat = 56, lng = 9.3, zoom = 7) %>%
     addPolygons(
         data = riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,
@@ -133,5 +133,5 @@ map <- leaflet() %>%
             paste0(legendlabs)
         })
 mapshot(map, file = file.path(getwd(), "daily_risk_map_denmark", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
-post_tweet(status = paste0("Ireland county-level risk estimate update for ",  now("Europe/Copenhagen"), " ", tz("Europe/Vienna"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 5:1 ascertainment bias]"),
- media = file.path("daily_risk_map_austria", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
+post_tweet(status = paste0("Danish county-level risk estimate update for ",  now("Europe/Copenhagen"), " ", tz("Europe/Copenhagen"), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 5:1 ascertainment bias]"),
+ media = file.path(getwd(), "daily_risk_map_denmark", current_time, paste0(current_time,"_", asc_bias, "_", size, ".png")))
