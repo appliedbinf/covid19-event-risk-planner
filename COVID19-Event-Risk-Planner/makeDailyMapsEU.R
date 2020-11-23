@@ -540,7 +540,7 @@ maplabsIreland <- function(riskData) {
             TRUE ~ as.character(risk)
         ))
     labels <- paste0(
-        "<strong>", riskData$name, "</strong><br/>",
+        "<strong>County ", riskData$id, "</strong><br/>",
         "Current Risk Level: <b>",riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"),"</b><br/>",
         "Latest Update: ", substr(riskData$date, 1, 10)
     ) %>% lapply(htmltools::HTML)
@@ -581,7 +581,7 @@ for (asc_bias in asc_bias_list) {
   austria_data_Nr <- austria_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
   spain_data_Nr <- spain_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
   czech_data_Nr <- czech_data_join %>% mutate(Nr = cases * asc_bias * scale_factor) 
-  sweden_data_Nr <- sweden_data_join %>% mutate(Nr = cases * asc_bias * scale_factor) 
+  sweden_data_Nr <- sweden_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
   denmark_data_Nr <- denmark_data_join %>% mutate(Nr = difference * asc_bias * scale_factor) 
   ireland_data_Nr <- ireland_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
 

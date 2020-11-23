@@ -54,3 +54,13 @@ Data is provided by the Health Service Executive (HSE), Health Protection Survei
 ### Spain
 #### Released: October 27, 2020
 COVID-19 data from España Ministerio de Sanidad and Instituto de Salud Carlos III: https://cnecovid.isciii.es/covid19/ 
+
+### Denmark
+#### Released: November 22, 2020
+COVID-19 data from the Statens Serum Institut (SSI):
+  - https://covid19.ssi.dk/overvagningsdata  
+  - https://experience.arcgis.com/experience/aa41b29149f24e20a4007a0c4e13db1d  
+
+### Sewden
+#### Released: November 22, 2020
+Swedish COVID-19 National Statistics from Folkhälsomyndigheten: https://experience.arcgis.com/experience/09f821667ce64bf7be6f9f87457ed9aa/page/page_0/
