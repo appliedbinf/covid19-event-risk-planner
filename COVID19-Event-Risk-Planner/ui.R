@@ -250,13 +250,9 @@ shinyUI(fluidPage(
           
         ),
         mainPanel(
-          fluidRow(column(
-            10,
-            # Add UI outputs here
-            )
-        )
+          fluidRow()
       )
-    ),
+    )),
     tabPanel(
       id = "tuts",
       "Tutorial",
