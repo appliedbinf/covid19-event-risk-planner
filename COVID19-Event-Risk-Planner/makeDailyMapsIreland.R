@@ -79,7 +79,7 @@ riskdt <- data_Nr %>%
 riskdt_map <- geom %>% left_join(riskdt, by = c("id" = "CountyName"))
 map <- leaflet() %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
-    setView(lat = 53, lng = -7.5, zoom = 6) %>%
+    setView(lat = 53, lng = -8.1, zoom = 7) %>%
     addPolygons(
         data = riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,

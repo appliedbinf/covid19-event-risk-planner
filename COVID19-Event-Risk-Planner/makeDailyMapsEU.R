@@ -198,7 +198,7 @@ getDataFrance <- function() {
         select(code = dep, date = jour, cases = P) %>%
         mutate(date = as.Date(date)) %>% 
         arrange(desc(date)) %>% filter(!is.na(cases)) 
-    france_geom <<- st_read('https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson')
+    france_geom <<- st_read('map_data/france.geojson')
     pop <- read.csv("map_data/france_pop.csv", stringsAsFactors = FALSE) %>% select(code = Code, name = Department, pop = Population)
     
     cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
