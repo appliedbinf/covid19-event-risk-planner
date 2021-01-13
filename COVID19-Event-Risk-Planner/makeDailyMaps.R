@@ -80,7 +80,7 @@ calc_risk <- function(I, g, pop) {
 
 ######## create and save daily map widgets ########
 event_size = c(10, 15, 20, 25, 50, 100, 500, 1000, 5000)
-asc_bias_list <<- c(5, 10)
+asc_bias_list <<- c(3, 5)
 scale_factor = 10/14
 
 
@@ -181,7 +181,7 @@ for (asc_bias in asc_bias_list) {
       map$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
       print("Map to png")
       mapshot(map, file = file.path("/srv/shiny-server/daily_risk_map", current_time, paste0("asc_5_size_", size, ".png")))
-      post_tweet(status = paste0("County-level risk estimate update for ", ymd_hms(current_time), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 5:1 ascertainment bias]"), media = file.path("daily_risk_map", current_time, paste0("asc_5_size_", size, ".png")))
+      post_tweet(status = paste0("County-level risk estimate update for ", ymd_hms(current_time), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where ", size, " individuals are in close contact [Assuming 3:1 ascertainment bias]"), media = file.path("daily_risk_map", current_time, paste0("asc_5_size_", size, ".png")))
       # print(paste0("County-level risk estimate update for ", ymd_hms(current_time), ".  Estimated risk that at least 1 person is #COVID19 positive for events or other areas where " ,size,  " individuals are in close contact. [Assuming 10:1 ascertainment bias]"))
     }
   }
