@@ -68,7 +68,7 @@ shinyUI(fluidPage(
               "<p>This map shows the risk level of attending an event, given the event size and location.",
               "<br/><br/>You can reduce the risk that one case becomes many by wearing a mask, distancing, and gathering outdoors in smaller groups<br/><br/>",
               "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a county, given the size of the event.",
-              "<br/><br/>", "Based on seroprevalence data and increases in testing, by default we assume there are five times more cases than are being reported (5:1 ascertainment bias). In places with less testing availability, that bias may be higher. We are evaluating the inclusion of lower ascertainment biases based on increased testing.",
+              "<br/><br/>", "Based on seroprevalence data and increases in testing, by default we assume there are three times more cases than are being reported (3:1 ascertainment bias). In places with less testing availability, that bias may be higher. We are evaluating the inclusion of lower ascertainment biases based on increased testing.",
               "<br/><br/>",
               "Choose an event size and ascertainment bias below.</p>"
             )
@@ -119,7 +119,7 @@ shinyUI(fluidPage(
               "<p>This map shows the risk level of attending events of different sizes at within-country resolution.",
               "<br/><br/>You can reduce the risk that one case becomes many by wearing a mask, distancing, and gathering outdoors in smaller groups<br/><br/>",
               "The risk level is the estimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a NUTS-3 level area (County, Local Authority, Council, District), given the size of the event.",
-              "<br/><br/>", "Based on seroprevalence data and increases in testing, by default we assume there are five times more cases than are being reported (5:1 ascertainment bias). In places with less testing availability, that bias may be higher. We are evaluating the inclusion of lower ascertainment biases based on increased testing.",
+              "<br/><br/>", "Based on seroprevalence data and increases in testing, by default we assume there are three times more cases than are being reported (3:1 ascertainment bias). In places with less testing availability, that bias may be higher. We are evaluating the inclusion of lower ascertainment biases based on increased testing.",
               "<br/><br/>",
               "Choose an event size and ascertainment bias below.</p>"
             )
