@@ -25,7 +25,6 @@ print(current_time)
 getData <- function() {
   dataurl <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
   data <- read.csv(dataurl, stringsAsFactors = FALSE) %>% mutate(date = as_date(date))
-	%>% mutate(case_when(state == "Iowa" ~ cases = NA, TRUE ~ cases))
   county <<- st_read("map_data/tl_2017_us_county.geojson")
   stateline <<- st_read("map_data/tl_2017_us_state.geojson")
   pop <- read.csv("map_data/county-population.csv", stringsAsFactors = FALSE)
