@@ -39,7 +39,7 @@ dir.create(paste0("www/daily_risk_plots/", current_time))
 daily_fh <- tail(list.files("states_daily/", full.names = TRUE), 1)
 daily_time <- gsub(".csv", "", basename(daily_fh))
 state_current <<- read.csv(current_fh, stringsAsFactors = F)
-states <- state_current %>% filter(state %nin% c("AS", "MP", "VI", "GU"))
+states <- state_current %>% filter(state %nin% c("AS", "MP", "VI", "GU", "IA"))
 states <- states$state
 cur_date <- gsub("-", "", Sys.Date())
 past_date <- ymd(cur_date) - 14
