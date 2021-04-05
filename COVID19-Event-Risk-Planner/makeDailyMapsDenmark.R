@@ -23,11 +23,14 @@ getDataDenmark <- function(){
   geom <<- geomDanish
 
   webpages<-read_html("https://covid19.ssi.dk/overvagningsdata/download-fil-med-overvaagningdata")
-  #extract the html blocks which are strong and contain links
-  JAM = webpages %>% html_nodes("blockquote") %>% html_nodes("a")
+  #extract the html blocks which are h5 and contain links
+  JAM = webpages %>% html_nodes("h5") %>% html_nodes("a")
+  #subset this list by looking for items which are in the directory of interest
+  INDEX = which(grepl("https://files.ssi.dk/covid19/overvagning/data/",JAM,fixed=TRUE))
+  
   #JAM[2] should be the download link -- unless the website changes...Not sure if there is an easy way to double check this is the right code block?
   #split the string to find the link using \"
-  DOWNLOADLINK = strsplit(as.character(JAM[1]),"\"")[[1]][2]
+  DOWNLOADLINK = strsplit(as.character(JAM[INDEX[1]]),"\"")[[1]][2]
   DOWNLOADLINK = paste0(DOWNLOADLINK,".zip")  #need to add .zip extension in order for the download/extraction process to perform correctly in R.
   #Have the download link!
   
