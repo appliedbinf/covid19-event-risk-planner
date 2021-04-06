@@ -460,7 +460,7 @@ getDataDenmark <- function(){
   unlink(temp2)
   
   DanishCounty <- names(DanishData)[2:length(names(DanishData))]
-  DanishData$date_sample <- as.Date(DanishData$date_sample)
+  DanishData$date_sample <- as.Date(DanishData$SampleDate)
   getDanishData <- function(code){
     subdata <- DanishData[,c("date_sample",DanishCounty[code])]
     subdata$CumCases <- cumsum(subdata[,DanishCounty[code]])
