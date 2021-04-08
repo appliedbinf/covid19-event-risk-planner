@@ -287,7 +287,7 @@ maplabsAustria <- function(riskData) {
 getDataSpain <- function(){
   spain_geom <<- st_read('map_data/spain-provinces.geojson')
   #Main COVID-19 hub page: https://cnecovid.isciii.es/covid19/#distribuci%C3%B3n-geogr%C3%A1fica
-  SPAIN<- read.csv("https://cnecovid.isciii.es/covid19/resources/casos_diagnostico_provincia.csv", na.strings=FALSE) 
+  SPAIN<- read.csv("https://cnecovid.isciii.es/covid19/resources/casos_tecnica_provincia.csv", na.strings=FALSE) 
   #code link file
   SPAINcode = read.csv("map_data/spain_codenames.csv",encoding="UTF-8",na.strings=FALSE)
   #Population data comes from  Instituto Nacional de Estadística: https://www.ine.es/jaxiT3/Datos.htm?t=2852#!tabs-tabla
