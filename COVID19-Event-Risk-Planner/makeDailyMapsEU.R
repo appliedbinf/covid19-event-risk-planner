@@ -348,7 +348,7 @@ getDataCzech <- function(){
   czechData = czechData %>% 
     group_by(District) %>% 
     slice(c(n()-14, n())) %>% 
-    summarize(cases = Confirmed[2]-Confirmed[1], code = first(District)) %>% 
+    summarize(cases = Confirmed[2]-Confirmed[1], code = first(District), date = last(Date)) %>% 
     ungroup
   
   czech_data_join <<- czechData %>%  inner_join(czech_pop, by = c("code")) 
