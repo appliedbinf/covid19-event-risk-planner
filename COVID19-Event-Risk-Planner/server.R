@@ -28,22 +28,27 @@ roundUpNice <- function(x, nice = c(1, 2, 4, 5, 6, 8, 10)) {
   10^floor(log10(x)) * nice[[which(x <= 10^floor(log10(x)) * nice)[[1]]]]
 }
 
+name2abbr = setNames(state.abb, state.name)
+
 get_data <- function() {
   current_fh <- tail(list.files("states_current/", full.names = TRUE), 1)
   current_time <<- gsub(".csv", "", basename(current_fh))
   daily_fh <- tail(list.files("states_daily/", full.names = TRUE), 1)
   daily_time <<- gsub(".csv", "", basename(daily_fh))
-  state_current <<- read.csv(current_fh, stringsAsFactors = F)
-  states <<- state_current$state
-  cur_date <- gsub("-", "", Sys.Date())
+  state_data <<- read.csv(current_fh, stringsAsFactors = F)
+  states <<- unique(state_data$state)
+  current_time <<- daily_time <<- Sys.Date()
+  cur_date <- ymd(Sys.Date())-1
   past_date <- ymd(cur_date) - 14
-  states_historic <<- read.csv(daily_fh, stringsAsFactors = F)
-  states_historic <<- subset(states_historic, ymd(date) == past_date) %>% arrange(state)
+  states_current <<- subset(state_data, ymd(date) == cur_date) %>% arrange(state)
+  states_historic <<- subset(state_data, ymd(date) == past_date) %>% arrange(state)
   state_pops <<- read.delim("state_pops.tsv", header = T, sep = "\t", stringsAsFactors = F)
-  state_data <<- state_current %>%
-    select(state, positive) %>%
+  state_data <<- states_current %>%
+    select(state, cases) %>%
     arrange(state)
-  state_data$C_i <<- round((state_data$positive - states_historic$positive)  * 10 / 14)
+  state_data$C_i <<- round((states_current$cases - states_historic$cases)  * 10 / 14) 
+  state_data$state <<- name2abbr[state_data$state] 
+  state_data <<- state_data %>% tidyr::drop_na()
 }
 
 
@@ -355,7 +360,7 @@ shinyServer(function(input, output, session) {
       ) +
       guides(color = guide_legend(title = "% Chance"), override.aes = list(size = 2), label.position = "bottom") +
       labs(
-        caption = paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nRisk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
+        caption = paste0("Â© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nRisk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
         title = paste0("COVID-19 Event Risk Assessment Planner - ", state, " - Exploratory"),
         subtitle = "Estimated chance that one or more individuals are COVID-19 positive at an event\ngiven event size (x-axis) and current case prevalence (y-axis)"
       )
@@ -500,7 +505,7 @@ dd_inputs <- reactive({
         ) +
         guides(color = guide_legend(title = "% Chance"), override.aes = list(size = 2)) +
         labs(
-          caption = paste0("© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
+          caption = paste0("Â© CC-BY-4.0\tChande, A.T., Gussler, W., Harris, M., Lee, S., Rishishwar, L., Jordan, I.K., Andris, C.M., and Weitz, J.S. 'Interactive COVID-19 Event Risk Assessment Planning Tool'\nhttp://covid19risk.biosci.gatech.edu\nData updated on and risk estimates made:  ", today(), "\nReal-time COVID19 data comes from the COVID Tracking Project: https://covidtracking.com/api/\nUS 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html"),
           title = paste0("COVID-19 Event Risk Assessment Planner - ", states_dd, " - ", today()),
           subtitle = "Estimated chance that one or more individuals are COVID-19 positive at an event\ngiven event size (x-axis) and current case prevalence (y-axis)"
         )

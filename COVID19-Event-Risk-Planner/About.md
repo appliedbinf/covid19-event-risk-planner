@@ -18,6 +18,21 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Clio M. Andris](http://friendlycities.gatech.edu/)  (Friendly Cities Lab at GT)  
 - [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
 
+### Risk Expansion Development
+- [Emily Norris](https://scholar.google.com/citations?user=eLDyoJEAAAAJ&hl=en&oi=ao) (Applied Bioinformatics Laboratory)
+- [Allie Sinclair](https://alyssasinclair.com/) (Duke University)
+- [Morgan Taylor](https://www.marshmemorylab.com/) (Duke University)
+- [R. Alison Adcock](https://www.adcocklab.org/) (Duke University)
+- [Gregory Samanez-Larkin](https://www.mcablab.science/) (Duke University)
+
+### Funding
+
+- Ongoing funding from the Centers for Disease Control and Prevention 75D30121P10600.
+- Initial funding for the project made possible by support from the Simons Foundation 329108, Army Research Office W911NF1910384, National Institutes of Health 1R01AI46592-01, National Science Foundation 1806606, 1829636 and 2032084).
+- Additional support of the project from the Charities in Aid Foundation and The Marier Cunningham Foundation.
+
+
+
 #### Acknowledgements
 The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on concept development.
 
