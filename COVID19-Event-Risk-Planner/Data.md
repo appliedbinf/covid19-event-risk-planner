@@ -11,6 +11,13 @@ Real-time county level COVID19 data comes from the NYTimes COVID19 data project:
 
 US 2019 population estimate data comes from the US Census: https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html
 
+**Vaccination data**
+
+State-level vaccination data is obtained from the collection made by Our World in Data from the United States Centers for Disease Control and Prevention. https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations 
+
+Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021). https://doi.org/10.1038/s41562-021-01122-8
+
+
 
 ### United Kingdom
 #### Released: October 5, 2020
