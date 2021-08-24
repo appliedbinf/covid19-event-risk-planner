@@ -88,8 +88,10 @@ RUN R -e 'install.packages("RCurl")'
 RUN R -e 'install.packages("rtweet")'
 RUN R -e 'install.packages("tidyverse")'
 RUN R -e "install.packages('shiny')"
+RUN R -e "install.packages('vroom')"
 COPY bin/phantomjs /usr/bin/
 RUN R -e 'remotes::install_github("ar0ch/sever")'
+RUN R -e 'remotes::install_github("ar0ch/shinypanels")'
 # copy the app to the image
 COPY Rprofile.site /usr/lib/R/etc/
 COPY .rtweet_token.rds /root/.rtweet_token.rds
@@ -99,14 +101,13 @@ COPY Renviron /root/.Renviron
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN rm -f /shiny-server-1.5.14.948-amd64.deb
-
-RUN sudo echo -e "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
-1 12 * * * /srv/shiny-server/makeDailyMaps.sh 0 \n\
-1 10 * * * /srv/shiny-server/makeEUMaps.sh \n\
-1 12,20 * * * /srv/shiny-server/makeDailyPlots.sh \n\
-1 * * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_current.sh \n\
-1 */4 * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_daily.sh \n\
-" > /var/spool/cron/crontabs/root
+#RUN sudo echo -e "1 17 * * * /srv/shiny-server/makeDailyMaps.sh 1 \n\
+#1 12 * * * /srv/shiny-server/makeDailyMaps.sh 0 \n\
+#1 10 * * * /srv/shiny-server/makeEUMaps.sh \n\
+#1 12,20 * * * /srv/shiny-server/makeDailyPlots.sh \n\
+#1 * * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_current.sh \n\
+#1 */4 * * * perl -le 'sleep rand 700' && /srv/shiny-server/update_daily.sh \n\
+#" > /var/spool/cron/crontabs/root
 
 RUN mkdir /root/.ssh
 COPY docker_github /root/.ssh/id_rsa
@@ -115,6 +116,7 @@ RUN ssh-keyscan -H github.com >> /root/.ssh/known_hosts
 RUN git config --global user.email "c19r@atc.io"
 RUN git config --global user.name "c19r-bot"
 RUN git clone git@github.com:appliedbinf/covid19-event-risk-planner.git /root/repo
+RUN R -e 'devtools::install_github("dreamRs/shinyWidgets")'
 
 
 COPY COVID19-Event-Risk-Planner /srv/shiny-server
