@@ -68,6 +68,10 @@ get_data <- function() {
   state_data$C_i <<- round((states_current$cases - states_historic$cases)  * 10 / 14)
   state_data$state <<- name2abbr[state_data$state]
   state_data <<- state_data %>% tidyr::drop_na()
+  usa_counties <<- vroom::vroom('www/usa_risk_counties.csv') %>%
+    select(-NAME, -stname) %>%
+    mutate_at(vars(-GEOID, -state, -updated), as.numeric)
+  usa_counties <<- county_geom %>% left_join(usa_counties, by = c("GEOID" = "GEOID"))
 }
 
 
@@ -84,18 +88,9 @@ timeout <- sever_default(title = "Session timeout reached",
 
 
 shinyServer(function(input, output, session) {
-  output$lat <- renderPrint({
-    input$lat
-  })
 
-  output$long <- renderPrint({
-    input$long
-  })
-
-  output$geolocation <- renderPrint({
-    input$geolocation
-  })
   rupture(ms = 600000, html=timeout)
+
   observeEvent(input$ruptured, {
     session$close()
     })
@@ -105,107 +100,6 @@ shinyServer(function(input, output, session) {
   source('server/global-map-reactivity.R', local=T)
   source('server/usa-daily-plots.R', local=T)
   source('server/usa-real-time-plots.R', local=T)
-  # source('server/risk-game-reactivity.R', local=T)
-  pal <- colorBin("YlOrRd", bins = c(0.001, 1, 25, 50, 75, 99, 100))
-  legendlabs <- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
-  output$usa_map <- renderLeaflet({
-
-    risk_data = usa_counties %>%
-      select(
-        GEOID,
-        NAME,
-        stname,
-        pct_fully_vacc,
-        updated,
-        risk := glue::glue("{input$asc_bias}_{input$event_size_map}"),
-        imOp,
-        geometry
-      )
-
-
-    basemap = leaflet(options = leafletOptions(worldCopyJump = F, preferCanvas = TRUE)) %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
-      setView(lat = 37.1,
-              lng = -95.7,
-              zoom = 4)
-
-    if (input$immShow) {
-      basemap %>%
-        addPolygons(
-          data = risk_data,
-          color = "#444444",
-          weight = 0.2,
-          smoothFactor = 0.1,
-          opacity = 1.0,
-          fillOpacity = 0.7,
-          fillColor = ~ pal(risk),
-          highlight = highlightOptions(weight = 1)
-        ) %>%
-        addPolygons(
-          data = risk_data,
-          weight = 0,
-          fillColor = "white",
-          fillOpacity = ~ imOp,
-          smoothFactor = 0.1,
-          label = maplabs(risk_data)
-        ) %>%
-        addLegend(
-          data = risk_data,
-          position = "topright",
-          pal = pal,
-          values = ~ risk,
-          title = "Risk Level (%)",
-          opacity = .7,
-          labFormat = function(type, cuts, p) {
-            paste0(legendlabs)
-          }
-        ) %>%
-        addEasyButton(easyButton(
-          icon = "fa-crosshairs fa-lg",
-          title = "Locate Me",
-          onClick = JS(
-            "function(btn, map){ map.locate({setView: true, maxZoom: 7});}"
-          )
-        ))
-
-    } else {
-      basemap %>%
-        addPolygons(
-          data = risk_data,
-          color = "#444444",
-          weight = 0.2,
-          smoothFactor = 0.1,
-          opacity = 1.0,
-          fillOpacity = 0.7,
-          fillColor = ~ pal(risk),
-          highlight = highlightOptions(weight = 1),
-          label = maplabs(risk_data)
-        ) %>%
-        addLegend(
-          data = risk_data,
-          position = "topright",
-          pal = pal,
-          values = ~ risk,
-          title = "Risk Level (%)",
-          opacity = .7,
-          labFormat = function(type, cuts, p) {
-            paste0(legendlabs)
-          }
-        ) %>%
-        addEasyButton(easyButton(
-          icon = "fa-crosshairs fa-lg",
-          title = "Locate Me",
-          onClick = JS(
-            "function(btn, map){ map.locate({setView: true, maxZoom: 7});}"
-          )
-        ))
-
-    }
-
-  })
-
-
-
-
+  source('server/risk-game-reactivity.R', local=T)
 
 })

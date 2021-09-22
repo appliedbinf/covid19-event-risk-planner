@@ -2,6 +2,12 @@ usa_map_tab = tabPanel(
   value = "usa",
   title = "USA Risk estimates by county",
   fluid = TRUE,
+  tags$script('$(document).on("shiny:sessioninitialized", function(){
+  $.ajaxSetup({timeout:1000});
+  $.get("https://ipinfo.io", function(response) {
+    Shiny.setInputValue("ip_data", response.ip, {priority: "event"}); console.log(response.ip);
+  }, "json").fail(function(){Shiny.setInputValue("ip_data", "Unknown", {priority: "event"}); console.log("no ip");});
+});'),
   # sidebarLayout(
   panelsPage(
     fluidRow(
@@ -32,12 +38,13 @@ usa_map_tab = tabPanel(
             status = "warning",
             inline = T
           ),
-          shinyWidgets::materialSwitch(
-            inputId = "immShow",
-            label = "Focus on states with less than 50% immunity via full vaccination",
-            status = "info",
-            value = FALSE,
-            inline = FALSE
+          shinyWidgets::awesomeRadio(
+            inputId = "imm_lvl",
+            label = "Focus on states with immunity via full vaccination less than:",
+            choices = c("Off" = 0, "45%" = 45, "50%" = 50, "60%" = 60, "65%" = 65),
+            selected = 0,
+            status = "warning",
+            inline = T,
           ),
           actionLink("to_data", "See our data sources"),
           HTML(
@@ -49,61 +56,62 @@ usa_map_tab = tabPanel(
           )
       ),
       # mainPanel(
-      panel(class="col-sm-12 col-md-2 hidden-sm", body= div(class="", htmlOutput("risk_context_us") )
+      panel(class="col-sm-12 col-md-2 hidden-sm hidden-xs", body= div(class="", htmlOutput("risk_context_us"),fluidRow(
+        align="center",
+        column(12,
+               HTML("<h3>Can you guess the risk levels in YOUR community?  Try the risk guessing game and share your score!</h3>"),
+        )
+      ),
+      fluidRow(
+        align="center",
+        column(12,shinyWidgets::actionBttn("to_game", label="Play now", style="jelly", color="success", size="sm"))
+      ) )
             , title="Risk context", collapsed = F),
       panel(
         class="col-md-auto",
         title="", can_collapse = FALSE,
         body= div(
           # htmlOutput("map_static"),
-          leafletOutput(outputId = "usa_map", height="60vh"),
+          leafletOutput(outputId = "usa_map", height = "70vh"),
           HTML(
             "<p>(Note: This map uses a Web Mercator projection that inflates the area of states in northern latitudes. County boundaries are generalized for faster drawing.)</p>"
           ),
           fluidRow(
             align="center",
-            column(10,
+            column(12,
                    shinyWidgets::actionBttn("to_global", label="Explore global risk estimates", style="jelly", color="success", size="sm")
             )),
-          # fluidRow(
-          #   align="center",
-          #   column(
-          #     width=12,
-          #     div(
-          #       class="well fake-sidebar panel-content",
-          #       HTML(
-          #         paste0(
-          #           "<h3>After viewing this map are you MORE or LESS <strong>",
-          #           "willing to participate</strong> in an event of this size?</h3>"
-          #         )
-          #       ),
-          #       shinyWidgets::sliderTextInput(
-          #         "risk_followup",
-          #         "",
-          #         choices = c(
-          #           "1" = "Much less willing",
-          #           "2"= "A little less willing",
-          #           "3" = "Same as before",
-          #           "4" = "A little more willing",
-          #           "5" = 'Much more willing'
-          #         ),
-          #         selected = "Same as before",
-          #         grid = T,
-          #         width = "90%"
-          #       ),
-          #       shinyWidgets::actionBttn("save_feedback", label="Submit", style="jelly", color="success", size="sm", ),
-          #
-          #     )
-          #   )
-          # ),
-          # fluidRow(
-          #   align="center",
-          #   column(10,
-          #          HTML("<h3>Can you guess the risk levels in YOUR community?  Try the <a href='/?game'>risk guessing game</a> and share your score!</h3>"))
-          # ),
           fluidRow(
             align="center",
-            column(10,)
+            column(
+              width=12,
+              div(
+                class="well fake-sidebar panel-content",
+                HTML(
+                  paste0(
+                    "<h3>After viewing this map are you MORE or LESS <strong>",
+                    "willing to participate</strong> in an event of this size?</h3>"
+                  )
+                ),
+                shinyWidgets::sliderTextInput(
+                  "risk_followup",
+                  "",
+                  choices = c(
+                    "1" = "Much less willing",
+                    "2"= "A little less willing",
+                    "3" = "Same as before",
+                    "4" = "A little more willing",
+                    "5" = 'Much more willing'
+                  ),
+                  selected = "Same as before",
+                  grid = T,
+                  width = "90%",
+                  hide_min_max = T
+                ),
+                shinyWidgets::actionBttn("map_will", label="Submit", style="jelly", color="success", size="sm", ),
+
+              )
+            )
           )
         )
       ))
