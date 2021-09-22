@@ -13,11 +13,11 @@ observeEvent(input$calc_us, {
   req(input$infect_us)
   event_size <- isolate(input$event_size_us)
   event_size <- as.numeric(gsub("[ ,_]", "", event_size))
-  
+
   values_pred$event_size <- event_size
   infect <- isolate(input$infect_us)
   infect <- round(as.numeric(gsub("[ ,_]", "", infect)))
-  
+
   values_pred$infect <- infect
   values_pred$pop <- 330 * 10^6
   if (input$use_state) {
@@ -45,7 +45,7 @@ pred_plot <- ""
 output$plot_us <- renderPlot({
   xblock <- c(10, 100, 1000, 10**4, 10**5)
   yblock <- c(10, 100, 1000, 10000, 10**5, 4 * 10**5, 10**6, 2 * 10**6, 8 * 10**6)
-  
+
   names(xblock) <- c("10\nDinner party", "100\nWedding reception", "1,000\nSmall concert", "10,000\nSoccer match", "100,000\nNFL game")
   names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
   if (8 * 10**6 < values_pred$event_size) {
@@ -72,7 +72,7 @@ output$plot_us <- renderPlot({
     names(yblock) <- c("10", "100", "1,000", "10,000", "100,000", "400,000", "1 million", "2 million", "8 million")
     ylimits <- c(10**4, 3 * 10**7)
   }
-  
+
   # cat(state, "\t", USpop, "\n")
   n <- logspace(0, 6, 100)
   pcrit_val <- pcrit(n)
@@ -85,7 +85,7 @@ output$plot_us <- renderPlot({
     pcrit_risk <- pcrit_risk * USpop
     pcrit_risk_list[[i]] <- data.frame("risk" = risk_vals[i], "y" = pcrit_risk, "x" = n)
   }
-  
+
   ytarget <- 100000
   pcrit_label <- ytarget / USpop
   pcrit_lab_list <- list()
@@ -93,19 +93,19 @@ output$plot_us <- renderPlot({
     nlabel <- log(1 - risk_vals[i]) / log(1 - pcrit_label)
     pcrit_lab_list[[i]] <- data.frame("risk" = risk_vals[i], "x" = nlabel, y = ytarget * 1.4)
   }
-  
-  
+
+
   risk_vals_list <- list()
   for (i in 1:length(nvec)) {
     p_equiv <- nvec[i] / USpop
     risk_vals_I <- round(100 * (1 - (1 - p_equiv)**sizevec), 2)
     risk_vals_list[[i]] <- data.frame("nvec" = nvec[i], "svec" = sizevec, "risk" = risk_vals_I)
   }
-  
+
   pcrit.df <- do.call(rbind.data.frame, pcrit_risk_list)
   pcrit_lab.df <- do.call(rbind.data.frame, pcrit_lab_list)
   risk.df <- do.call(rbind.data.frame, risk_vals_list)
-  
+
   infect <- values_pred$infect
   event_size <- values_pred$event_size
   shiny::validate(
@@ -120,7 +120,7 @@ output$plot_us <- renderPlot({
   )
   risk <- calc_risk(infect, event_size, USpop)
   risk <- case_when(risk < .1 ~ "<0.1", risk > 99 ~ ">99", TRUE ~ as.character(risk))
-  
+
   pred_plot <<- ggplot() +
     geom_area(data = pcrit_risk_list[[1]], aes(x = x, y = y), alpha = .5) +
     # geom_text(data = pcrit_lab.df, aes(x=x, y = y, label=paste(risk * 100, "% Chance")), angle=angle, size=6) +
@@ -195,7 +195,7 @@ observeEvent(dd_inputs(), {
   event_size <- as.numeric(gsub("[ ,-]", "", isolate(input$event_dd)))
   risk <- calc_risk(nvec, event_size, USpop, 1)
   risk <- case_when(risk < .1 ~ "<0.1", risk > 99 ~ ">99", TRUE ~ as.character(risk))
-  
+
   output$dd_text <- renderUI({
     HTML(paste0(
       "<p style='font-size: 18px;'><br/><strong>C<sub>I</sub> = Current reported incidence</strong><br/>Chance someone is COVID19 positive at C<sub>I</sub>  (", format(nvec[1], big.mark = ","), "): ", risk[1], "%<br/>",
@@ -203,16 +203,16 @@ observeEvent(dd_inputs(), {
       "Chance someone is COVID19 positive at 10x C<sub>I</sub> (", format(nvec[3], big.mark = ","), "): ", risk[3], "%</p>"
     ))
   })
-  
-  output$dd_current_data <- renderUI({
-    HTML(
-      paste0(
-        "Real-time data last updated at: ", ymd_hms(current_time, tz = ""),
-        "<br/>Historic data last updated at: ", ymd_hms(daily_time, tz = "")
-      )
-    )
-  })
-  
+
+  # output$dd_current_data <- renderUI({
+  #   HTML(
+  #     paste0(
+  #       "Real-time data last updated at: ", ymd_hms(current_time, tz = ""),
+  #       "<br/>Historic data last updated at: ", ymd_hms(daily_time, tz = "")
+  #     )
+  #   )
+  # })
+
   output$plot_dd <- renderPlot({
     req(input$states_dd)
     req(input$event_dd)
@@ -239,7 +239,7 @@ observeEvent(dd_inputs(), {
       nlabel <- log(1 - risk_vals[i]) / log(1 - pcrit_label)
       pcrit_lab_list[[i]] <- data.frame("risk" = risk_vals[i], "x" = nlabel, y = ytarget * 1.4)
     }
-    
+
     risk_vals_list <- list()
     # cat("before risk_vals\n")
     for (i in 1:length(nvec)) {
@@ -248,7 +248,7 @@ observeEvent(dd_inputs(), {
       risk_vals_list[[i]] <- data.frame("nvec" = nvec[i], "svec" = sizevec, "risk" = risk_vals_I)
     }
     # cat("after risk_vals\n")
-    
+
     pcrit.df <- do.call(rbind.data.frame, pcrit_risk_list)
     pcrit_lab.df <- do.call(rbind.data.frame, pcrit_lab_list)
     risk.df <- do.call(rbind.data.frame, risk_vals_list) %>%
@@ -257,14 +257,14 @@ observeEvent(dd_inputs(), {
         risk <= 0.1 ~ "<0.1",
         TRUE ~ as.character(risk)
       ))
-    
+
     shiny::validate(
       need(is.numeric(event_size), "Event size must be a number"),
       need(event_size >= 5, "Event size must be >=5"),
       need(event_size <= 100000, "Event size must be <= 100,000")
     )
     # ylimits <- c(10**4, 3*10**6)
-    
+
     # cat(infect, "-", ylimits,"\n")
     dd_plot <<- ggplot() +
       geom_area(data = pcrit_risk_list[[1]], aes(x = x, y = y), alpha = .5) +

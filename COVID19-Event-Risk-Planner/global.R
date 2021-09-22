@@ -12,20 +12,28 @@ library(sever)
 library(DBI)
 library(dbplyr)
 library(DT)
+# library(shinycookie)
+options(shiny.reactlog = TRUE)
+# Master username
+# admin
+# Master password
+# taofrhsXnl031nko7pB6
+# Endpoint
+# weitz-c19r.cluster-cnoy4sgleu5u.us-east-1.rds.amazonaws.com
 
-# db <- dbConnect(
-#   drv      = RMySQL::MySQL(),
-#   username = "riskmaster",
-#   password = "iH8j4DRKNPoVeDaxpXzd",
-#   host     = "weitz-covid-dev.cnoy4sgleu5u.us-east-1.rds.amazonaws.com",
-#   port     = 3306,
-#   dbname   = "usa_counties"
-# )
-
-usa_counties <- vroom::vroom('www/usa_risk_counties.csv') %>%
-  select(-NAME, -stname) %>%
-  mutate_at(vars(-GEOID, -state, -updated), as.numeric)
+db <- dbConnect(
+  drv      = RMySQL::MySQL(),
+  username = "admin",
+  password = "taofrhsXnl031nko7pB6",
+  host     = "weitz-c19r.cluster-cnoy4sgleu5u.us-east-1.rds.amazonaws.com",
+  port     = 3306,
+  dbname   = "c19r"
+)
 
 county_geom <- sf::st_read("map_data/geomUnitedStates.geojson")
+stateline <- sf::st_read("map_data/US_stateLines.geojson")[,c('STUSPS','NAME', 'geometry')]
+names(stateline) <- c('stname','name', 'geometry')
 
-usa_counties = county_geom %>% left_join(usa_counties, by = c("GEOID" = "GEOID"))
+addResourcePath("www", "www")
+
+source('./leaflet_inplace.R', local=T)

@@ -32,12 +32,20 @@ This site provides interactive context to assess the risk that one or more indiv
 - Initial funding for the project made possible by support from the Simons Foundation 329108, Army Research Office W911NF1910384, National Institutes of Health 1R01AI46592-01, National Science Foundation 1806606, 1829636 and 2032084).
 - Additional support of the project from the Charities in Aid Foundation and The Marier Cunningham Foundation.
 
+### Institutional Review Board (IRB)
+The Institutional Review Board (IRB) at Georga Tech and Duke 
+University have reviewed the protocol for collecting user data from 
+this site via surveys and risk prediction quizzes. Approvals were 
+granted effective August 27, 2021 and classified as 'Minimal risk 
+research qualified for exemption status'. For more information please 
+contact the Office of Research Integrity Assurance, Georgia Institute of Technology, irb.gatech.edu.
 
 
-#### Acknowledgements
+
+### Acknowledgements
 The team thanks Richard Lenski, Lauren Meyers, and Jonathan Dushoff for input on concept development.
 
-#### International Collaborations
+### International Collaborations
 
 **Italy**: http://datainterfaces.org/projects/covid19eventi/  
 **Spain**: https://eventosycovid19.es  

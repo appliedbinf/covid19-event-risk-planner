@@ -89,6 +89,7 @@ RUN R -e 'install.packages("rtweet")'
 RUN R -e 'install.packages("tidyverse")'
 RUN R -e "install.packages('shiny')"
 RUN R -e "install.packages('vroom')"
+RUN R -e "install.packages('RMySQL')"
 COPY bin/phantomjs /usr/bin/
 RUN R -e 'remotes::install_github("ar0ch/sever")'
 RUN R -e 'remotes::install_github("ar0ch/shinypanels")'

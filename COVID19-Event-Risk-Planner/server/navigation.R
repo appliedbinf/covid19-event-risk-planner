@@ -10,17 +10,21 @@ observe({
 })
 observeEvent(input$to_usa, {
   updateTabsetPanel(session, "nav-page", "usa")
-}) 
+})
 observeEvent(input$to_global, {
   updateTabsetPanel(session, "nav-page", "global")
-}) 
+})
 observeEvent(input$to_data, {
   updateTabsetPanel(session, "nav-page", "about")
   updateTabsetPanel(session, "abouttabs", "data")
-  
+
 })
 observeEvent(input$to_data_global, {
   updateTabsetPanel(session, "nav-page", "about")
   updateTabsetPanel(session, "abouttabs", "data")
-  
-}) 
+
+})
+
+observeEvent(input$to_game, {
+  updateNavbarPage(session, "nav-page", "game")
+})

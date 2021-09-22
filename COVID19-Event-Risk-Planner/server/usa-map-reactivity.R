@@ -1,4 +1,4 @@
-# county_geom = sf::st_read("map_data/tl_2017_us_county.geojson")
+county_geom = sf::st_read("map_data/geomUnitedStates.geojson")
 pal <- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
 maplabs <- function(riskData) {
   riskData <- riskData %>%
@@ -19,51 +19,6 @@ maplabs <- function(riskData) {
   return(labels)
 }
 
-# setShapeLabel <- function( map, data = getMapData(map), layerId,
-#                            label = NULL,
-#                            options = NULL
-# ){
-#   cat("in setShapeLabel","\n")
-#   options <- c(list(layerId = layerId),
-#                options,
-#                filterNULL(list(label = label
-#                )))
-#   # evaluate all options
-#   options <- evalFormula(options, data = data)
-#   # make them the same length (by building a data.frame)
-#   options <- do.call(data.frame, c(options, list(stringsAsFactors=FALSE)))
-#
-#   layerId <- options[[1]]
-#   label <- options[-1] # drop layer column
-#
-#   # typo fixed in this line
-#   leaflet::invokeMethod(map, data, "setLabel", "shape", layerId, label);
-# }
-#
-#
-
-#
-# observeEvent(input$event_size_map, {
-#
-#   risk_data = county_geom %>%
-#     left_join(usa_counties %>%
-#                filter(asc_bias == !!input$asc_bias, event_size == !!input$event_size_map) %>%
-#                collect())
-#   # sf::write_sf(risk_data, "data.fgb")
-#
-#   leafletProxy("usa_map", session) %>%
-#     clearGroup(group="risk_overlay") %>%
-#     clearControls() %>%
-#     addPolygons(
-#       data = risk_data, layerId = "riskpoly",
-#       color = "#444444", weight = 0.2, smoothFactor = 0.1,
-#       opacity = 1.0, fillOpacity = 0.5,
-#       fillColor = ~ pal(risk),
-#       # highlight = highlightOptions(weight = 1),
-#       label = maplabs(risk_data),
-#       group = "risk_overlay"
-#     )
-# })
 
 
 risk_text = c(
@@ -78,23 +33,7 @@ risk_text = c(
   "5000" = HTML("<b>A large concert</b>", '<img src="/example_images/5000_1.svg" alt="large concert">', '<b style="float: right">...or a college basketball game</b>', '<img src="/example_images/5000_2.svg" alt="basketball game">')
 )
 
-# observeEvent(input$event_size_map, {
-#   output$map_static <- renderUI({
-#     tags$iframe(
-#       src = paste0("https://covid19risk.biosci.gatech.edu/", input$asc_bias, "_", input$event_size_map, ".html"),
-#       style="position: relative; height: 60vh; width: -moz-available; width: -webkit-fill-available;  width: fill-available; max-width: 992px; max-height: 500px; min-height: 350px; align: center", frameBorder = "0"
-#     )
-#   })
-# })
-#
-# observeEvent(input$asc_bias, {
-#   output$map_static <- renderUI({
-#     tags$iframe(
-#       src = paste0("https://covid19risk.biosci.gatech.edu/",input$asc_bias, "_", input$event_size_map, ".html"),
-#       style="position: relative; height: 60vh; width: -moz-available; width: -webkit-fill-available;  width: fill-available; max-width: 992px; max-height: 500px; min-height: 350px; align: center", frameBorder = "0"
-#     )
-#   })
-# })
+
 
 output$risk_context_us <- renderUI({
     div(p(
@@ -121,3 +60,162 @@ output$dl_map <- downloadHandler(
   },
   contentType = "application/octet-stream"
 )
+
+
+
+
+observeEvent(input$map_will, {
+  shinyjs::disable("map_will")
+  shinyjs::delay(3000, shinyjs::enable("map_will"))
+  map_consent = input$cookies$consent
+  if (!is.null(map_consent) && map_consent == "yes"){
+    sql <- "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, vacc_imm)
+        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p6)"
+
+    query <- sqlInterpolate(ANSI(), sql, p1 = "map", p2 = input$asc_bias,
+                            p3 = input$event_size_map, p4 = input$risk_followup, p5 = input$ip_data,
+                            p6 = input$imm_lvl)
+    dbSendQuery(db, query)
+    show_toast("Response saved", text = "Thank you!", timerProgressBar = F)
+  } else {
+    inputSweetAlert(
+      session = session, inputId = "over18_US",
+      inputPlaceholder = "I am over 18 and in the US",
+      title = "Are you over 18 and in the US?", text = paste0(
+        "Users under 18 and/or those who reside outside the US",
+        " are encouraged to use the risk prediction tools, ",
+        "unfortunately we cannot save your survey feedback.  ",
+        "Select 'No' if you are not eligible or would like to ",
+        "opt out of having your responses saved for research purposes.  ",
+        "Please see the About page for more details"),
+      type = "question", reset_input = TRUE, btn_labels = "Confirm", input="radio",
+      inputOptions = c("yes" = "Yes", "no" = "No"), inputValue = "yes"
+    )
+  }
+
+})
+
+observeEvent(input$over18_US, {
+  if (input$over18_US == "yes"){
+    session$sendCustomMessage("cookie-set", list(
+      name = "consent", value = "yes"
+    ))
+    sql <- "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, vacc_imm)
+        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p6)"
+
+    query <- sqlInterpolate(ANSI(), sql, p1 = "map", p2 = input$asc_bias,
+                            p3 = input$event_size_map, p4 = input$risk_followup, p5 = input$ip_data,
+                            p6 = input$imm_lvl)
+    dbSendQuery(db, query)
+    show_toast("Response saved", text = "Thank you!", timerProgressBar = F)
+  }
+})
+
+pal <- colorBin("YlOrRd", bins = c(0.001, 1, 25, 50, 75, 99, 100))
+legendlabs <- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
+output$usa_map <- renderLeaflet({
+
+
+
+  risk_data = usa_counties %>%
+    select(
+      GEOID,
+      NAME,
+      stname,
+      pct_fully_vacc,
+      updated,
+      risk = "4_50",
+      imOp,
+      geometry
+    ) %>%
+    mutate(
+      imOp = 0.0,
+      polyid = paste0("id", GEOID),
+      imid = paste0("im", GEOID)
+    )
+
+  basemap = leaflet(options = leafletOptions(worldCopyJump = F, preferCanvas = TRUE)) %>%
+    addProviderTiles(providers$CartoDB.Positron) %>%
+    setView(lat = 37.1,
+            lng = -95.7,
+            zoom = 4) %>%
+    addPolygons(
+      layerId = ~stateline,
+      data = stateline,
+      fill = FALSE, color = "#943b29", weight = 1, smoothFactor = 0.5,
+      opacity = 1.0
+    ) %>%
+    addPolygons(
+      layerId = ~polyid,
+      data = risk_data,
+      color = "#444444",
+      weight = 0.2,
+      smoothFactor = 0.1,
+      # opacity = 1.0,
+      # fillOpacity = 0.7,
+      # fillColor = ~ pal(risk),
+      highlight = highlightOptions(weight = 1),
+      # label = maplabs(risk_data)
+    ) %>%
+    addPolygons(
+      layerId = ~imid,
+      data = risk_data,
+      weight = 0,
+      smoothFactor = 0.1,
+      # label = maplabs(risk_data)
+    ) %>%
+    addLegend(
+      data = risk_data,
+      position = "topright",
+      pal = pal,
+      values = ~ risk,
+      title = "Risk Level (%)",
+      opacity = .7,
+      labFormat = function(type, cuts, p) {
+        paste0(legendlabs)
+      }
+    ) %>%
+    addEasyButton(easyButton(
+      icon = "fa-crosshairs fa-lg",
+      title = "Locate Me",
+      onClick = JS(
+        "function(btn, map){ map.locate({setView: true, maxZoom: 7});}"
+      )
+    ))
+
+
+})
+
+map_obs = reactive(list(input$event_size_map, input$asc_bias, input$imm_lvl))
+
+observeEvent(map_obs(), {
+  risk_data = usa_counties %>%
+    select(
+      GEOID,
+      NAME,
+      stname,
+      pct_fully_vacc,
+      updated,
+      risk := glue::glue("{input$asc_bias}_{input$event_size_map}"),
+      imOp,
+      geometry
+    ) %>%
+    mutate(
+      imOp = case_when(
+        input$imm_lvl == 0 ~ 0.0,
+        pct_fully_vacc < input$imm_lvl ~ 0.0,
+        pct_fully_vacc > input$imm_lvl ~ pct_fully_vacc / 100,
+        TRUE ~ 0.0
+      ),
+      polyid = paste0("id", GEOID),
+      imid = paste0("im", GEOID)
+    )
+
+  leafletProxy("usa_map", data = risk_data) %>%
+    setShapeStyle(layerId = ~polyid, fillColor = pal(risk_data$risk), color = "#444444", fillOpacity = 0.7, ) %>%
+    setShapeStyle(layerId = ~imid, fillColor = "white", fillOpacity = ~ imOp, ) %>%
+    setShapeLabel(layerId = ~imid, label = maplabs(risk_data))
+})
+
+
+
