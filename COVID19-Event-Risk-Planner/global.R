@@ -14,18 +14,13 @@ library(dbplyr)
 library(DT)
 # library(shinycookie)
 options(shiny.reactlog = TRUE)
-# Master username
-# admin
-# Master password
-# taofrhsXnl031nko7pB6
-# Endpoint
-# weitz-c19r.cluster-cnoy4sgleu5u.us-east-1.rds.amazonaws.com
+
 
 db <- dbConnect(
   drv      = RMySQL::MySQL(),
-  username = "admin",
-  password = "taofrhsXnl031nko7pB6",
-  host     = "weitz-c19r.cluster-cnoy4sgleu5u.us-east-1.rds.amazonaws.com",
+  username = Sys.getenv("MYSQL_USERNAME"),
+  password = Sys.getenv("MYSQL_PASSWORD"),
+  host     = Sys.getenv("MYSQL_HOST"),
   port     = 3306,
   dbname   = "c19r"
 )
