@@ -121,6 +121,7 @@ RUN R -e 'devtools::install_github("dreamRs/shinyWidgets")'
 
 
 COPY COVID19-Event-Risk-Planner /srv/shiny-server
+COPY Renviron /home/shiny/.Renviron
 
 EXPOSE 3838
 
