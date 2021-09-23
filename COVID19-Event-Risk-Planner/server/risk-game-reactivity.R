@@ -184,7 +184,7 @@ observeEvent(input$submit_answers, {
     dbSendQuery(db, query)
   }
   tweet_msg = glue::glue(
-    "I scored {overall_acc}% on the @covid19riskusa Risk Guessing Game.  Can you do better? "
+    "I scored {overall_acc}% on the @covid19riskusa Risk Guessing Game. Try it out and guess the risk in your own community!"
   )
   tweet_url = glue::glue(
     "https://twitter.com/intent/tweet?text={tweet_msg}&url=https://covid19risk.biosci.gatech.edu/?game"
