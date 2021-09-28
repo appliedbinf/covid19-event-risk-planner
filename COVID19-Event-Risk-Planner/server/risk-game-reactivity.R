@@ -14,9 +14,9 @@ observeEvent(input$`nav-page`, {
       session = session, inputId = "game_consent",
       inputPlaceholder = "I am over 18 and in the US",
       title = "Are you over 18 and in the US?", text = paste0(
-        "Users under 18 and/or those who reside outside the US",
+        "Users under 18 and/or who reside outside the US",
         " are encouraged to use the risk prediction tools, ",
-        "unfortunately we cannot save your survey feedback.  ",
+        "but unfortunately we cannot save your survey feedback.  ",
         "Select 'No' if you are not eligible or would like to ",
         "opt out of having your responses saved for research purposes.  ",
         "Please see the About page for more details"),
@@ -57,7 +57,7 @@ output$location_selector <- renderUI({
     # input$geolocation <- FALSE
   }
   else{
-    HTML("<p class='loc-text'>Please choose your location below</p>")
+    HTML("<p class='loc-text'><b>Please choose your location below</b></p>")
   }
 })
 
@@ -91,9 +91,9 @@ observeEvent(input$submit_answers, {
       session = session, inputId = "game_consent", input = "checkbox",
       inputPlaceholder = "I am over 18 and in the US",
       title = "Are you over 18 and in the US?",  text = paste0(
-        "Users under 18 and/or those who reside outside the US",
+        "Users under 18 and/or who reside outside the US",
         " are encouraged to use the risk prediction tools, ",
-        "unfortunately we cannot save your survey feedback.  ",
+        "but unfortunately we cannot save your survey feedback.  ",
         "Select 'No' if you are not eligible or would like to ",
         "opt out of having your responses saved for research purposes.  ",
         "Please see the About page for more details"),
@@ -162,8 +162,8 @@ observeEvent(input$submit_answers, {
   )
   if (input$cookies$consent == "yes"){
     sql <-
-      "INSERT INTO risk_game_results (GEOID, data_ts, pred_20, pred_50, pred_100, pred_1000, g_20, g_50, g_100, g_1000, ip)
-          VALUES (?geoid, ?data_ts, ?p20, ?p50, ?p100, ?p1000, ?g20, ?g50, ?g100, ?g1000, ?ip)"
+      "INSERT INTO risk_game_results (GEOID, data_ts, pred_20, pred_50, pred_100, pred_1000, g_20, g_50, g_100, g_1000, ip, latitude, longitude)
+          VALUES (?geoid, ?data_ts, ?p20, ?p50, ?p100, ?p1000, ?g20, ?g50, ?g100, ?g1000, ?ip, ?lat, ?long)"
 
     query <-
       sqlInterpolate(
@@ -179,7 +179,9 @@ observeEvent(input$submit_answers, {
         g50 = pred_risk$g_50,
         g100 = pred_risk$g_100,
         g1000 = pred_risk$g_1000,
-        ip = input$ip_data
+        ip = input$ip_data,
+        lat = str_or_unk(input$lat),
+        long = str_or_unk(input$long)
       )
     dbSendQuery(db, query)
   }
@@ -214,7 +216,7 @@ observeEvent(input$submit_answers, {
             column(
               width = 12,
               div(
-                "After taking this quiz, are you MORE or LESS willing to participate in an events in your area?"
+                "After taking this quiz, are you MORE or LESS willing to participate in an event in your area?"
               ),
               shinyWidgets::sliderTextInput(
                 "game_followup",
@@ -257,8 +259,8 @@ observeEvent(input$submit_answers, {
 observeEvent(input$game_will, {
   # shinyjs::disable("game_will")
   sql <-
-    "INSERT INTO willingness (source, asc_bias, event_size, answer, ip)
-        VALUES (?p1, ?p2, ?p3, ?p4, ?p5)"
+    "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, latitude, longitude)
+        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?lat, ?long)"
 
   query <- sqlInterpolate(
     ANSI(),
@@ -267,7 +269,9 @@ observeEvent(input$game_will, {
     p2 = -1,
     p3 = -1,
     p4 = input$game_followup,
-    p5 = input$ip_data
+    p5 = input$ip_data,
+    lat = str_or_unk(input$lat),
+    long=str_or_unk(input$long)
   )
   dbSendQuery(db, query)
   show_alert("Response saved", text = "Thank you for taking the Risk Prediction Quiz",)

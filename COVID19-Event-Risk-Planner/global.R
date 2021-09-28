@@ -32,3 +32,11 @@ names(stateline) <- c('stname','name', 'geometry')
 addResourcePath("www", "www")
 
 source('./leaflet_inplace.R', local=T)
+
+str_or_unk <- function(obj){
+  if(is.null(obj)){
+    "Unknown"
+  } else {
+    obj
+  }
+}

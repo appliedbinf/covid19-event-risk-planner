@@ -69,12 +69,12 @@ observeEvent(input$map_will, {
   shinyjs::delay(3000, shinyjs::enable("map_will"))
   map_consent = input$cookies$consent
   if (!is.null(map_consent) && map_consent == "yes"){
-    sql <- "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, vacc_imm)
-        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p6)"
+    sql <- "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, vacc_imm, latitude, longitude)
+        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p6, ?p7, ?p8)"
 
     query <- sqlInterpolate(ANSI(), sql, p1 = "map", p2 = input$asc_bias,
                             p3 = input$event_size_map, p4 = input$risk_followup, p5 = input$ip_data,
-                            p6 = input$imm_lvl)
+                            p6 = input$imm_lvl, p7 = str_or_unk(input$lat), p8=str_or_unk(input$long))
     dbSendQuery(db, query)
     show_toast("Response saved", text = "Thank you!", timerProgressBar = F)
   } else {
@@ -82,9 +82,9 @@ observeEvent(input$map_will, {
       session = session, inputId = "over18_US",
       inputPlaceholder = "I am over 18 and in the US",
       title = "Are you over 18 and in the US?", text = paste0(
-        "Users under 18 and/or those who reside outside the US",
+        "Users under 18 and/or who reside outside the US",
         " are encouraged to use the risk prediction tools, ",
-        "unfortunately we cannot save your survey feedback.  ",
+        "but unfortunately we cannot save your survey feedback.  ",
         "Select 'No' if you are not eligible or would like to ",
         "opt out of having your responses saved for research purposes.  ",
         "Please see the About page for more details"),
@@ -100,12 +100,12 @@ observeEvent(input$over18_US, {
     session$sendCustomMessage("cookie-set", list(
       name = "consent", value = "yes"
     ))
-    sql <- "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, vacc_imm)
-        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p6)"
+    sql <- "INSERT INTO willingness (source, asc_bias, event_size, answer, ip, vacc_imm, latitude, longitude)
+        VALUES (?p1, ?p2, ?p3, ?p4, ?p5, ?p6, ?p7, ?p8)"
 
     query <- sqlInterpolate(ANSI(), sql, p1 = "map", p2 = input$asc_bias,
                             p3 = input$event_size_map, p4 = input$risk_followup, p5 = input$ip_data,
-                            p6 = input$imm_lvl)
+                            p6 = input$imm_lvl, p7 = str_or_unk(input$lat), p8=str_or_unk(input$long))
     dbSendQuery(db, query)
     show_toast("Response saved", text = "Thank you!", timerProgressBar = F)
   }
