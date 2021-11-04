@@ -204,7 +204,7 @@ observeEvent(map_obs(), {
       imOp = case_when(
         input$imm_lvl == 0 ~ 0.0,
         pct_fully_vacc < input$imm_lvl ~ 0.0,
-        pct_fully_vacc > input$imm_lvl ~ pct_fully_vacc / 100,
+        pct_fully_vacc > input$imm_lvl ~ 0.7,
         TRUE ~ 0.0
       ),
       polyid = paste0("id", GEOID),
