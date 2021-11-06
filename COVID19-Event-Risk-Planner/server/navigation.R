@@ -1,10 +1,9 @@
 observe({
   query = getQueryString()
-  if ("global" %in% names(query)){
-    print("found")
+  params = names(query)
+  if ("global" %in% params) {
     updateNavbarPage(session, "nav-page", "global")
-  } else if ("game" %in% names(query)){
-    print("found")
+  } else if (any(c("game", "quiz") %in% params)) {
     updateNavbarPage(session, "nav-page", "game")
   }
 })
