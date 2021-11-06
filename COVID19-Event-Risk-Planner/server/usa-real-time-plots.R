@@ -184,7 +184,7 @@ observeEvent(dd_inputs(), {
     ylimits <- c(10, max(yblock))
   } else {
     states_dd <<- "US"
-    USpop <- 330 * 10^6
+    USpop <- 331 * 10^6
     pcrit_label_x <- c(9, 20, 200, 2000, 7000)
     C_i <- sum(as.numeric(state_data$C_i))
     yblock <- c(10, 100, 1000, 10000, 10**5, 4 * 10**5, 10**6, 2 * 10**6, 8 * 10**6)
