@@ -19,7 +19,7 @@ observeEvent(input$`nav-page`, {
       text = paste0(
         "Users under 18 and/or those who reside outside the US",
         " are encouraged to use the risk prediction tools, ",
-        "unfortunately we cannot save your survey feedback.  ",
+        "but unfortunately we cannot save your survey feedback.  ",
         "Select 'No' if you are not eligible or would like to ",
         "opt out of having your responses saved for research purposes.  ",
         "Please see the About page for more details"
@@ -101,7 +101,7 @@ observeEvent(input$submit_answers, {
       text = paste0(
         "Users under 18 and/or those who reside outside the US",
         " are encouraged to use the risk prediction tools, ",
-        "unfortunately we cannot save your survey feedback.  ",
+        "but unfortunately we cannot save your survey feedback.  ",
         "Select 'No' if you are not eligible or would like to ",
         "opt out of having your responses saved for research purposes.  ",
         "Please see the About page for more details"
