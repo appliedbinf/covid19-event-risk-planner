@@ -68,7 +68,7 @@ risk_game_tab = tabPanel(
         div(
           class = "well fake-sidebar",
           HTML(
-            "<p class='intro-text'><a href='https://duke.qualtrics.com/jfe/form/SV_0SZR4fPxyUAg9Ke', rel='noopener' target='_blank'>Fill out this 5-minute survey</a> for a chance to win a $100 Amazon girf card!</p>"
+            "<p class='intro-text'><a href='https://duke.qualtrics.com/jfe/form/SV_0SZR4fPxyUAg9Ke', rel='noopener' target='_blank'>Fill out this 5-minute survey</a> for a chance to win a $100 Amazon gift card!</p>"
           )
         )
 
