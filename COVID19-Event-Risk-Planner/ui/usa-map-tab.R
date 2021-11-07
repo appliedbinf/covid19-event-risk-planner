@@ -97,7 +97,18 @@ usa_map_tab = tabPanel(
                      color = "success",
                      size = "sm"
                    )
-                 ))
+                 )),
+        fluidRow(align = "center",
+                 column(12,
+                        div(
+                          div(style = "height: 10px;"),
+                          div(
+                            class = "well fake-sidebar",
+                            HTML(
+                              "<p class='intro-text'><a href='https://duke.qualtrics.com/jfe/form/SV_0SZR4fPxyUAg9Ke', rel='noopener' target='_blank'>Fill out this 5-minute survey</a> for a chance to win a $50 Amazon gift card!</p>"
+                            )
+                          )
+                        )))
       )
       ,
       title = "Risk context",
