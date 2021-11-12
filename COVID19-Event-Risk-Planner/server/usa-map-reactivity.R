@@ -1,4 +1,6 @@
 county_geom = sf::st_read("map_data/geomUnitedStates.geojson")
+county_geomV = sf::st_read("map_data/geomUnitedStatesCV.geojson")
+
 pal <- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
 maplabs <- function(riskData) {
   riskData <- riskData %>%
