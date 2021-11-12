@@ -15,8 +15,15 @@ maplabs <- function(riskData) {
     "<strong>", paste0(riskData$NAME, ", ", riskData$stname), "</strong><br/>",
     "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
     "State-level immunity via vaccination: <strong>", round(riskData$pct_fully_vacc, 1), "%</strong></b><br/>",
-    "Updated: ", riskData$updated,
-    ""
+    "Updated: ", riskData$updated,"<br/>",
+    ifelse(
+        riskData$is_last==T,
+        paste0("Vaccines Updated: ",
+            riskData$last_date,
+            "<br/>",""
+        ),
+        ""
+    )
   ) %>% lapply(htmltools::HTML)
   return(labels)
 }
@@ -191,7 +198,13 @@ output$usa_map <- renderLeaflet({
 map_obs = reactive(list(input$event_size_map, input$asc_bias, input$imm_lvl))
 
 observeEvent(map_obs(), {
-  risk_data = usa_counties %>%
+    if(input$imm_lvl == 0){
+        countysource = usa_counties
+    }else{
+        countysource = usa_countiesV
+    }
+    
+  risk_data = countysource %>%
     select(
       GEOID,
       NAME,

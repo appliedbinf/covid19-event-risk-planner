@@ -16,8 +16,6 @@ library(tidyr)
 library(withr)
 library(vroom)
 library(glue)
-library(purrr)
-library(zoo)
 
 get_token()
 
@@ -91,7 +89,7 @@ getData <- function() {
   all_county <- vacc_data$county%>%
       unique()
   
-  add_dates <- map_df(all_county,function(x){
+  add_dates <- purrr::map_df(all_county,function(x){
       tibble(
           county = x,
           date = all_dates
@@ -108,7 +106,7 @@ getData <- function() {
       group_by(county)%>%
       arrange(date)%>%
       mutate(
-          cnt_fully_vacc = na.approx(cnt_fully_vacc, na.rm=F),
+          cnt_fully_vacc = zoo::na.approx(cnt_fully_vacc, na.rm=F),
           # cnt_partially_vacc = na.approx(cnt_partially_vacc, na.rm=F),
           # the 'is_last' variable is telling us that it could not interpolate cnt_fully_vacc because the date is after the last value in the bansal data set.
             # Therefore, when is_last == T, we can display the "last date" in the mouseover UI
@@ -126,11 +124,15 @@ getData <- function() {
   
   VaccImm <<- vacc_data_fill%>%
       filter(date==past_date)%>%
+      inner_join(pop, by = c("county"="fips"))%>%
       select(
-          -date
+          -date, -pop
           # location,
           # pct_partially_vacc = people_vaccinated_per_hundred,
           # pct_fully_vacc = people_fully_vaccinated_per_hundred
+          )%>%
+      mutate(
+          pct_fully_vacc = cnt_fully_vacc/popC*100
           )
   # VaccImm$location[which(VaccImm$location=="New York State")] <<- "New York"
   
@@ -209,7 +211,7 @@ for (asc_bias in asc_bias_list) {
       cn = glue("{asc_bias}_{size}")
       riskdt <- data_Nr %>%
         mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0), "asc_bias" = asc_bias, "event_size" = size)
-      risk_data[[cn]] = riskdt %>% select(state, fips, pop, popC, "{cn}" := risk)
+      risk_data[[cn]] = riskdt %>% select(state, fips, "{cn}" := risk)
       # riskdt_map <- county %>% left_join(riskdt, by = c("GEOID" = "fips"))
       # id = paste(asc_bias, size, sep="_")
       # risk_data[[id]] =  st_drop_geometry(riskdt_map)
@@ -294,19 +296,19 @@ for (asc_bias in asc_bias_list) {
   }
 }
 
+# Risk layer: includes Joplin and KC
 risk_data = county %>%
   left_join(plyr::join_all(risk_data, by=c("fips", "state")), by=c("GEOID" = "fips")) %>%
   left_join(VaccImm, by=c("GEOID" = "county")) %>% st_drop_geometry() %>%
   mutate(
-      pct_fully_vacc = cnt_fully_vacc/popC*100,
       imOp = case_when(pct_fully_vacc < 50 ~ 0.0, pct_fully_vacc > 50 ~ 0.7)) %>% # binary filter
   mutate(updated = ymd(gsub("-", "", Sys.Date())))
 
+# Vaccination layer: does not include Joplin and KC
 risk_dataV = countyVacc %>%
     left_join(plyr::join_all(risk_data, by=c("fips", "state")), by=c("GEOID" = "fips")) %>%
     left_join(VaccImm, by=c("GEOID" = "county")) %>% st_drop_geometry() %>%
     mutate(
-        pct_fully_vacc = cnt_fully_vacc/popC*100,
         imOp = case_when(pct_fully_vacc < 50 ~ 0.0, pct_fully_vacc > 50 ~ 0.7)) %>% # binary filter
     mutate(updated = ymd(gsub("-", "", Sys.Date())))
 
