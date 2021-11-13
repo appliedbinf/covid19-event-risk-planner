@@ -13,7 +13,7 @@ make_resp_slider = function(input, label) {
 
 risk_game_tab = tabPanel(
   value = "game",
-  title = "Risk guessing game",
+  title = "Risk Quiz",
   fluid = TRUE,
   chooseSliderSkin("Round"),
   tags$script(
@@ -41,23 +41,37 @@ risk_game_tab = tabPanel(
   ),
   fluidRow(
     panel(
-      title = "Risk guessing game",
+      title = "Risk Quiz",
       can_collapse = F,
-      class = "col-sm-12 col-xs-12 col-md-3 well fake-sidebar",
+      class = "col-sm-12 col-xs-12 col-md-3",
       body = div(
-        # fluidRow(
-        HTML(
-          "<p class='intro-text'>Can you guess the risk levels in your community?  Take the quiz to find out, and share your high score.</p>"
+        div(
+          class = "well fake-sidebar",
+          HTML(
+            "<p class='intro-text'>Can you guess the risk levels in your community?  Take the quiz to find out, and share your high score.</p>"
+          ),
+          uiOutput("location_selector"),
+          selectizeInput(
+            "risk_state",
+            choices = c("USA" = "USA", sort(
+              c(
+                setNames(state.abb, state.name),
+                "Puerto Rico" = "PR",
+                "District of Columbia" = "DC"
+              )
+            )),
+            label = "Select state"
+          ),
+          selectizeInput("risk_county", choices = NULL, label = "Select county")
         ),
-        uiOutput("location_selector"),
-        selectizeInput(
-          "risk_state",
-          choices = setNames(state.abb, state.name),
-          label = "Select state"
-        ),
-        selectizeInput("risk_county", choices = NULL, label = "Select county"),
-        uiOutput("guessdf")
-        # )
+        div(style = "height: 25px;"),
+        div(
+          class = "well fake-sidebar",
+          HTML(
+            "<p class='intro-text'><a href='https://duke.qualtrics.com/jfe/form/SV_0SZR4fPxyUAg9Ke', rel='noopener' target='_blank'>Fill out this 5-minute survey</a> for a chance to win a $50 Amazon gift card!</p>"
+          )
+        )
+
       )
     ),
     panel(

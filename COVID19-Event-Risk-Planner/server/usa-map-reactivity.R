@@ -49,7 +49,6 @@ output$risk_context_us <- renderUI({
 output$dl_map <- downloadHandler(
   filename = paste0("County-level COVID risk estimates map - ", today(), ".png"),
   content = function(file) {
-    # with_path('/projects/covid19/bin', Sys.getenv("PATH"))
     showModal(modalDialog("This can take 20 seconds", title = "Rendering map image...", footer = NULL))
     map_sel <<- map_sel %>%
       setView(lat = countyCenter(input$county_text)[4], lng = countyCenter(input$county_text)[3], zoom = 7)
@@ -82,9 +81,9 @@ observeEvent(input$map_will, {
       session = session, inputId = "over18_US",
       inputPlaceholder = "I am over 18 and in the US",
       title = "Are you over 18 and in the US?", text = paste0(
-        "Users under 18 and/or who reside outside the US",
+        "Users under 18 and/or those who reside outside the US",
         " are encouraged to use the risk prediction tools, ",
-        "but unfortunately we cannot save your survey feedback.  ",
+        "unfortunately we cannot save your survey feedback.  ",
         "Select 'No' if you are not eligible or would like to ",
         "opt out of having your responses saved for research purposes.  ",
         "Please see the About page for more details"),
@@ -151,18 +150,13 @@ output$usa_map <- renderLeaflet({
       color = "#444444",
       weight = 0.2,
       smoothFactor = 0.1,
-      # opacity = 1.0,
-      # fillOpacity = 0.7,
-      # fillColor = ~ pal(risk),
       highlight = highlightOptions(weight = 1),
-      # label = maplabs(risk_data)
     ) %>%
     addPolygons(
       layerId = ~imid,
       data = risk_data,
       weight = 0,
       smoothFactor = 0.1,
-      # label = maplabs(risk_data)
     ) %>%
     addLegend(
       data = risk_data,
