@@ -1,3 +1,4 @@
+readRenviron('~/.Renviron')
 library(shiny)
 library(withr)
 library(ggplot2)
@@ -7,14 +8,11 @@ library(lubridate)
 library(dplyr)
 library(ggthemes)
 library(leaflet)
-library(mapview)
 library(sever)
 library(DBI)
 library(dbplyr)
-library(DT)
-# library(shinycookie)
-options(shiny.reactlog = TRUE)
-
+library(glue)
+options(shiny.reactlog = FALSE)
 
 db <- dbConnect(
   drv      = RMySQL::MySQL(),
@@ -25,18 +23,12 @@ db <- dbConnect(
   dbname   = "c19r"
 )
 
-county_geom <- sf::st_read("map_data/geomUnitedStates.geojson")
-stateline <- sf::st_read("map_data/US_stateLines.geojson")[,c('STUSPS','NAME', 'geometry')]
-names(stateline) <- c('stname','name', 'geometry')
+
+source("R/constants.R", local = T)
+source("R/helpers.R", local = T)
+source('R/leaflet_inplace.R', local=T)
+
 
 addResourcePath("www", "www")
 
-source('./leaflet_inplace.R', local=T)
 
-str_or_unk <- function(obj){
-  if(is.null(obj)){
-    "Unknown"
-  } else {
-    obj
-  }
-}
