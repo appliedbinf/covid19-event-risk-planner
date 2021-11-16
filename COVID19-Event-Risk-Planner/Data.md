@@ -13,9 +13,11 @@ US 2019 population estimate data comes from the US Census: https://www.census.go
 
 **Vaccination data**
 
-State-level vaccination data is obtained from the collection made by Our World in Data from the United States Centers for Disease Control and Prevention. https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations 
+County-level vaccination coverage is collated by the Bansal lab at https://www.vaccinetracking.us/. We linearly interpolate between weekly values and merge county data to account for geographic exceptions in Alaska (Hoonah-Angoon plus Yakutat; Lake Peninsula plus Bristol Bay) and in New York City (New York, Kings, Queens, Bronx plus Richmond) following the New York Times dataset.
 
-Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021). https://doi.org/10.1038/s41562-021-01122-8
+Merritt, Alexes; Tiu, Andrew; Bansal, Shweta, 2021, "Integrated US COVID-19 Vaccination Data", https://doi.org/10.7910/DVN/BFRIKI, Harvard Dataverse, V1.
+
+Andrew Tiu, Zachary Susswein, Alexes Merritt, Shweta Bansal. Characterizing the spatiotemporal heterogeneity of the COVID-19 vaccination landscape. medRxiv. https://doi.org/10.1101/2021.10.04.21263345
 
 
 
