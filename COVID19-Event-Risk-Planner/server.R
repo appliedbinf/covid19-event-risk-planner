@@ -71,7 +71,11 @@ get_data <- function() {
   usa_counties <<- vroom::vroom('www/usa_risk_counties.csv') %>%
     select(-NAME, -stname) %>%
     mutate_at(vars(-GEOID, -state, -updated), as.numeric)
+  usa_countiesV <<- vroom::vroom('www/usa_risk_countiesV.csv') %>%
+      select(-NAME, -stname) %>%
+      mutate_at(vars(-GEOID, -state, -updated), as.numeric)
   usa_counties <<- county_geom %>% left_join(usa_counties, by = c("GEOID" = "GEOID"))
+  usa_countiesV <<- county_geomV %>% left_join(usa_countiesV, by = c("GEOID" = "GEOID"))
 }
 
 
