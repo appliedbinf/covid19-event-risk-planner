@@ -343,7 +343,7 @@ getDataCzech <- function(){
    
   czechData <- read.csv('https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/kraj-okres-nakazeni-vyleceni-umrti.csv')
   
-  names(czechData) <- c('Date','Code','District','Confirmed','Cure','Death')
+  names(czechData) <- c('id','Date','Code','District','Confirmed','Cure','Death')
   czechData$Date <- as.Date(czechData$Date)
   czechData = czechData %>% 
     group_by(District) %>% 
