@@ -90,39 +90,42 @@ maplabsUK <- function(riskData) {
   return(labels)
 }
 
-getDataSwiss <- function() {
-  dataurl <- getURL("https://raw.githubusercontent.com/openZH/covid_19/master/COVID19_Fallzahlen_CH_total_v2.csv") # date, abbreviation_canton_and_fl, ncumul_conf
-  liechtenstein <- read.csv(paste0('https://raw.githubusercontent.com/openZH/covid_19/master/fallzahlen_kanton_total_csv/COVID19_Fallzahlen_FL_total.csv')) %>%
-    mutate(date = as_date(date)) %>% arrange(desc(date)) %>% filter(!is.na(ncumul_conf)) %>% 
-    select(date = date, code = abbreviation_canton_and_fl, cases = ncumul_conf)
-  data <- read.csv(text = dataurl, stringsAsFactors = FALSE) %>%
-    mutate(date = as_date(date)) %>%
-    arrange(desc(date)) %>%
-    filter(!is.na(ncumul_conf)) %>%
-    select(date = date, code = abbreviation_canton_and_fl, cases = ncumul_conf) %>% 
-    rbind(liechtenstein)
-  swiss_geom <<- st_read("https://gist.githubusercontent.com/mbostock/4207744/raw/3232c7558742bab53227e242a437f64ae4c58d9e/readme-swiss.json")
-  pop <- read.csv("map_data/swiss_canton_pop.csv", stringsAsFactors = FALSE)
 
-  cur_date <- ymd(gsub("-", "", Sys.Date())) - 1
-  past_date <- ymd(cur_date) - 14
-  data_cur <<- data %>%
-    group_by(code) %>%
-    summarise(code = first(code), cases = first(cases), date = first(date)) %>%
-    as.data.frame()
-  data_past <- data %>%
-    filter(date <= past_date) %>%
-    group_by(code) %>%
-    summarise(code = first(code), cases = first(cases), date = first(date)) %>%
-    as.data.frame()
-  swiss_data_join <<- data_cur %>%
-    inner_join(data_past, by = "code", suffix = c("", "_past")) %>%
-    inner_join(pop, by = c("code")) %>%
-    mutate(n = date - date_past) %>%
-    select(-c("name"))
+getDataSwiss <- function() {
+#geom
+swiss_geom <<- st_read("countries/data/geom/geomSwitzerlandLiechtenstein.geojson")
+#Federal Office of Public Health FOPH https://www.covid19.admin.ch/en/overview
+#1. import API to find code for most recent file version (date and code change for new data)
+	datastructure = fromJSON("https://www.covid19.admin.ch/api/data/context")
+#2. find URL for case data by region and read in
+	chURL = datastructure$sources$individual$csv$daily$cases
+	CHdata = read.csv(chURL)
+#3. only need regional data, not that for whole country (CH) or whole dataset (CHFL)
+	CHdata = CHdata[-c(which(CHdata$geoRegion=="CH"),which(CHdata$geoRegion=="CHFL")),]
+	code = unique(CHdata$geoRegion)
+#4. calculate analysis for each region using the second to most recent entry (as most recent may be partial data)
+	cases=c()
+	cases_past=c()
+	pop=c()
+	cur_date=c()
+	date_past=c()
+	n=c()
+	for(aa in 1:length(code)){
+		subsetdata = CHdata[which(CHdata$geoRegion==code[aa]),]
+		LL = nrow(subsetdata)-1
+		cases[aa] = subsetdata$sumTotal[LL]
+		cases_past[aa] = subsetdata$sumTotal[LL-14]
+		pop[aa] = subsetdata$pop[LL]  
+		cur_date[aa] = as.character(subsetdata$datum[LL])
+		date_past[aa] = as.character(subsetdata$datum[LL]-14)
+		n[aa] = as.Date(cur_date[aa])-as.Date(date_past[aa])
+	}
+  swiss_data_join <<- data.frame(code,cases,date=cur_date,pop,cases_past,date_past,n)
+
   swiss_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
   swiss_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
 }
+
 
 # Create mouse-over labels
 maplabsSwiss <- function(riskData) {
@@ -137,9 +140,17 @@ maplabsSwiss <- function(riskData) {
     "<strong>", paste0("Canton of ", riskData$name), "</strong><br/>",
     "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
     "Latest Update: ", substr(riskData$date, 1, 10)
-  ) %>% lapply(htmltools::HTML)
+  ) 
+  FL_ind = which(riskData$name=="Liechtenstein")
+  labels[FL_ind] <- paste0(
+    "<strong>", paste0(riskData$name[FL_ind]), "</strong><br/>",
+    "Current Risk Level: <b>", riskData$risk[FL_ind], ifelse(riskData$risk[FL_ind] == "No data", "", "&#37;"), "</b><br/>",
+    "Latest Update: ", substr(riskData$date[FL_ind], 1, 10)
+  ) 
+  labels <- lapply(labels,htmltools::HTML) 
   return(labels)
 }
+
 
 dataQueryItaly <- function(date) {
   data <- read.csv(text = getURL(paste0("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-", str_replace_all(as.character(date), "-", ""), ".csv")), stringsAsFactors = FALSE) %>%
