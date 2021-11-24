@@ -562,6 +562,68 @@ maplabsIreland <- function(riskData) {
 }
 
 
+
+
+getDataEU<-function() {
+  #Data aggregated from local health resources in the WHO European Region COVID19 Subnational Explorer https://experience.arcgis.com/experience/3a056fc8839d47969ef59949e9984a71
+  EUWHO = read.csv("https://arcgis.com/sharing/rest/content/items/54d73d4fd4d94a0c8a9651bc4cd59be0/data")
+  EUWHO$code = EUWHO$UID
+  EUWHO$cases = EUWHO$CumulativePositive
+  EUWHO$cases_past = EUWHO$CumulativePositive - EUWHO$Positive14day
+  EUWHO$pop = round((EUWHO$CumulativePositive/EUWHO$IncidenceCumulative)*100000) #approximation. In places with no cases reported, leads to NaN.
+  EUWHO$date = EUWHO$DateRpt
+  EUWHO$date_past = as.character(as.Date(EUWHO$DateRpt)-14)
+  EUWHO$n = 14
+  EUWHO$name = EUWHO$Region
+
+  EU_geom <<- st_read("countries/data/geom/geomEurope.geojson") #https://www.arcgis.com/home/item.html?id=494604e767074ce1946d86aa4d8a3b5a
+  
+  #Countries which we have higher resolution maps
+  CountriesCovered = c("Italy","Switzerland","Ireland","United Kingdom","Austria","France","Czech Republic","Spain","Denmark","Sweden","Liechtenstein")
+  #not sure about ascertainment bias
+  CountriesUnsure = c("Turkmenistan","Tajikistan","Uzbekistan","Kazakhstan","Kyrgyzstan","Russian Fed.","Azerbaijan","Georgia")
+  CountriesRemove = c(CountriesCovered,CountriesUnsure)
+  RM_REGIONS = c()
+  for(aa in 1:length(CountriesRemove)){
+	INDXs = which(EUWHO$CountryName==CountriesCovered[aa])
+	if(CountriesCovered[aa]=="United Kingdom"){ #keep UK crown dependencies.
+			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Isle of Man")]
+			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Guernsey")]
+			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Jersey")]
+			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Gibraltar")]
+	}
+	if(CountriesCovered[aa]=="Denmark"){ #keep Faroe Islands, Greenland
+			INDXs = INDXs[-which(EuroMap$Region[INDXs]=="Faroe")]
+			INDXs = INDXs[-which(EuroMap$Region[INDXs]=="Greenland")]
+	}
+	RM_REGIONS = c(RM_REGIONS, INDXs)
+  }
+  EUWHO = EUWHO[-RM_REGIONS,]	 
+  
+  EU_data_join <<- subset(EUWHO,select=c("code","cases","date","pop","cases_past","date_past","n","name"))
+
+  EU_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
+  EU_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
+}
+
+maplabsEU <- function(riskData) {
+ riskData <- riskData %>%
+    mutate(risk = case_when(
+      risk == 100 ~ "> 99",
+      risk == 0 ~ "< 1",
+      is.na(risk) ~ "No data",
+      TRUE ~ as.character(risk)
+    ))
+  labels <- paste0(
+    "<strong>", paste0(riskData$name), "</strong><br/>",
+    "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
+    "Latest Update: ", substr(riskData$date, 1, 10)
+  ) %>% lapply(htmltools::HTML)
+  return(labels)
+}
+
+
+
 # Calculate risk
 calc_risk <- function(I, g, pop) {
   p_I <- I / pop
@@ -582,6 +644,7 @@ getDataCzech()
 getDataSweden()
 getDataDenmark()
 getDataIreland()
+getDataEU()
 
 scale_factor = 10/14
 
@@ -598,6 +661,7 @@ for (asc_bias in asc_bias_list) {
   sweden_data_Nr <- sweden_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
   denmark_data_Nr <- denmark_data_join %>% mutate(Nr = difference * asc_bias * scale_factor) 
   ireland_data_Nr <- ireland_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
+  EU_data_NR <- EU_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor) 
 
   for (size in event_size){
     uk_riskdt <- uk_data_Nr %>%
@@ -653,6 +717,10 @@ for (asc_bias in asc_bias_list) {
     ireland_riskdt_map <- ireland_geom %>% left_join(ireland_riskdt, by = c("id" = "CountyName")) 
 
 
+    EU_riskdt <- EU_data_Nr %>%
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+
+    EU_riskdt_map <- EU_geom %>% left_join(EU_riskdt, by = c("UID" = "code"))
 
 
     map <- leaflet() %>%
@@ -743,6 +811,14 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ austria_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsIreland(ireland_riskdt_map)
+      ) %>%
+      addPolygons(
+        data = EU_riskdt_map,
+        color = "#444444", weight = 0.2, smoothFactor = 0.1,
+        opacity = 1.0, fillOpacity = 0.7,
+        fillColor = ~ EU_pal(risk),
+        highlight = highlightOptions(weight = 1),
+        label = maplabsEU(EU_riskdt_map)
       ) %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",
