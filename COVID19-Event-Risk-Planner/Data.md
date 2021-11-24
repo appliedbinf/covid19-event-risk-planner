@@ -32,7 +32,7 @@ Italian Department of Civil Protection COVID-19 Data: https://github.com/pcm-dpc
 
 Italian maps: http://datainterfaces.org/projects/covid19eventi/
 
-### Switzerland and Liechenstein
+### Switzerland and Liechtenstein
 #### Released: October 5, 2020
 
 (from October 5, 2020 - November XX, 2021) Specialist Unit for Open Government Data Canton of Zurich COVID-19 data: https://github.com/openZH/covid_19
