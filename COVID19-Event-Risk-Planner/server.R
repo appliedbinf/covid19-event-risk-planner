@@ -7,7 +7,6 @@
 ## Model from Joshua Weitz
 ## See: https://github.com/jsweitz/covid-19-ga-summer-2020
 ## ---------------------------
-# options(shiny.reactlog = TRUE)
 options(scipen = 999)
 # library(mapview, lib.loc = "/projects/covid19/covid19/R/x86_64-redhat-linux-gnu-library/3.6/")
 
@@ -91,19 +90,19 @@ timeout <- sever_default(title = "Session timeout reached",
     )
 
 
+get_data()
 shinyServer(function(input, output, session) {
 
-  rupture(ms = 600000, html=timeout)
+  rupture(ms = 600000, html = timeout)
 
   observeEvent(input$ruptured, {
     session$close()
-    })
+  })
 
-  source('server/navigation.R', local=T)
-  source('server/usa-map-reactivity.R', local=T)
-  source('server/global-map-reactivity.R', local=T)
-  source('server/usa-daily-plots.R', local=T)
-  source('server/usa-real-time-plots.R', local=T)
-  source('server/risk-game-reactivity.R', local=T)
-
+  source("R/server/navigation.R", local = T)
+  source("R/server/usa-map-reactivity.R", local = T)
+  source("R/server/global-map-reactivity.R", local = T)
+  source("R/server/usa-daily-plots.R", local = T)
+  source("R/server/usa-real-time-plots.R", local = T)
+  source("R/server/risk-game-reactivity.R", local = T)
 })

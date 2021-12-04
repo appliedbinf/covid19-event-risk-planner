@@ -1,0 +1,37 @@
+Package: covid19RiskPlanner
+Title: COVID-19 Event Risk Assessment Planning Tool
+Version: 0.0.0.9000
+Authors@R: person('Aroon', 'Chande', email = 'achande@ihrc.com', role = c('cre', 'aut'))
+Description: Visualize the risk stimated chance (0-100%) that at least 1 COVID-19 positive individual will be present at an event in a county, given the size of the event.
+License: MIT + file LICENSE
+Imports: 
+    config (>= 0.3.1),
+    golem (>= 0.3.1),
+    shiny (>= 1.6.0),
+    processx,
+    attempt,
+    DT,
+    glue,
+    htmltools,
+    withr,
+    ggplot2,
+    ggrepel,
+    matlab,
+    lubridate,
+    dplyr,
+    ggthemes,
+    sever,
+    DBI,
+    dbplyr,
+    sf,
+    leaflet,
+    shinyjs,
+    magrittr
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+URL: https://github.com/appliedbinf/covid19-event-risk-planner
+BugReports: https://github.com/appliedbinf/covid19-event-risk-planner/issues
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
