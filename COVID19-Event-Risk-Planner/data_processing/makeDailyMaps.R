@@ -61,8 +61,8 @@ getData <- function() {
           
           date = as_date(date),
           county = case_when(
-              as.numeric(county) %in% bb_lp ~ 2997,
-              as.numeric(county) %in% y_ha ~ 2998,
+              as.numeric(county) %in% c(2164, 2060) ~ 2997,
+              as.numeric(county) %in% c(2282, 2105) ~ 2998,
               as.numeric(county) %in% nyc ~ 99999,
               TRUE ~ as.numeric(county)
           )
