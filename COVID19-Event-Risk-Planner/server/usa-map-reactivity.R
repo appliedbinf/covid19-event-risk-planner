@@ -1,5 +1,4 @@
 county_geom = sf::st_read("map_data/geomUnitedStates.geojson")
-county_geomV = sf::st_read("map_data/geomUnitedStatesCV.geojson")
 
 pal <- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
 maplabs <- function(riskData) {
@@ -13,8 +12,8 @@ maplabs <- function(riskData) {
     ))
   labels <- paste0(
     "<strong>", paste0(riskData$NAME, ", ", riskData$stname), "</strong><br/>",
-    "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
-    "State-level immunity via vaccination: <strong>", round(riskData$pct_fully_vacc, 1), "%</strong></b><br/>",
+    "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>", if_else(riskData$GEOID %IN% c(29095, 29047, 29165, 29037, 29991, 29097, 29145, 29992), "Metro-level ", "County-level "),
+    "immunity via vaccination: <strong>", round(riskData$pct_fully_vacc, 1), "%</strong></b><br/>",
     "Updated: ", riskData$updated,"<br/>",
     ifelse(
         riskData$is_last==T,
@@ -198,13 +197,7 @@ output$usa_map <- renderLeaflet({
 map_obs = reactive(list(input$event_size_map, input$asc_bias, input$imm_lvl))
 
 observeEvent(map_obs(), {
-    if(input$imm_lvl == 0){
-        countysource = usa_counties
-    }else{
-        countysource = usa_countiesV
-    }
-    
-  risk_data = countysource %>%
+    risk_data = usa_counties %>%
     select(
       GEOID,
       NAME,

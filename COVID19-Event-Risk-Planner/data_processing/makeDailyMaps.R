@@ -27,17 +27,9 @@ getData <- function() {
     dataurl <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
   data <- vroom(dataurl)
   county <<- st_read("map_data/geomUnitedStates.geojson")
-  countyVacc <<- st_read("map_data/geomUnitedStatesCV.geojson")
   stateline <<- st_read("map_data/US_stateLines.geojson")[,c('STUSPS','NAME')]
   names(stateline) <- c('stname','name')
   pop <- vroom("map_data/county_population.csv")
-  popC <- vroom("map_data/county_populationCV.csv")
-  pop <- pop%>%
-      full_join(
-          select(popC, c(fips, popC=pop)), by="fips"
-      )
-  
-
   
   cur_date <- ymd(gsub("-", "", Sys.Date())) - 1
   past_date <- ymd(cur_date) - 14
@@ -86,7 +78,7 @@ getData <- function() {
   )
   
   all_dates <- ex_dates[1]+0:as.numeric(ex_dates[2]-ex_dates[1])
-  all_county <- vacc_data$county%>%
+  all_county <- c(vacc_data$county, c(29991, 29992))%>% # add Joplin and KC
       unique()
   
   add_dates <- purrr::map_df(all_county,function(x){
@@ -126,14 +118,23 @@ getData <- function() {
       filter(date==past_date)%>%
       inner_join(pop, by = c("county"="fips"))%>%
       select(
-          -date, -pop
+          -date,
           # location,
           # pct_partially_vacc = people_vaccinated_per_hundred,
           # pct_fully_vacc = people_fully_vaccinated_per_hundred
           )%>%
-      mutate(
-          pct_fully_vacc = cnt_fully_vacc/popC*100
+      mutate( # Creating a new column to group by so we can give the same vaccination rates to areas surrounding Joplin and KC
+          v = case_when(
+            county %in% c(29095, 29047, 29165, 29037, 29991) ~ 29993,
+            county %in% c(29097, 29145, 29992) ~ 29994,
+            TRUE ~ county
           )
+      )%>%
+      group_by(v)%>%
+      mutate(
+          pct_fully_vacc = sum(cnt_fully_vacc, na.rm=T)/sum(pop, na.rm=T)*100
+          )%>%
+      select(-v)
   # VaccImm$location[which(VaccImm$location=="New York State")] <<- "New York"
   
   data_cur <- data %>%
@@ -296,7 +297,7 @@ for (asc_bias in asc_bias_list) {
   }
 }
 
-# Risk layer: includes Joplin and KC
+# Risk and Vaccination layer: includes Joplin and KC
 risk_data = county %>%
   left_join(plyr::join_all(risk_data, by=c("fips", "state")), by=c("GEOID" = "fips")) %>%
   left_join(VaccImm, by=c("GEOID" = "county")) %>% st_drop_geometry() %>%
@@ -304,14 +305,5 @@ risk_data = county %>%
       imOp = case_when(pct_fully_vacc < 50 ~ 0.0, pct_fully_vacc > 50 ~ 0.7)) %>% # binary filter
   mutate(updated = ymd(gsub("-", "", Sys.Date())))
 
-# Vaccination layer: does not include Joplin and KC
-risk_dataV = countyVacc %>%
-    left_join(plyr::join_all(risk_data, by=c("fips", "state")), by=c("GEOID" = "fips")) %>%
-    left_join(VaccImm, by=c("GEOID" = "county")) %>% st_drop_geometry() %>%
-    mutate(
-        imOp = case_when(pct_fully_vacc < 50 ~ 0.0, pct_fully_vacc > 50 ~ 0.7)) %>% # binary filter
-    mutate(updated = ymd(gsub("-", "", Sys.Date())))
-
 
 write.csv(risk_data, "www/usa_risk_counties.csv", quote=F, row.names=F)
-write.csv(risk_dataV, "www/usa_risk_countiesV.csv", quote=F, row.names=F)
