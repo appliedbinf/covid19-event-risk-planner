@@ -13,7 +13,7 @@ US 2019 population estimate data comes from the US Census: https://www.census.go
 
 **Vaccination data**
 
-County-level vaccination coverage is collated by the Bansal lab at https://www.vaccinetracking.us/. We linearly interpolate between weekly values and merge county data to account for geographic exceptions in Alaska (Hoonah-Angoon plus Yakutat; Lake Peninsula plus Bristol Bay) and in New York City (New York, Kings, Queens, Bronx plus Richmond) following the New York Times dataset.
+County-level vaccination coverage is collated by the Bansal lab at https://www.vaccinetracking.us/. We linearly interpolate between weekly values and merge county data to account for geographic exceptions in Alaska (Hoonah-Angoon plus Yakutat; Lake Peninsula plus Bristol Bay) and in New York City (New York, Kings, Queens, Bronx plus Richmond) following the New York Times dataset. Vaccination levels are computed jointly for the City of Joplin, Jasper County, and Newton County, Missouri and for Kansas City, Jackson County, Clay County, Cass County, and Platte County, Missouri.
 
 Merritt, Alexes; Tiu, Andrew; Bansal, Shweta, 2021, "Integrated US COVID-19 Vaccination Data", https://doi.org/10.7910/DVN/BFRIKI, Harvard Dataverse, V1.
 
