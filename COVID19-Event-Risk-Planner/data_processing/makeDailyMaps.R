@@ -12,7 +12,9 @@ library(matlab)
 library(RCurl)
 library(rtweet)
 library(sf)
+library(tidyr)
 library(withr)
+library(vroom)
 library(glue)
 
 get_token()
@@ -23,20 +25,124 @@ print(current_time)
 
 getData <- function() {
     dataurl <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
-  data <- read.csv(dataurl, stringsAsFactors = FALSE) %>% mutate(date = as_date(date))
+  data <- vroom(dataurl)
   county <<- st_read("map_data/geomUnitedStates.geojson")
   stateline <<- st_read("map_data/US_stateLines.geojson")[,c('STUSPS','NAME')]
   names(stateline) <- c('stname','name')
-  pop <- read.csv("map_data/county-population.csv", stringsAsFactors = FALSE)
+  pop <- vroom("map_data/county_population.csv")
+  
   cur_date <- ymd(gsub("-", "", Sys.Date())) - 1
   past_date <- ymd(cur_date) - 14
-  vacc_data <- read.csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/us_state_vaccinations.csv",stringsAsFactors = FALSE)
-  VaccImm <<- vacc_data[which(vacc_data$date==past_date),] %>% select(location,pct_partially_vacc = people_vaccinated_per_hundred,pct_fully_vacc = people_fully_vaccinated_per_hundred)
-  VaccImm$location[which(VaccImm$location=="New York State")] <<- "New York"
+  # vaccine
+  nyc <- c(36005, 36047, 36061, 36085, 36081)
+  vacc_data <- vroom("https://raw.githubusercontent.com/bansallab/vaccinetracking/main/vacc_data/data_county_timeseries.csv")
+  vacc_data <- vacc_data%>%
+      # filter(CASE_TYPE %in% c("Complete","Partial"))%>%
+      filter(CASE_TYPE %in% c("Complete"))%>%
+      pivot_wider(
+          names_from = CASE_TYPE,
+          values_from = CASES
+      )%>%
+      select(
+          county = COUNTY,
+          cnt_fully_vacc = Complete,
+          # cnt_partially_vacc = Partial, # removing partials
+          date = DATE
+      )%>%
+      mutate(
+          
+          date = as_date(date),
+          county = case_when(
+              as.numeric(county) %in% c(2164, 2060) ~ 2997,
+              as.numeric(county) %in% c(2282, 2105) ~ 2998,
+              as.numeric(county) %in% nyc ~ 99999,
+              TRUE ~ as.numeric(county)
+          )
+      )%>%
+      group_by(
+          date, county
+      )%>%
+      summarise(
+          cnt_fully_vacc = sum(cnt_fully_vacc),
+          # cnt_partially_vacc = sum(cnt_partially_vacc)
+      )%>%
+      ungroup()
+  
+  ex_dates <- c(
+      vacc_data$date%>%
+          sort()%>%
+          first(),
+      vacc_data$date%>%
+          sort()%>%
+          last()
+  )
+  
+  all_dates <- ex_dates[1]+0:as.numeric(ex_dates[2]-ex_dates[1])
+  all_county <- c(vacc_data$county, c(29991, 29992))%>% # add Joplin and KC
+      unique()
+  
+  add_dates <- purrr::map_df(all_county,function(x){
+      tibble(
+          county = x,
+          date = all_dates
+      )
+  })
+  
+  vacc_data_fill <- vacc_data%>%
+      mutate(
+          last_date = date
+      )%>%
+      full_join(
+          add_dates
+      )%>%
+      group_by(county)%>%
+      arrange(date)%>%
+      mutate(
+          cnt_fully_vacc = zoo::na.approx(cnt_fully_vacc, na.rm=F),
+          # cnt_partially_vacc = na.approx(cnt_partially_vacc, na.rm=F),
+          # the 'is_last' variable is telling us that it could not interpolate cnt_fully_vacc because the date is after the last value in the bansal data set.
+            # Therefore, when is_last == T, we can display the "last date" in the mouseover UI
+          is_last = case_when(
+              is.na(cnt_fully_vacc)==T ~ TRUE,
+              TRUE ~ FALSE
+          )
+      )%>%
+      fill(
+          cnt_fully_vacc,
+          # cnt_partially_vacc,
+          last_date
+      )%>%
+      ungroup()
+  
+  VaccImm <<- vacc_data_fill%>%
+      filter(date==past_date)%>%
+      inner_join(pop, by = c("county"="fips"))%>%
+      select(
+          -date,
+          # location,
+          # pct_partially_vacc = people_vaccinated_per_hundred,
+          # pct_fully_vacc = people_fully_vaccinated_per_hundred
+          )%>%
+      mutate( # Creating a new column to group by so we can give the same vaccination rates to areas surrounding Joplin and KC
+          v = case_when(
+            county %in% c(29095, 29047, 29165, 29037, 29991) ~ 29993,
+            county %in% c(29097, 29145, 29992) ~ 29994,
+            TRUE ~ county
+          )
+      )%>%
+      group_by(v)%>%
+      mutate(
+          pct_fully_vacc = sum(cnt_fully_vacc, na.rm=T)/sum(pop, na.rm=T)*100
+          )%>%
+      select(-v)
+  # VaccImm$location[which(VaccImm$location=="New York State")] <<- "New York"
+  
   data_cur <- data %>%
     filter(date == cur_date) %>%
     mutate(fips = case_when(
       county == "New York City" ~ 99999,
+      county == "Kansas City" ~ 29991,
+      county == "Joplin" ~ 29992,
       TRUE ~ as.numeric(fips)
     )) %>%
     select(c(state, fips, cases, deaths))
@@ -44,6 +150,8 @@ getData <- function() {
     filter(date == past_date) %>%
     mutate(fips = case_when(
       county == "New York City" ~ 99999,
+      county == "Kansas City" ~ 29991,
+      county == "Joplin" ~ 29992,
       TRUE ~ as.numeric(fips)
     )) %>%
     select(fips = fips, cases_past = cases)
@@ -189,9 +297,13 @@ for (asc_bias in asc_bias_list) {
   }
 }
 
+# Risk and Vaccination layer: includes Joplin and KC
 risk_data = county %>%
   left_join(plyr::join_all(risk_data, by=c("fips", "state")), by=c("GEOID" = "fips")) %>%
-  left_join(VaccImm, by=c("state" = "location")) %>% st_drop_geometry() %>%
-  mutate(imOp = case_when(pct_fully_vacc < 50 ~ 0.0, pct_fully_vacc > 50 ~ pct_fully_vacc/100)) %>%
+  left_join(VaccImm, by=c("GEOID" = "county")) %>% st_drop_geometry() %>%
+  mutate(
+      imOp = case_when(pct_fully_vacc < 50 ~ 0.0, pct_fully_vacc > 50 ~ 0.7)) %>% # binary filter
   mutate(updated = ymd(gsub("-", "", Sys.Date())))
+
+
 write.csv(risk_data, "www/usa_risk_counties.csv", quote=F, row.names=F)
