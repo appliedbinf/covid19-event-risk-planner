@@ -34,10 +34,11 @@ Italian Department of Civil Protection COVID-19 Data: https://github.com/pcm-dpc
 
 Italian maps: http://datainterfaces.org/projects/covid19eventi/
 
-### Switzerland
+### Switzerland and Liechtenstein
 #### Released: October 5, 2020
 
-Specialist Unit for Open Government Data Canton of Zurich COVID-19 data: https://github.com/openZH/covid_19
+(from October 5, 2020 - December XX, 2021) Specialist Unit for Open Government Data Canton of Zurich COVID-19 data: https://github.com/openZH/covid_19
+(from December XX, 2021):  Federal Office of Public Health FOPH: https://www.covid19.admin.ch/en/overview
 
 ### Austria 
 #### Released: October 19, 2020
@@ -73,3 +74,8 @@ COVID-19 data from the Statens Serum Institut (SSI):
 ### Sweden
 #### Released: November 22, 2020
 Swedish COVID-19 National Statistics from Folkhälsomyndigheten: https://experience.arcgis.com/experience/09f821667ce64bf7be6f9f87457ed9aa/page/page_0/
+
+
+### Albania, Andorra, Belarus, Belgium, Bosnia and Herzegovina, Bulgaria, Croatia, Cyprus, Estonia, Finland, Germany, Greece, Hungary, Iceland, Israel, Latvia, Lithuania, Luxembourg, Malta, Moldova, Monaco, Montenegro, Netherlands, Norway, Poland, Portugal, Northern Macedonia, Romania, San Marino, Serbia, Slovakia, Slovenia, Turkey, Ukraine; and Gibraltar, Guernsey, Jersey, Isle of Man, Faroe Islands, Greenland
+#### Released: December XX, 2021
+We use data aggregated from local health resources in the WHO European Region COVID19 Subnational Explorer: https://experience.arcgis.com/experience/3a056fc8839d47969ef59949e9984a71
