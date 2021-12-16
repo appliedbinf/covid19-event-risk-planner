@@ -5,7 +5,7 @@ This site provides interactive context to assess the risk that one or more indiv
 
 ### Contributors:  
 #### Conceptual Development
-- [Joshua Weitz](http://ecotheory.biology.gatech.edu/) (Georgia Institute of Technology, Biological Sciences, GT-BIOS)
+- [Joshua Weitz](https://weitzgroup.biosci.gatech.edu/) (Georgia Institute of Technology, Biological Sciences, GT-BIOS)
 
 #### Website and Dashboard Development
 - [Aroon T. Chande](https://aroonchan.de) (GT-BIOS and Applied Bioinformatics Laboratory)
@@ -13,7 +13,7 @@ This site provides interactive context to assess the risk that one or more indiv
 - [Walker Gussler](https://scholar.google.com/citations?user=-LBmdhYAAAAJ&hl=en)
 - [Mallory Harris](https://twitter.com/malar0ne)  (Stanford Biology)
 - [Stephen Beckett](http://sjbeckett.github.io/) (GT-BIOS)
-- [Quan Nguyen](https://ecotheory.biosci.gatech.edu/)  (GT-BIOS)
+- [Quan Nguyen](https://weitzgroup.biosci.gatech.edu/)  (GT-BIOS)
 - [Seohla Lee](https://seolhalee.github.io/)  (Friendly Cities Lab at GT)
 - [Clio M. Andris](http://friendlycities.gatech.edu/)  (Friendly Cities Lab at GT)  
 - [I. King Jordan](http://jordan.biology.gatech.edu/page/) (GT-BIOS)
@@ -21,6 +21,7 @@ This site provides interactive context to assess the risk that one or more indiv
 ### Risk Expansion Development
 - [Emily Norris](https://scholar.google.com/citations?user=eLDyoJEAAAAJ&hl=en&oi=ao) (Applied Bioinformatics Laboratory)
 - [Freyja A. Brandel-Tanis](https://freyjabt.me/)  (Friendly Cities Lab at GT)
+- [Audra Davidson](https://www.audradavidson.com/) (GT-BIOS)
 - [Allie Sinclair](https://alyssasinclair.com/) (Duke University)
 - [Morgan Taylor](https://www.marshmemorylab.com/) (Duke University)
 - [R. Alison Adcock](https://www.adcocklab.org/) (Duke University)
