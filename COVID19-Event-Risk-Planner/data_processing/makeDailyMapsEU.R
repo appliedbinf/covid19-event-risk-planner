@@ -4,12 +4,12 @@
 # Maps by Seolha Lee (seolha.lee@gatehc.edu)
 # Aroon Chande <mail@aroonchande.com> <achande@ihrc.com>
 #####################################################################
-source("libraries.R")
+source("../libraries.R")
 
-get_token()
-
-args <- commandArgs(trailingOnly = TRUE)
-current_time <- args[1]
+# get_token()
+# 
+# args <- commandArgs(trailingOnly = TRUE)
+# current_time <- args[1]
 
 dataQueryUK <- function(date) {
   dataURL <- paste0("https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=utla;date=", date, '&structure={"date":"date","code":"areaCode","cases":"cumCasesBySpecimenDate"}')
@@ -99,7 +99,7 @@ swiss_geom <<- st_read("map_data/geomSwitzerlandLiechtenstein.geojson")
 	datastructure = fromJSON("https://www.covid19.admin.ch/api/data/context")
 #2. find URL for case data by region and read in
 	chURL = datastructure$sources$individual$csv$daily$cases
-	CHdata = read.csv(chURL)
+	CHdata = vroom::vroom(chURL)
 #3. only need regional data, not that for whole country (CH) or whole dataset (CHFL)
 	CHdata = CHdata[-c(which(CHdata$geoRegion=="CH"),which(CHdata$geoRegion=="CHFL")),]
 	code = unique(CHdata$geoRegion)
@@ -152,7 +152,7 @@ maplabsSwiss <- function(riskData) {
 }
 
 dataQueryItaly <- function(date) {
-  data <- read.csv(text = getURL(paste0("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-", str_replace_all(as.character(date), "-", ""), ".csv")), stringsAsFactors = FALSE) %>%
+  data <- read.csv(paste0("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-", str_replace_all(as.character(date), "-", ""), ".csv"), stringsAsFactors = FALSE) %>%
     select(date = data, region = denominazione_regione, province = denominazione_provincia, code = codice_provincia, cases = totale_casi)
   return(data)
 }
@@ -348,13 +348,12 @@ maplabsSpain <- function(riskData) {
 getDataCzech <- function(){
   czech_geom <<- st_read('map_data/distictsCzechiaLow.json') 
   czech_geom <- czech_geom %>% select(name, geometry) %>% mutate(name = as.character(name))
-  czech_pop <- read.csv('map_data/czech_pop.csv',stringsAsFactors = F) %>%
+  czech_pop <- vroom::vroom('map_data/czech_pop.csv') %>%
    select(code = Code, name = District, pop = Population)
    
-  czechData <- read.csv('https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/kraj-okres-nakazeni-vyleceni-umrti.csv')
+  czechData <- vroom::vroom('https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/kraj-okres-nakazeni-vyleceni-umrti.csv')
   
   names(czechData) <- c('id','Date','Code','District','Confirmed','Cure','Death')
-  czechData$Date <- as.Date(czechData$Date)
   czechData = czechData %>% 
     group_by(District) %>% 
     slice(c(n()-14, n())) %>% 
@@ -400,7 +399,7 @@ getDataSweden <- function() {
     arrange(desc(date))
 
   sweden_geom <<- st_read("map_data/sweden-counties.geojson")
-  sweden_pop <<- read.csv("map_data/sweden_pop.csv", stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+  sweden_pop <<-vroom::vroom("map_data/sweden_pop.csv")
 
   data_cur <- swedenData %>%
     group_by(County) %>%
@@ -563,7 +562,7 @@ maplabsIreland <- function(riskData) {
 
 getDataEU<-function() {
   #Data aggregated from local health resources in the WHO European Region COVID19 Subnational Explorer https://experience.arcgis.com/experience/3a056fc8839d47969ef59949e9984a71
-  EUWHO = read.csv("https://arcgis.com/sharing/rest/content/items/54d73d4fd4d94a0c8a9651bc4cd59be0/data")
+  EUWHO = vroom::vroom("https://arcgis.com/sharing/rest/content/items/54d73d4fd4d94a0c8a9651bc4cd59be0/data")
   EUWHO$code = EUWHO$UID
   EUWHO$cases = EUWHO$CumulativePositive
   EUWHO$cases_past = EUWHO$CumulativePositive - EUWHO$Positive14day
@@ -581,21 +580,23 @@ getDataEU<-function() {
   CountriesUnsure = c("Turkmenistan","Tajikistan","Uzbekistan","Kazakhstan","Kyrgyzstan","Russian Fed.","Azerbaijan","Georgia")
   CountriesRemove = c(CountriesCovered,CountriesUnsure)
   RM_REGIONS = c()
-  for(aa in 1:length(CountriesRemove)){
-	INDXs = which(EUWHO$CountryName==CountriesCovered[aa])
-	if(CountriesCovered[aa]=="United Kingdom"){ #keep UK crown dependencies.
+  for(country in CountriesRemove){
+	INDXs = which(EUWHO$CountryName==country)
+	if(country=="United Kingdom"){ #keep UK crown dependencies.
 			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Isle of Man")]
 			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Guernsey")]
 			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Jersey")]
 			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Gibraltar")]
 	}
-	if(CountriesCovered[aa]=="Denmark"){ #keep Faroe Islands, Greenland
-			INDXs = INDXs[-which(EuroMap$Region[INDXs]=="Faroe")]
-			INDXs = INDXs[-which(EuroMap$Region[INDXs]=="Greenland")]
+	if(country=="Denmark"){ #keep Faroe Islands, Greenland
+			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Faroe")]
+			INDXs = INDXs[-which(EUWHO$Region[INDXs]=="Greenland")]
 	}
 	RM_REGIONS = c(RM_REGIONS, INDXs)
   }
-  EUWHO = EUWHO[-RM_REGIONS,]	 
+  EUWHO = EUWHO[-RM_REGIONS,]
+  
+  # EU_geom 
 
   EU_data_join <<- subset(EUWHO,select=c("code","cases","date","pop","cases_past","date_past","n","name"))
 
@@ -714,7 +715,7 @@ for (asc_bias in asc_bias_list) {
     EU_riskdt <- EU_data_Nr %>%
       mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
 
-    EU_riskdt_map <- EU_geom %>% left_join(EU_riskdt, by = c("UID" = "code"))
+    EU_riskdt_map <- EU_geom %>% right_join(EU_riskdt, by = c("UID" = "code"))
 
 
 
@@ -727,6 +728,14 @@ for (asc_bias in asc_bias_list) {
         fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
         opacity = 1.0
       ) %>%
+    addPolygons(
+        data = EU_riskdt_map,
+        color = "#444444", weight = 0.2, smoothFactor = 0.1,
+        opacity = 1.0, fillOpacity = 0.7,
+        fillColor = ~ EU_pal(risk),
+        highlight = highlightOptions(weight = 1),
+        label = maplabsEU(EU_riskdt_map)
+        ) %>%
       addPolygons(
         data = swiss_riskdt_map,
         color = "#444444", weight = 0.2, smoothFactor = 0.1,
@@ -806,15 +815,7 @@ for (asc_bias in asc_bias_list) {
         fillColor = ~ austria_pal(risk),
         highlight = highlightOptions(weight = 1),
         label = maplabsIreland(ireland_riskdt_map)
-      ) %>%
-	  addPolygons(
-        data = EU_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ EU_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsEU(EU_riskdt_map)
-      ) %>%
+      )  %>%
       addEasyButton(easyButton(
         icon = "fa-crosshairs fa-lg", title = "Locate Me",
         onClick = JS("function(btn, map){ map.locate({setView: true, maxZoom: 7});}")

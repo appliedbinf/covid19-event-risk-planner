@@ -4,7 +4,7 @@
 # Maps by Seolha Lee (seolha.lee@gatehc.edu)
 # Aroon Chande <mail@aroonchande.com> <achande@ihrc.com>
 #####################################################################
-source("libraries.R")
+source("../libraries.R")
 
 
 
@@ -14,14 +14,14 @@ args <- commandArgs(trailingOnly = TRUE)
 current_time <- args[1]
 
 getDataSwiss <- function() {
-  dataurl <- getURL("https://raw.githubusercontent.com/openZH/covid_19/master/COVID19_Fallzahlen_CH_total_v2.csv") # date, abbreviation_canton_and_fl, ncumul_conf
-  data <- read.csv(text = dataurl, stringsAsFactors = FALSE) %>%
-    mutate(date = as_date(date)) %>%
+  dataurl <- "https://raw.githubusercontent.com/openZH/covid_19/master/COVID19_Fallzahlen_CH_total_v2.csv" # date, abbreviation_canton_and_fl, ncumul_conf
+  data <- vroom::vroom(dataurl) %>%
+    # mutate(date = as_date(date)) %>%
     arrange(desc(date)) %>%
     filter(!is.na(ncumul_conf)) %>%
     select(date = date, code = abbreviation_canton_and_fl, cases = ncumul_conf)
   geom <<- st_read("https://gist.githubusercontent.com/mbostock/4207744/raw/3232c7558742bab53227e242a437f64ae4c58d9e/readme-swiss.json")
-  pop <- read.csv("map_data/swiss_canton_pop.csv", stringsAsFactors = FALSE)
+  pop <- read.csv("../map_data/swiss_canton_pop.csv", stringsAsFactors = FALSE)
 
   cur_date <- ymd(gsub("-", "", Sys.Date())) - 1
   past_date <- ymd(cur_date) - 14

@@ -52,7 +52,7 @@ getDataUK <- function() {
 
   geom <<- st_read("https://opendata.arcgis.com/datasets/b216b4c8a4e74f6fb692a1785255d777_0.geojson", stringsAsFactors = FALSE) %>%
     rename(code = ctyua19cd, name = ctyua19nm)
-  pop <- read.csv("map_data/uk_pop.csv", stringsAsFactors = FALSE) %>% select(-c("name"))
+  pop <- read.csv("../map_data/uk_pop.csv", stringsAsFactors = FALSE) %>% select(-c("name"))
 
   data_join <<- data_cur %>%
     inner_join(data_past, by = "code", suffix = c("", "_past")) %>%
