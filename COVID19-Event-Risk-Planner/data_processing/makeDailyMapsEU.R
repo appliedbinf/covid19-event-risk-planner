@@ -94,6 +94,7 @@ maplabsUK <- function(riskData) {
 getDataSwiss <- function() {
 #geom
 swiss_geom <<- st_read("../map_data/geomSwitzerlandLiechtenstein.geojson")
+
 #Federal Office of Public Health FOPH https://www.covid19.admin.ch/en/overview
 #1. import API to find code for most recent file version (date and code change for new data)
 	datastructure = fromJSON("https://www.covid19.admin.ch/api/data/context")
@@ -574,6 +575,7 @@ getDataEU<-function() {
 
   EU_geom <<- st_read("../map_data/geomEurope.geojson") #https://www.arcgis.com/home/item.html?id=494604e767074ce1946d86aa4d8a3b5a
 
+
   #Countries which we have higher resolution maps
   CountriesCovered = c("Italy","Switzerland","Ireland","United Kingdom","Austria","France","Czech Republic","Spain","Denmark","Sweden","Liechtenstein")
   #not sure about ascertainment bias
@@ -599,6 +601,7 @@ getDataEU<-function() {
   # EU_geom 
 
   EU_data_join <<- subset(EUWHO,select=c("code","CountryName", "cases","date","pop","cases_past","date_past","n","name"))
+
 
   EU_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
   EU_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
@@ -742,7 +745,6 @@ for (asc_bias in asc_bias_list) {
     
     risk_data[[cn]] = riskdt
     
-  
   }
 }
 geoms = sf::read_sf('../map_data/eu_risk_geoms.geojson')
