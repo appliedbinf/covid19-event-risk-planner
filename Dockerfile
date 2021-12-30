@@ -32,7 +32,7 @@ RUN install2.r -n 4 withr ggrepel matlab lubridate \
     devtools ggthemes ggpubr leaflet.extras \
     RCurl rtweet tidyverse vroom RMySQL remotes
 
-run R -e "remotes::install_github('ar0ch/sever', 'ar0ch/shinypanels', 'dreamRs/shinyWidgets', 'andrewsali/shinycssloaders')"
+run R -e "remotes::install_github(c('ar0ch/sever', 'ar0ch/shinypanels', 'dreamRs/shinyWidgets', 'andrewsali/shinycssloaders'))"
 
 COPY bin/phantomjs /usr/bin/
 COPY Rprofile.site /usr/lib/R/etc/
@@ -41,7 +41,11 @@ COPY .rtweet_token.rds /root/.rtweet_token.rds
 
 COPY docker_github /root/.ssh/id_rsa
 COPY docker_github.pub /root/.ssh/id_rsa.pub
-RUN ssh-keyscan -H github.com >> /root/.ssh/known_hosts \
+RUN apt-get update -q \
+  && apt-get -yqq install ssh \
+  && apt-get clean \
+  && ssh-keyscan -H github.com >> /root/.ssh/known_hosts \
+  && chmod 0600 /root/.ssh/id_rsa /root/.ssh/id_rsa.pub \
   && git config --global user.email "c19r@atc.io" \
   && git config --global user.name "c19r-bot" \
   && git clone git@github.com:appliedbinf/covid19-event-risk-planner.git /root/repo

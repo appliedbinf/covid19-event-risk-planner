@@ -51,7 +51,7 @@ getDataUK <- function() {
 
   uk_geom <<- st_read("https://opendata.arcgis.com/datasets/b216b4c8a4e74f6fb692a1785255d777_0.geojson", stringsAsFactors = FALSE) %>%
     rename(code = ctyua19cd, name = ctyua19nm)
-  pop <- read.csv("map_data/uk_pop.csv", stringsAsFactors = FALSE) %>% select(-c("name"))
+  pop <- read.csv("../map_data/uk_pop.csv", stringsAsFactors = FALSE) %>% select(-c("name"))
 
   uk_data_join <<- data_cur %>%
     inner_join(data_past, by = "code", suffix = c("", "_past")) %>%
@@ -93,7 +93,7 @@ maplabsUK <- function(riskData) {
 
 getDataSwiss <- function() {
 #geom
-swiss_geom <<- st_read("map_data/geomSwitzerlandLiechtenstein.geojson")
+swiss_geom <<- st_read("../map_data/geomSwitzerlandLiechtenstein.geojson")
 #Federal Office of Public Health FOPH https://www.covid19.admin.ch/en/overview
 #1. import API to find code for most recent file version (date and code change for new data)
 	datastructure = fromJSON("https://www.covid19.admin.ch/api/data/context")
@@ -172,8 +172,8 @@ getDataItaly <- function() {
     group_by(code) %>%
     dplyr::summarise(date = first(date), cases = first(cases), region = first(region), province = first(province), n = n())
 
-  italy_geom <<- st_read("map_data/italy_simpler.geojson")
-  pop <- read.csv("map_data/italy_pop.csv", stringsAsFactors = FALSE)
+  italy_geom <<- st_read("../map_data/italy_simpler.geojson")
+  pop <- read.csv("../map_data/italy_pop.csv", stringsAsFactors = FALSE)
 
   italy_data_join <<- data_cur %>%
     inner_join(data_past, by = "code", suffix = c("", "_past")) %>%
@@ -208,8 +208,8 @@ getDataFrance <- function() {
         select(code = dep, date = jour, cases = P) %>%
         mutate(date = as.Date(date)) %>% 
         arrange(desc(date)) %>% filter(!is.na(cases)) 
-    france_geom <<- st_read('map_data/france.geojson')
-    pop <- read.csv("map_data/france_pop.csv", stringsAsFactors = FALSE) %>% select(code = Code, name = Department, pop = Population)
+    france_geom <<- st_read('../map_data/france.geojson')
+    pop <- read.csv("../map_data/france_pop.csv", stringsAsFactors = FALSE) %>% select(code = Code, name = Department, pop = Population)
     
     cur_date <- ymd(gsub("-", "", Sys.Date()))-1 
     past_date <- ymd(cur_date) - 14
@@ -295,11 +295,11 @@ maplabsAustria <- function(riskData) {
 }
 
 getDataSpain <- function(){
-  spain_geom <<- st_read('map_data/spain-provinces.geojson')
+  spain_geom <<- st_read('../map_data/spain-provinces.geojson')
   #Main COVID-19 hub page: https://cnecovid.isciii.es/covid19/#distribuci%C3%B3n-geogr%C3%A1fica
   SPAIN<- read.csv("https://cnecovid.isciii.es/covid19/resources/casos_tecnica_provincia.csv", na.strings=FALSE) 
   #code link file
-  SPAINcode = read.csv("map_data/spain_codenames.csv",encoding="UTF-8",na.strings=FALSE)
+  SPAINcode = read.csv("../map_data/spain_codenames.csv",encoding="UTF-8",na.strings=FALSE)
   #Population data comes from  Instituto Nacional de Estadística: https://www.ine.es/jaxiT3/Datos.htm?t=2852#!tabs-tabla
   
   DataJoin = c()
@@ -346,9 +346,9 @@ maplabsSpain <- function(riskData) {
 }
 
 getDataCzech <- function(){
-  czech_geom <<- st_read('map_data/distictsCzechiaLow.json') 
+  czech_geom <<- st_read('../map_data/distictsCzechiaLow.json') 
   czech_geom <- czech_geom %>% select(name, geometry) %>% mutate(name = as.character(name))
-  czech_pop <- vroom::vroom('map_data/czech_pop.csv') %>%
+  czech_pop <- vroom::vroom('../map_data/czech_pop.csv') %>%
    select(code = Code, name = District, pop = Population)
    
   czechData <- vroom::vroom('https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/kraj-okres-nakazeni-vyleceni-umrti.csv')
@@ -398,8 +398,8 @@ getDataSweden <- function() {
     select(-Totalt_antal_fall) %>%
     arrange(desc(date))
 
-  sweden_geom <<- st_read("map_data/sweden-counties.geojson")
-  sweden_pop <<-vroom::vroom("map_data/sweden_pop.csv")
+  sweden_geom <<- st_read("../map_data/sweden-counties.geojson")
+  sweden_pop <<-vroom::vroom("../map_data/sweden_pop.csv")
 
   data_cur <- swedenData %>%
     group_by(County) %>%
@@ -437,7 +437,7 @@ maplabsSweden <- function(riskData) {
 
 
 getDataDenmark <- function(){
-  geomDanish <- st_read('map_data/denmark-municipalities.geojson')
+  geomDanish <- st_read('../map_data/denmark-municipalities.geojson')
   
   geomDanish$name <- as.character(gsub(" Kommune","",geomDanish$name))
   
@@ -485,7 +485,7 @@ getDataDenmark <- function(){
     dataTable <- rbind(dataTable,vec)
   }
   dataTable <- dataTable %>% mutate(Municipality = as.character(Municipality), Date = as.Date(Date))
-  DanishPop <- as.data.frame(read.csv('map_data/denmark_pop.csv', encoding="UTF-8", stringsAsFactors = F)) ## get from Statistics Denmark: https://www.statbank.dk/statbank5a/SelectVarVal/saveselections.asp
+  DanishPop <- as.data.frame(read.csv('../map_data/denmark_pop.csv', encoding="UTF-8", stringsAsFactors = F)) ## get from Statistics Denmark: https://www.statbank.dk/statbank5a/SelectVarVal/saveselections.asp
   names(DanishPop) <- c("Municipality",'Population')
   
   # make the population column as numeric
@@ -519,7 +519,7 @@ maplabsDenmark <- function(riskData) {
 
 getDataIreland <- function() {
     
-    ireland_geom <<- st_read('map_data/Ireland_Counties.geojson')
+    ireland_geom <<- st_read('../map_data/Ireland_Counties.geojson')
 
     #Main COVID-19 hub page: https://covid-19.geohive.ie/datasets/d9be85b30d7748b5b7c09450b8aede63_0
     data <- read.csv("https://opendata.arcgis.com/datasets/d9be85b30d7748b5b7c09450b8aede63_0.csv") %>%
@@ -572,7 +572,7 @@ getDataEU<-function() {
   EUWHO$n = 14
   EUWHO$name = EUWHO$Region
 
-  EU_geom <<- st_read("map_data/geomEurope.geojson") #https://www.arcgis.com/home/item.html?id=494604e767074ce1946d86aa4d8a3b5a
+  EU_geom <<- st_read("../map_data/geomEurope.geojson") #https://www.arcgis.com/home/item.html?id=494604e767074ce1946d86aa4d8a3b5a
 
   #Countries which we have higher resolution maps
   CountriesCovered = c("Italy","Switzerland","Ireland","United Kingdom","Austria","France","Czech Republic","Spain","Denmark","Sweden","Liechtenstein")
@@ -598,7 +598,7 @@ getDataEU<-function() {
   
   # EU_geom 
 
-  EU_data_join <<- subset(EUWHO,select=c("code","cases","date","pop","cases_past","date_past","n","name"))
+  EU_data_join <<- subset(EUWHO,select=c("code","CountryName", "cases","date","pop","cases_past","date_past","n","name"))
 
   EU_pal <<- colorBin("YlOrRd", bins = c(0, 1, 25, 50, 75, 99, 100))
   EU_legendlabs <<- c("< 1", " 1-25", "25-50", "50-75", "75-99", "> 99", "No or missing data")
@@ -628,8 +628,8 @@ calc_risk <- function(I, g, pop) {
 }
 ######## Create and save daily map widgets ########
 event_size = c(10, 15, 20, 25, 50, 100, 500, 1000, 5000)
-asc_bias_list <<- c(3, 5)
-europe <<- st_read('map_data/european-selected-countries.geojson') 
+asc_bias_list <<- c(2, 3, 5)
+europe <<- st_read('../map_data/european-selected-countries.geojson') 
 getDataUK()
 getDataSwiss()
 getDataItaly()
@@ -642,7 +642,25 @@ getDataDenmark()
 getDataIreland()
 getDataEU()
 
+combined_labels <- function(riskData) {
+    riskData <- riskData %>%
+        mutate(risk = case_when(
+            risk == 100 ~ "> 99",
+            risk == 0 ~ "< 1",
+            is.na(risk) ~ "No data",
+            TRUE ~ as.character(risk)
+        ))
+    labels <- paste0(
+        "<strong>", paste0(riskData$name, ", ", riskData$country), "</strong><br/>",
+        "Current Risk Level: <b>", riskData$risk, ifelse(riskData$risk == "No data", "", "&#37;"), "</b><br/>",
+        "Latest Update: ", substr(riskData$date, 1, 10)
+    ) %>% lapply(htmltools::HTML)
+    return(labels)
+}
+
+
 scale_factor = 10/14
+risk_data = list()
 
 for (asc_bias in asc_bias_list) {
 
@@ -660,176 +678,97 @@ for (asc_bias in asc_bias_list) {
   EU_data_Nr <- EU_data_join %>% mutate(Nr = (cases - cases_past) * asc_bias * scale_factor)
 
   for (size in event_size){
+      
+    cn = glue::glue("{asc_bias}_{size}")
     uk_riskdt <- uk_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-
-    uk_riskdt_map <- uk_geom %>% left_join(uk_riskdt, by = c("code"))
-
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code, risk)
 
     italy_riskdt <- italy_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-
-    italy_riskdt_map <- italy_geom %>% left_join(italy_riskdt, by = c("prov_istat_code_num" = "code"))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code, risk)
 
 
     swiss_riskdt <- swiss_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-
-    swiss_riskdt_map <- swiss_geom %>% left_join(swiss_riskdt, by = c("id" = "code"))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code, risk)
 
     france_riskdt <- france_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-
-    france_riskdt_map <- france_geom %>% left_join(france_riskdt, by = c("code"))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code, risk)
 
     austria_riskdt <- austria_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-
-    austria_riskdt_map <- austria_geom %>% left_join(austria_riskdt, by = c("iso" = "code"))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code, risk)
     
     spain_riskdt <- spain_data_Nr %>% 
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-    
-    spain_riskdt_map <- spain_geom %>% left_join(spain_riskdt, by = "name") 
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code=ProvinceName, risk)
     
     czech_riskdt <- czech_data_Nr %>% 
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select("code"=name, risk)
     
-    czech_riskdt_map <- czech_geom %>% left_join(czech_riskdt, by = "name")
-
     sweden_riskdt <- sweden_data_Nr %>% 
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, Population)), 0))
-    
-    sweden_riskdt_map <- sweden_geom %>% left_join(sweden_riskdt, by = c("name" = "County")) 
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, Population)), 0)) %>%
+        select("code"=County, risk) 
 
     denmark_riskdt <- denmark_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-    
-    denmark_riskdt_map <- denmark_geom %>% left_join(denmark_riskdt, by = "name")
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select("code"=name, risk)
 
     ireland_riskdt <- ireland_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
-    
-    ireland_riskdt_map <- ireland_geom %>% left_join(ireland_riskdt, by = c("id" = "CountyName")) 
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select("code"=CountyName, risk)
 
     EU_riskdt <- EU_data_Nr %>%
-      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0))
+      mutate(risk = if_else(Nr > 10, round(calc_risk(Nr, size, pop)), 0)) %>%
+        select(code, risk)
 
-    EU_riskdt_map <- EU_geom %>% right_join(EU_riskdt, by = c("UID" = "code"))
-
-
-
-    map <- leaflet() %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
-      setView(lat = 48.6, lng = 7.17, zoom = 4) %>%
-      # fitBounds(7.5, 47.5, 9, 46) %>%
-      addPolygons(
-        data = europe, 
-        fill = FALSE, color = "#943b29", weight = 2.5, smoothFactor = 0.5,
-        opacity = 1.0
-      ) %>%
-    addPolygons(
-        data = EU_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ EU_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsEU(EU_riskdt_map)
-        ) %>%
-      addPolygons(
-        data = swiss_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ swiss_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsSwiss(swiss_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = uk_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ uk_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsUK(uk_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = italy_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ italy_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsItaly(italy_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = france_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ france_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsFrance(france_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = austria_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ austria_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsAustria(austria_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = spain_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ austria_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsSpain(spain_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = czech_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ austria_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsCzech(czech_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = sweden_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ austria_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsSweden(sweden_riskdt_map)
-      ) %>%
-      addPolygons(
-        data = denmark_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ austria_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsDenmark(denmark_riskdt_map)
-      )  %>%
-      addPolygons(
-        data = ireland_riskdt_map,
-        color = "#444444", weight = 0.2, smoothFactor = 0.1,
-        opacity = 1.0, fillOpacity = 0.7,
-        fillColor = ~ austria_pal(risk),
-        highlight = highlightOptions(weight = 1),
-        label = maplabsIreland(ireland_riskdt_map)
-      )  %>%
-      addEasyButton(easyButton(
-        icon = "fa-crosshairs fa-lg", title = "Locate Me",
-        onClick = JS("function(btn, map){ map.locate({setView: true, maxZoom: 7});}")
-      )) %>%
-      addLegend(
-        data = uk_riskdt_map,
-        position = "topright", pal = uk_pal, values = ~risk,
-        title = "Risk Level (%)",
-        opacity = 0.7,
-        labFormat = function(type, cuts, p) {
-          paste0(uk_legendlabs)
-        }
-      )
-    map$dependencies[[1]]$src[1] <- "/srv/shiny-server/map_data/"
-    mapshot(map, url = file.path(getwd(), "www", paste0("eu_", asc_bias, "_", size, ".html")))
+    riskdt = rbind(
+        uk_riskdt,
+        italy_riskdt,
+        swiss_riskdt,
+        france_riskdt,
+        austria_riskdt,
+        spain_riskdt,
+        czech_riskdt,
+        sweden_riskdt,
+        denmark_riskdt,
+        ireland_riskdt,
+        EU_riskdt
+    )
+    names(riskdt)[2] <- cn
+    
+    risk_data[[cn]] = riskdt
+    
+  
   }
 }
+geoms = sf::read_sf('../map_data/eu_risk_geoms.geojson')
+
+rm(uk_riskdt,
+   italy_riskdt,
+   swiss_riskdt,
+   france_riskdt,
+   austria_riskdt,
+   spain_riskdt,
+   czech_riskdt,
+   sweden_riskdt,
+   denmark_riskdt,
+   ireland_riskdt,
+   EU_riskdt)
+
+risk_data2 = do.call(cbind.data.frame, risk_data)
+names(risk_data2)[1] <- "code" 
+
+risk_data2 = risk_data2 %>% select(-ends_with(".code")) 
+
+colnames(risk_data2) = gsub("\\..*", "", colnames(risk_data2))
+
+risk_data2 = geoms %>%
+    inner_join(risk_data2, by="code") %>%
+    st_drop_geometry() %>%
+    mutate(updated = ymd(gsub("-", "", Sys.Date())))
+write.csv(risk_data2, 'eu_subregional_risk.csv')
+
